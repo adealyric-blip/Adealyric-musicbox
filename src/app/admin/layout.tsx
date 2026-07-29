@@ -18,10 +18,13 @@ export default function AdminGateLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!checked) return;
+    if (pathname === '/admin/login') return;
     if (!isAuthenticated || !isAdmin) {
-      router.push('/login');
+      router.push('/admin/login');
     }
   }, [checked, isAuthenticated, isAdmin, router, pathname]);
+
+  if (pathname === '/admin/login') return <>{children}</>;
 
   if (!checked || !isAuthenticated || !isAdmin) {
     return (
