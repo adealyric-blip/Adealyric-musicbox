@@ -111,7 +111,7 @@ const FOOTER_LINKS = [
   { heading: "MusicBox", external: true, links: [
     { label: "For Labels", href: `${MUSICBOX_URL}/labels` },
     { label: "For Artists", href: `${MUSICBOX_URL}/artists` },
-    { label: "For Sync Agents", href: `${MUSICBOX_URL}/sync` },
+    { label: "For Sync Agents", href: `${MUSICBOX_URL}/sync-agents` },
   ] },
 ];
 
