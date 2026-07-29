@@ -1,8 +1,51 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError('All fields are required.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong.');
+        return;
+      }
+      router.push('/login');
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col md:flex-row">
       {/* Left — Dark panel */}
@@ -28,21 +71,49 @@ export default function SignupPage() {
             <br />
             <span className="italic text-ink/50">to continue.</span>
           </h2>
-          <form className="mt-10 space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
             <div>
               <label className="text-eyebrow text-ink/40">Full Name</label>
-              <input type="text" className="mt-2 w-full border-b border-ink/20 bg-transparent px-0 py-3 text-lg text-ink placeholder:text-ink/30 focus:border-ink focus:outline-none" placeholder="Your name" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-2 w-full border-b border-ink/20 bg-transparent px-0 py-3 text-lg text-ink placeholder:text-ink/30 focus:border-ink focus:outline-none"
+                placeholder="Your name"
+                required
+              />
             </div>
             <div>
               <label className="text-eyebrow text-ink/40">Email</label>
-              <input type="email" className="mt-2 w-full border-b border-ink/20 bg-transparent px-0 py-3 text-lg text-ink placeholder:text-ink/30 focus:border-ink focus:outline-none" placeholder="you@somewhere.com" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-2 w-full border-b border-ink/20 bg-transparent px-0 py-3 text-lg text-ink placeholder:text-ink/30 focus:border-ink focus:outline-none"
+                placeholder="you@somewhere.com"
+                required
+              />
             </div>
             <div>
               <label className="text-eyebrow text-ink/40">Password</label>
-              <input type="password" className="mt-2 w-full border-b border-ink/20 bg-transparent px-0 py-3 text-lg text-ink placeholder:text-ink/30 focus:border-ink focus:outline-none" placeholder="Create a password" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-2 w-full border-b border-ink/20 bg-transparent px-0 py-3 text-lg text-ink placeholder:text-ink/30 focus:border-ink focus:outline-none"
+                placeholder="Create a password"
+                required
+              />
             </div>
-            <button type="submit" className="mt-4 w-full border border-ink bg-ink py-4 text-eyebrow text-bone transition-all hover:bg-ink/80 cursor-pointer">
-              Create Account
+            {error && (
+              <p className="text-sm text-red-500">{error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-4 w-full border border-ink bg-ink py-4 text-eyebrow text-bone transition-all hover:bg-ink/80 disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
           <p className="mt-8 text-center text-sm text-ink/40">

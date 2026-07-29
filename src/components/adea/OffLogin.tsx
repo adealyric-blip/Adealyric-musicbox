@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAppStore } from "@/lib/store";
 import { PageShell } from "./SiteChrome";
 
@@ -86,11 +88,12 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login, setActiveTab, isAuthenticated, isAdmin } = useAppStore();
+  const router = useRouter();
+  const { login, isAuthenticated, isAdmin } = useAppStore();
 
   useEffect(() => {
-    if (isAuthenticated && isAdmin) setActiveTab("admin");
-  }, [isAuthenticated, isAdmin, setActiveTab]);
+    if (isAuthenticated && isAdmin) router.push('/admin');
+  }, [isAuthenticated, isAdmin, router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,14 +103,16 @@ export function LoginPage() {
       const success = login(username, password);
       setLoading(false);
       if (success) {
-        setActiveTab("admin");
+        router.push('/admin');
       } else {
         setError("Invalid credentials. Please try again.");
       }
     }, 500);
   };
 
-  if (isAuthenticated && isAdmin) return null;
+  if (isAuthenticated && isAdmin) {
+    return null;
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col md:flex-row">
@@ -184,12 +189,12 @@ export function LoginPage() {
           </form>
 
           <div className="mt-10 border-t border-ink/10 pt-6">
-            <button
-              onClick={() => setActiveTab("off")}
+            <Link
+              href="/"
               className="text-sm text-ink/40 transition-colors hover:text-ink cursor-pointer"
             >
-              ← Back to Off Page
-            </button>
+              ← Back to Home
+            </Link>
           </div>
         </div>
       </div>
