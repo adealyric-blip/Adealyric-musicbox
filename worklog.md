@@ -142,3 +142,187 @@ Stage Summary:
 - Login page shows proper admin form (not the OffPage teaser)
 - No broken images or videos on landing page
 - MusicBox deployment is a separate concern (separate domain, separate Vercel project)
+
+---
+Task ID: 4-c
+Agent: explore
+Task: Find all musicbox routing references and related code audit
+
+Work Log:
+- Searched ALL .ts/.tsx in src/ for 'musicbox' (case insensitive) — 8 matches in 3 files
+- Searched ALL .ts/.tsx in src/ for 'adealyric.com' (case insensitive) — 2 matches in 1 file
+- Searched ALL .ts/.tsx in src/ for 'gateway' (case insensitive) — 1 match in 1 file
+- Read src/lib/react-router-stub.tsx — full content captured
+- Read src/app/page.tsx — full content captured
+- Listed all files in src/app/api/ — 60 API route files found
+- Read package.json — captured all dependencies
+- Searched src/components/adea/ for motion/animation/footer patterns — CSS animations found, NO framer-motion imports
+- Searched entire src/ for framer-motion or motion imports — ZERO usage anywhere in codebase (despite being installed in package.json)
+- Searched for @musicbox/ package references — 2 files still import from monorepo packages
+
+Stage Summary:
+
+**1. 'musicbox' references (8 matches, 3 files):**
+- `src/lib/permissions/rbac.ts:1` — `import { prisma } from '@musicbox/database/client'` (BROKEN: monorepo package, no longer exists)
+- `src/hooks/package-hooks.ts:2,8` — `import { useSession } from '@musicbox/auth'` (BROKEN: monorepo package, no longer exists)
+- `src/components/adea/SiteChrome.tsx:109,155,158,161,164` — Footer column titled "MusicBox" with links to musicbox.com/labels, musicbox.com/artists, musicbox.com/sync (COSMETIC: external links in site footer)
+
+**2. 'adealyric.com' references (2 matches, 1 file):**
+- `src/components/adea/Booking.tsx:84` — `booking@adealyric.com` (contact email)
+- `src/components/adea/Booking.tsx:85` — `press@adealyric.com` (contact email)
+
+**3. 'gateway' references (1 match, 1 file):**
+- `src/app/SpaClient.tsx:1088` — Table text: "Gateway content to convert free followers to paid" (legacy SpaClient, not active)
+
+**4. react-router-stub.tsx:** Provides Link (re-export of next/link), useParams (empty stub), useNavigate (wraps useRouter.push), Navigate (redirect on mount). Used by legacy dashboard/portal pages not currently routed.
+
+**5. page.tsx:** Clean Adea entry — EntryGate splash → SiteHeader + Landing + SiteFooter. Uses useAppStore for entered state.
+
+**6. API routes (60 files):** All MusicBox SaaS API routes exist in src/app/api/ (fans, rights, bookings, shop, distribution, royalties, events, messages, auth, catalog, sync, marketplace, cms, validation). None are used by the Adea website front-end.
+
+**7. package.json:** 80+ dependencies. Notable: framer-motion ^12.23.2 is installed but NEVER imported anywhere in src/. All @radix-ui/* components, zustand, recharts, next-auth, prisma are present. No @musicbox/* packages installed.
+
+**8. Footer/animation in adea components:** SiteFooter (SiteChrome.tsx:125-191) uses CSS-only animations (`footer-marquee-track` class for scrolling platform marquee). No framer-motion or JS animation libraries used in any adea component. EntryGate uses CSS `animation` property (shatter effect, flicker, reveal-mask). Landing uses CSS animation delays.
+
+**9. framer-motion:** Installed in package.json v12.23.2 but has ZERO imports across the entire src/ tree. Completely unused dead dependency.
+
+**10. Broken @musicbox/ imports (2 files):**
+- `src/lib/permissions/rbac.ts` → `@musicbox/database/client` (non-existent package)
+- `src/hooks/package-hooks.ts` → `@musicbox/auth` (non-existent package)
+These will cause build errors if any component imports from these modules.
+
+Return: Comprehensive audit complete. Key findings: (1) Two files have broken @musicbox/ monorepo imports that need replacement, (2) MusicBox footer links in SiteChrome are purely cosmetic external links, (3) 60 MusicBox API routes exist but are unused by Adea, (4) framer-motion is an unused dependency, (5) No routing conflicts between Adea and MusicBox — Adea cleanly owns the / route with no MusicBox code paths active.
+
+---
+Task ID: 4-b
+Agent: explore
+Task: Find all dashboard and portal pages
+
+Work Log:
+- Read worklog.md (tasks 1, 2, 3, 4-c) for context
+- Searched src/components/ for *dashboard* — 2 files found
+- Searched src/components/ for *Dashboard* — 2 files found (DashboardPage.tsx, PortalDashboardPage.tsx)
+- Searched src/components/ for *portal* — 0 matches
+- Searched src/components/ for *Portal* — 16 files found
+- Searched src/components/ for *admin* — 0 matches
+- Searched src/components/ for *Admin* — 4 files found
+- Searched src/components/ for *sync* — 1 file found (SyncPortalShell.tsx)
+- Searched src/components/ for *Sync* — 1 file found (SyncPortalShell.tsx)
+- Searched for FanPortal references — 0 results (no FanPortal component exists)
+- Searched for SyncPortal references — 1 result (SyncPortalShell.tsx)
+- Searched for OffPage/OffLogin in src/components/adea/ — OffLogin.tsx found (contains both OffPage and LoginPage exports)
+- Confirmed OffPage is an EXPORT from OffLogin.tsx (co-located), not a separate file
+- Listed all files in dashboard/, portal/, layout/ directories
+- Listed all App Router pages — NO /portal, /admin, or /sync routes exist (only Adea artist routes)
+- Read full content of: SiteChrome.tsx, AdminPortal.tsx, UserPortal.tsx, PortalApp.tsx, OffLogin.tsx, login/page.tsx, SyncPortalShell.tsx, DashboardPage.tsx, PortalDashboardPage.tsx
+
+Stage Summary:
+
+**1. Dashboard Files (under src/components/):**
+- src/components/dashboard/AdminPortal.tsx (main admin SPA entry)
+- src/components/dashboard/pages/DashboardPage.tsx
+- src/components/dashboard/layout/AdminLayout.tsx
+- src/components/dashboard/layout/PageHeader.tsx
+- src/components/dashboard/ui/Card.tsx, Badge.tsx, Button.tsx, Drawer.tsx, Form.tsx, Modal.tsx, States.tsx, Toast.tsx, AudioPlayer.tsx
+- src/components/dashboard/pages/catalog/ReleasesPage.tsx, ReleaseDetailPage.tsx, TracksPage.tsx
+- src/components/dashboard/pages/bookings/BookingsPipelinePage.tsx, BookingsCalendarPage.tsx, InquiriesPage.tsx, BookingDetailPage.tsx
+- src/components/dashboard/pages/commerce/OrdersPage.tsx
+- src/components/dashboard/pages/crm/ContactsPage.tsx, ContactDetailPage.tsx, CsvImportPage.tsx
+- src/components/dashboard/pages/comms/CampaignsPage.tsx
+- src/components/dashboard/pages/cms/GalleriesPage.tsx, VideosPage.tsx, BannersPage.tsx
+- src/components/dashboard/pages/tickets/TicketEventsPage.tsx, TicketSalesPage.tsx
+- src/components/dashboard/pages/fans/FansPage.tsx
+- src/components/dashboard/pages/IntegrationsPage.tsx, AutomationPage.tsx, ExportsPage.tsx, SettingsPage.tsx
+- src/components/portal/pages/PortalDashboardPage.tsx (fan portal dashboard)
+
+**2. Portal Files (under src/components/):**
+- src/components/portal/PortalApp.tsx (user/fan portal shell with sidebar nav)
+- src/components/portal/UserPortal.tsx (wrapper around PortalApp)
+- src/components/portal/pages/PortalHomePage.tsx
+- src/components/portal/pages/PortalMusicPage.tsx
+- src/components/portal/pages/PortalEventsPage.tsx
+- src/components/portal/pages/PortalEventDetailPage.tsx
+- src/components/portal/pages/PortalReleaseDetailPage.tsx
+- src/components/portal/pages/PortalGalleryPage.tsx
+- src/components/portal/pages/PortalVideosPage.tsx
+- src/components/portal/pages/PortalDashboardPage.tsx
+- src/components/portal/pages/PortalLoginPage.tsx
+- src/components/portal/pages/PortalSignupPage.tsx
+- src/components/layout/PortalShell.tsx
+- src/components/layout/SyncPortalShell.tsx
+- src/components/layout/ProPortalShell.tsx
+- src/components/layout/WriterPortalShell.tsx
+- src/components/layout/AdeaPortalShell.tsx
+
+**3. Admin Files (under src/components/):**
+- src/components/dashboard/AdminPortal.tsx
+- src/components/dashboard/layout/AdminLayout.tsx
+- src/components/layout/AdminLayout.tsx
+- src/components/layout/AdeaAdminLayout.tsx
+
+**4. Sync Files (under src/components/):**
+- src/components/layout/SyncPortalShell.tsx
+
+**5. No FanPortal Component Exists:**
+- Grep for "FanPortal" returned zero results across all of src/components/
+- The "Fan" dashboard is handled by PortalDashboardPage.tsx (under portal/pages/)
+
+**6. Component Details:**
+
+**SiteChrome.tsx** (src/components/adea/SiteChrome.tsx):
+- Exports: SiteHeader, SiteFooter, PlatformIcon, PageShell, PageIntro
+- SiteHeader: Fixed nav with 7 links (Home, Discography, Tour, Shop, Bio, News, Services), Log In, Sign Up, Cart, mobile hamburger menu. Transparent on home, dark bg on interior pages.
+- SiteFooter: 5-column grid (Music, Shop, Connect, Account, MusicBox), platform marquee (4x repeat of 8 platforms: Spotify, Apple Music, TikTok, Instagram, Amazon Music, YouTube, Tidal, Pandora), copyright line.
+- PageShell: Wraps content in SiteHeader + main + SiteFooter on dark bg.
+
+**AdminPortal.tsx** (src/components/dashboard/AdminPortal.tsx):
+- Client component, uses useAppStore for auth state (isAuthenticated, isAdmin, adminRoute)
+- Returns null if not authenticated/admin
+- Wraps content in AdminLayout with RouteContent switch on 21+ routes
+- Routes: /, /catalog/releases, /catalog/tracks, /commerce/orders, /cms/*, /tickets/*, /bookings/*, /crm/*, /fans, /comms/campaigns, /integrations, /automation, /exports, /settings
+- Includes ToastContainer
+
+**UserPortal.tsx** (src/components/portal/UserPortal.tsx):
+- Simple wrapper that renders PortalApp unconditionally (stub data, no auth gate)
+- Comment: "Portal is accessible without auth in our setup"
+
+**PortalApp.tsx** (src/components/portal/PortalApp.tsx):
+- Dark theme portal shell (neutral-950 bg)
+- Header: "My Artist" branding, desktop nav (Home, Music, Events, Gallery, Videos), auth buttons (Sign In/Sign Up or Dashboard/Sign Out)
+- Uses supabase auth for sign in/out state
+- Footer: "© 2026 My Artist" + "Admin Portal" link to /admin
+- Routes under /portal/*: /portal, /portal/music, /portal/events, /portal/gallery, /portal/videos, /portal/dashboard, /portal/login, /portal/signup
+
+**SyncPortalShell.tsx** (src/components/layout/SyncPortalShell.tsx):
+- Light theme shell (neutral-50 bg, white sidebar)
+- Sidebar nav sections: Sync Portal (Overview, Advanced Search, License Requests, My Licenses), Deals & Clearance (Deals, Clearance Tracker), Distribution (Pipeline), Revenue (Revenue & Royalty), Communication (Messages)
+- Role system: Sync Agent, Music Supervisor, Publisher with color-coded badges
+- Topbar with search input and notification bell
+- Uses @/lib/router (not react-router-stub)
+- Routes under /sync/*
+
+**OffLogin.tsx** (src/components/adea/OffLogin.tsx) — TWO exports:
+- OffPage: Two-column (dark left "West Philly in every note" headline + white right email capture "off-the-record access"). Uses PageShell. Email capture for inner circle.
+- LoginPage: Two-column (dark left "Behind the sound" admin editorial + white right login form). Uses useAppStore login(). Redirects to admin tab on success. Has "Back to Off Page" link.
+
+**login/page.tsx** (src/app/login/page.tsx):
+- Simply imports and renders LoginPage from OffLogin.tsx
+- Metadata: "Login — Adea Lyric"
+
+**7. App Router Status:**
+- Active routes (10): /, /music, /events, /shop, /bio, /news, /services, /booking, /login, /signup
+- MISSING routes: /portal/*, /admin/*, /sync/* — NONE of the dashboard/portal components are wired to App Router pages
+- All dashboard/portal components use internal state-based routing (useAppStore activeTab or react-router-stub), NOT Next.js file-based routing
+
+**8. Layout Shells Inventory (src/components/layout/):**
+- AdminLayout.tsx — general admin layout
+- AdeaAdminLayout.tsx — Adea-specific admin layout
+- AdeaPageHeader.tsx — Adea page header
+- PageHeader.tsx — general page header
+- PortalShell.tsx — general portal shell
+- AdeaPortalShell.tsx — Adea-specific portal shell
+- ProPortalShell.tsx — pro portal shell
+- SyncPortalShell.tsx — sync licensing portal shell
+- WriterPortalShell.tsx — writer portal shell
+
+Return: Complete inventory of all dashboard (32 files), portal (16 files), admin (4 files), and sync (1 file) components. No FanPortal component exists — fan experience handled by UserPortal + PortalApp. Key architectural finding: ALL dashboard/portal/sync components are client-side SPA components using internal routing (zustand store or react-router-stub). NONE are wired to Next.js App Router pages. To activate them, App Router pages would need to be created at /admin/*, /portal/*, /sync/* that render these components.
