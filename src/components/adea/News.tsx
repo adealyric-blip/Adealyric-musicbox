@@ -2,27 +2,27 @@
 
 import { SiteHeader, SiteFooter, PageIntro } from "./SiteChrome";
 
-const NEWS_HERO = "/News-Gallery/Hero/studio.jpg";
+const NEWS_HERO = "/news-gallery/hero/hero.jpg";
 
 const GALLERY_IMAGES = [
-  "/News-Gallery/Gallery/Adea lyric Posepg.jpg",
-  "/News-Gallery/Gallery/Charger Pose.jpg",
-  "/News-Gallery/Gallery/Gallery 14.png",
-  "/News-Gallery/Gallery/Gallery photo 1.JPG",
-  "/News-Gallery/Gallery/Stage Performancepng.png",
-  "/News-Gallery/Gallery/club photojpg.jpg",
-  "/News-Gallery/Gallery/galapng.png",
-  "/News-Gallery/Gallery/gallery 13.png",
-  "/News-Gallery/Gallery/gallery 15.png",
-  "/News-Gallery/Gallery/gallery 4.jpg",
-  "/News-Gallery/Gallery/gallery 7.jpg",
-  "/News-Gallery/Gallery/gallery 8.jpg",
-  "/News-Gallery/Gallery/gallery 9.jpg",
-  "/News-Gallery/Gallery/gallery11.jpg",
-  "/News-Gallery/Gallery/gallery12.jpg",
-  "/News-Gallery/Gallery/in car.jpg",
-  "/News-Gallery/Gallery/paris restaraunt 6_29AM.png",
-  "/News-Gallery/Gallery/wall pose.png",
+  "/news-gallery/gallery/adea-lyric-pose.jpg",
+  "/news-gallery/gallery/charger-pose.jpg",
+  "/news-gallery/gallery/gallery-14.png",
+  "/news-gallery/gallery/gallery-photo-1.jpg",
+  "/news-gallery/gallery/stage-performance.png",
+  "/news-gallery/gallery/club-photo.jpg",
+  "/news-gallery/gallery/gala.png",
+  "/news-gallery/gallery/gallery-13.png",
+  "/news-gallery/gallery/gallery-15.png",
+  "/news-gallery/gallery/gallery-4.jpg",
+  "/news-gallery/gallery/gallery-7.jpg",
+  "/news-gallery/gallery/gallery-8.jpg",
+  "/news-gallery/gallery/gallery-9.jpg",
+  "/news-gallery/gallery/gallery-11.jpg",
+  "/news-gallery/gallery/gallery-12.jpg",
+  "/news-gallery/gallery/in-car.jpg",
+  "/news-gallery/gallery/paris-restaurant.png",
+  "/news-gallery/gallery/wall-pose.jpg",
 ];
 
 export function NewsPage() {
