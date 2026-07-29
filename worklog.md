@@ -326,3 +326,22 @@ Stage Summary:
 - WriterPortalShell.tsx — writer portal shell
 
 Return: Complete inventory of all dashboard (32 files), portal (16 files), admin (4 files), and sync (1 file) components. No FanPortal component exists — fan experience handled by UserPortal + PortalApp. Key architectural finding: ALL dashboard/portal/sync components are client-side SPA components using internal routing (zustand store or react-router-stub). NONE are wired to Next.js App Router pages. To activate them, App Router pages would need to be created at /admin/*, /portal/*, /sync/* that render these components.
+---
+Task ID: 5
+Agent: main
+Task: Fix broken login, signup, and admin routing
+
+Work Log:
+- Diagnosed root cause: All auth pages used SPA-pattern `setActiveTab()` from zustand store instead of Next.js `router.push()` navigation
+- Fixed `src/app/page.tsx`: EntryGate LOGIN button now navigates to `/login` (was just calling `setEntered(true)` same as ENTER)
+- Fixed `src/components/adea/OffLogin.tsx` LoginPage: Replaced `setActiveTab("admin")` with `router.push('/admin')`, replaced `setActiveTab("off")` with `<Link href="/">Back to Home</Link>`, removed `router.push()` from render-phase guard (was causing setState-during-render error)
+- Rewrote `src/app/signup/page.tsx`: Form now collects name/email/password, validates, calls `/api/auth/signup` API, shows errors, redirects to `/login` on success (was `e.preventDefault()` only — did nothing)
+- Created `src/app/admin/page.tsx`: New `/admin` route with auth guard, renders AdminLayout with placeholder dashboard stats (AdminPortal component had runtime errors from legacy supabase calls)
+- Created `src/app/api/auth/signup/route.ts`: Creates User record in SQLite via Prisma, validates inputs, handles duplicate emails
+- Added missing exports to `src/lib/dashboard/format.ts`: `centsToInput()`, `inputToCents()`, `timeAgo()` (dashboard pages imported these but they didn't exist, causing compile errors)
+
+Stage Summary:
+- All 3 broken flows now work: Login → /admin redirect, Signup → account creation → /login redirect, EntryGate LOGIN → /login
+- Admin dashboard renders with full sidebar navigation (simplified placeholder stats until data layer is built)
+- All 11 routes return HTTP 200: /, /music, /events, /shop, /bio, /news, /services, /booking, /login, /signup, /admin
+- Browser-verified: login with admin/adminphilly → redirects to /admin with working sidebar, signup creates user → redirects to /login, EntryGate LOGIN button → /login page
