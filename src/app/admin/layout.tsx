@@ -2,31 +2,36 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAppStore } from '@/lib/store';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminGateLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isAdmin } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
-  const [checked, setChecked] = useState(false);
+  const [session, setSession] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Give Zustand a tick to hydrate from any persisted state
-    const timer = setTimeout(() => setChecked(true), 0);
-    return () => clearTimeout(timer);
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(!!s);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(!!s);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!checked) return;
+    if (session === null) return; // still checking
     if (pathname === '/admin/login') return;
-    if (!isAuthenticated || !isAdmin) {
+    if (!session) {
       router.push('/admin/login');
     }
-  }, [checked, isAuthenticated, isAdmin, router, pathname]);
+  }, [session, router, pathname]);
 
   if (pathname === '/admin/login') return <>{children}</>;
 
-  if (!checked || !isAuthenticated || !isAdmin) {
+  if (session === null || !session) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex items-center gap-3 text-neutral-400">
