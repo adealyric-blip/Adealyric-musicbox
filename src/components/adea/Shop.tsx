@@ -181,7 +181,7 @@ function CategorySidebar({
           )}
         </button>
         {hasChildren && isOpen && (
-          <div>{node.children.map((child: CategoryNode) => renderNode(child, depth + 1))}</div>
+          <div>{(node.children ?? []).map((child: CategoryNode) => renderNode(child, depth + 1))}</div>
         )}
       </div>
     );
