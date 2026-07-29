@@ -108,10 +108,13 @@ export function DiscographyPage() {
                       <div className="flex items-center gap-4 md:gap-8">
                         <span className="text-eyebrow text-black">{r.year}</span>
                         <span className="hidden text-eyebrow text-black md:inline">{r.runtime}</span>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setActiveTab("shop"); }}
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => { e.stopPropagation(); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); } }}
                           className="hidden md:inline-flex items-center gap-2 text-eyebrow text-black hover:text-black transition-colors cursor-pointer"
-                        >Buy ↗</button>
+                        >Buy ↗</span>
                         <span className={`grid h-12 w-12 place-items-center border border-black/10 transition-all duration-500 ${isActive ? "rotate-45 border-black bg-black text-white" : "text-black"}`}>
                           <ArrowIcon />
                         </span>
