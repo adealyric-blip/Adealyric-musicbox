@@ -2,10 +2,10 @@
 
 import { SiteHeader, SiteFooter, PageIntro } from "./SiteChrome";
 
-const SERVICES_HERO = "/News-Gallery/Hero/studio.jpg";
+const SERVICES_HERO = "/news-gallery/hero/hero.jpg";
 
-const VOCAL_COACHING_IMAGE = "/News-Gallery/Gallery/studio.jpg";
-const SONGWRITING_IMAGE = "/News-Gallery/Gallery/Stage Performancepng.png";
+const VOCAL_COACHING_IMAGE = "/news-gallery/hero/hero.jpg";
+const SONGWRITING_IMAGE = "/news-gallery/gallery/stage-performance.png";
 
 export function ServicesPage() {
   return (

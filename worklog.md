@@ -109,3 +109,36 @@ Stage Summary:
 - All Adea components rendering: SiteHeader nav, Landing sections, SiteFooter with platform marquee
 - Dashboard/portal components exist but are not yet routed (stub modules prevent build failures)
 - Dev server stable via daemon wrapper at /home/z/start-next.sh
+---
+Task ID: 3
+Agent: main
+Task: Fix broken interior routes, images, login page, and public asset paths
+
+Work Log:
+- Renamed all public/ directories to web-safe format (lowercase, hyphens, no spaces)
+- Renamed all public/ files to web-safe format (17 gallery images, 6 timeline videos, hero images, logos)
+- Fixed code references in 8 files: catalog.ts, Landing.tsx, EntryGate.tsx, SiteChrome.tsx, News.tsx, Services.tsx, MusicDiscography.tsx, BioAccount.tsx
+- Created Next.js App Router pages for all interior routes:
+  - /music → DiscographyPage (with SiteHeader/SiteFooter)
+  - /events → Tour dates from catalog data
+  - /shop → ShopPage
+  - /bio → BioPage
+  - /news → NewsPage
+  - /services → ServicesPage
+  - /booking → BookingPage
+  - /login → LoginPage (proper admin login form, not OffPage)
+  - /signup → Signup form with Link to /login
+- Fixed 2017 video: file was named "Timeline 2017.mp4" (with space) but code referenced "Timeline2017.mp4" (no space) → renamed to timeline-2017.mp4
+- Verified all 9 routes return HTTP 200
+- Verified splash gate background image loads (was 404 before)
+- Verified all timeline videos load (2017-2026)
+- Verified album cover images load
+- Verified footer logo loads
+- Verified zero JS errors on landing page
+
+Stage Summary:
+- All public assets use web-safe paths (lowercase, hyphens)
+- All 9 routes functional: /, /music, /events, /shop, /bio, /news, /services, /booking, /login, /signup
+- Login page shows proper admin form (not the OffPage teaser)
+- No broken images or videos on landing page
+- MusicBox deployment is a separate concern (separate domain, separate Vercel project)

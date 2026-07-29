@@ -1,8 +1,8 @@
-const fkboiAsset = "/Discography/Album Covers/f-boi.jpg";
-const cantnobodyAsset = "/Discography/Album Covers/cant nobody album cover.jpg";
-const philly1 = "/Discography/Album Covers/After lyric album cover.png";
-const philly2 = "/Discography/Album Covers/After lyric album cover.png";
-const philly3 = "/Discography/Album Covers/After lyric album cover.png";
+const fkboiAsset = "/discography/album-covers/f-boi.png";
+const cantnobodyAsset = "/discography/album-covers/cant-nobody.jpg";
+const philly1 = "/discography/album-covers/after-lyric.png";
+const philly2 = "/discography/album-covers/after-lyric.png";
+const philly3 = "/discography/album-covers/after-lyric.png";
 
 export type ReleaseType = "Album" | "EP" | "Single" | "Mixtape";
 
