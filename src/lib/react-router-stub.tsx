@@ -6,17 +6,20 @@
  */
 'use client';
 
-import { useCallback } from 'react';
-import Link from 'next/link';
+import { forwardRef, useCallback } from 'react';
+import NextLink from 'next/link';
 import { useParams as useNextParams, useRouter } from 'next/navigation';
 
-// Re-export next/link as Link
-export { Link };
+// Link wrapper that maps `to` -> `href` for legacy compatibility
+export const Link = forwardRef<HTMLAnchorElement, React.ComponentProps<typeof NextLink> & { to?: string }>(
+  function StubLink({ to, href, ...rest }, ref) {
+    return <NextLink ref={ref} href={href ?? to ?? ''} {...rest} />;
+  }
+);
+Link.displayName = 'Link';
 
 // useParams: Next.js app router params are async, but we provide a sync stub
 export function useParams(): Record<string, string> {
-  // In Next.js App Router, params are passed as props, not hooks.
-  // This stub returns empty for legacy compatibility.
   return {};
 }
 
