@@ -1,0 +1,2002 @@
+     1→'use client';
+     2→import { useState, useEffect, type ReactNode } from 'react';
+     3→import {
+     4→  Music, LayoutDashboard, Disc3, ShoppingBag, Calendar, Inbox, Users, Mail, Plug, Bot, Download, Settings, Menu, X, Search, Bell, ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ArrowUpRight, ArrowLeft, BarChart3, Building2, PenLine, FileText, DollarSign, MapPin, Ticket, Heart, User, Award, Clock, Star, TrendingUp, Play, Pause, Loader2, Lock, Gift, ShoppingBag as ShoppingBagIcon, Image as ImageIcon, Video as VideoIcon, Send, Sparkles, Handshake, ExternalLink, Radio, Activity, CheckCircle2, Ban, Target, Music2, Crown, MessageSquare, Palette, Eye, Headphones, Users as UsersIcon, Cpu, Shield, Wallet, Plus, Filter, MoreHorizontal, Edit3, Trash2, Upload, FileCheck, AlertTriangle, Globe, Mic, CheckCircle, XCircle, Circle, ChevronUp, Tag, CalendarDays, LayoutGrid, List, Columns3, Move, AlertCircle, Info, Hash, Timer, Zap, Package, Link2, Newspaper, Megaphone, CreditCard, Truck, Layers, Save, Warehouse, ToggleLeft, ToggleRight, ImagePlus, FileUp, GripVertical, Type, Monitor, EyeOff, MoveUp, MoveDown, LayoutTemplate, SwatchBook, Bold, Italic, Underline, AlignLeft, AlignCenter, ListOrdered, Undo2, Redo2, SlidersHorizontal, Paintbrush, Share, Scissors, Shirt, Watch
+     5→} from 'lucide-react';
+     6→import { formatCents, formatDate, formatDateTime, timeAgo } from '@/lib/format';
+     7→import { toast, ToastContainer } from '@/components/ui/Toast';
+     8→import { Button } from '@/components/ui/Button';
+     9→import { Card, StatCard } from '@/components/ui/Card';
+    10→import { Badge, StatusBadge } from '@/components/ui/Badge';
+    11→import { Modal } from '@/components/ui/Modal';
+    12→import { Field, Input, Select, Textarea } from '@/components/ui/Form';
+    13→import { EmptyState, LoadingState, ErrorState } from '@/components/ui/States';
+    14→import { AudioPlayer } from '@/components/ui/AudioPlayer';
+    15→import { PageHeader } from '@/components/layout/PageHeader';
+    16→import { PortalShell } from '@/components/layout/PortalShell';
+    17→import PortalWalletPage from '@/portal/pages/PortalWalletPage';
+    18→import PortalCartPage from '@/portal/pages/PortalCartPage';
+    19→import PortalOrdersPage from '@/portal/pages/PortalOrdersPage';
+    20→import PortalShopPageNew from '@/portal/pages/PortalShopPageNew';
+    21→import PortalProductDetailPage from '@/portal/pages/PortalProductDetailPage';
+    22→import AdminProductCatalogPage from '@/admin-pages/shop/AdminProductCatalogPage';
+    23→import AdminProductEditPage from '@/admin-pages/shop/AdminProductEditPage';
+    24→import AdminAddProductPage from '@/admin-pages/shop/AdminAddProductPage';
+    25→import { ProPortalShell } from '@/components/layout/ProPortalShell';
+    26→import { AdminLayout } from '@/components/layout/AdminLayout';
+    27→import { SyncPortalShell } from '@/components/layout/SyncPortalShell';
+    28→import { WriterPortalShell } from '@/components/layout/WriterPortalShell';
+    29→import { SyncOverviewPage } from '@/sync/pages/SyncOverviewPage';
+    30→import { SyncSearchPage } from '@/sync/pages/SyncSearchPage';
+    31→import { SyncTrackDetailPage } from '@/sync/pages/SyncTrackDetailPage';
+    32→import { SyncLicenseRequestsPage } from '@/sync/pages/SyncLicenseRequestsPage';
+    33→import { SyncMyLicensesPage } from '@/sync/pages/SyncMyLicensesPage';
+    34→import { SyncDealsPage } from '@/sync/pages/SyncDealsPage';
+    35→import { SyncClearancePage } from '@/sync/pages/SyncClearancePage';
+    36→import { SyncDistributionPage } from '@/sync/pages/SyncDistributionPage';
+    37→import { SyncRevenuePage } from '@/sync/pages/SyncRevenuePage';
+    38→import { SyncMessagesPage } from '@/sync/pages/SyncMessagesPage';
+    39→import { AdminDistributionPage } from '@/admin/pages/AdminDistributionPage';
+    40→import { AdminNewReleaseWizard } from '@/admin/pages/AdminNewReleaseWizard';
+    41→import { AdminRightsPage } from '@/admin/pages/AdminRightsPage';
+    42→import { AdminRoyaltyPage } from '@/admin/pages/AdminRoyaltyPage';
+    43→import { AdminSyncPage } from '@/admin/pages/AdminSyncPage';
+    44→import { AdminOversightPage } from '@/admin/pages/AdminOversightPage';
+    45→import { AdminValidationPage } from '@/admin/pages/AdminValidationPage';
+    46→import { AdminAnalyticsPage } from '@/admin/pages/AdminAnalyticsPage';
+    47→import { AdminShopAlbumsPage } from '@/admin/pages/AdminShopAlbumsPage';
+    48→import { AdminShopCollectionsPage } from '@/admin/pages/AdminShopCollectionsPage';
+    49→import { AdminShopAllPage } from '@/admin/pages/AdminShopAllPage';
+    50→import { AdminShopGetTheLookPage } from '@/admin/pages/AdminShopGetTheLookPage';
+    51→import { AdminDashboardPage } from '@/admin/pages/AdminDashboardPage';
+    52→import { AdminCmsBannersPage as AdminCmsBannersPageNew } from '@/admin/pages/AdminCmsBannersPage';
+    53→import SocialMediaPage from '@/admin/pages/SocialMediaPage';
+    54→import { AdminTourCalendarPage as AdminTourCalendarPageExternal } from '@/admin/pages/AdminTourCalendarPage';
+    55→import { AdminTourRecentlyPlayedPage as AdminTourRecentlyPlayedPageExternal } from '@/admin/pages/AdminTourRecentlyPlayedPage';
+    56→import { AdminTourVenuesPage as AdminTourVenuesPageExternal } from '@/admin/pages/AdminTourVenuesPage';
+    57→import { AdminTourBookingsPage as AdminTourBookingsPageExternal } from '@/admin/pages/AdminTourBookingsPage';
+    58→import GatePage from '@/admin-pages/GatePage';
+    59→import { RouterProvider, useRouter, Link } from '@/lib/router';
+    60→import { PortalAuthProvider, usePortalAuth, ProAuthProvider, useProAuth } from '@/lib/auth';
+    61→import * as mockData from '@/lib/mock-data';
+    62→import { useBookings, useBookingInquiries, useOrders, useReleases } from '@/hooks/queries';
+    63→import { usePageTitle } from '@/hooks/use-page-title';
+    64→import LabelOverview from '@/pro/pages/label/LabelOverview';
+    65→import LabelCatalog from '@/pro/pages/label/LabelCatalog';
+    66→import LabelRequests from '@/pro/pages/label/LabelRequests';
+    67→import LabelDeals from '@/pro/pages/label/LabelDeals';
+    68→import LabelCustomWrite from '@/pro/pages/label/LabelCustomWrite';
+    69→import LabelMessages from '@/pro/pages/label/LabelMessages';
+    70→import LabelDocuments from '@/pro/pages/label/LabelDocuments';
+    71→import type { Release, Track, Artist, Booking, BookingInquiry, CrmContact, Order, Fan, TicketEvent, TicketTier, TicketOrder, CmsBanner, CmsGallery, CmsImage, CmsVideo, ShopProduct, TourDate, CatalogSong, CollabCall, PortalRequest, AvailabilityHold, SpendEntry, PortalUser, UserLoyalty, LoyaltyTransaction, EmailCampaign } from '@/types/database';
+    72→
+    73→// ============ FAN PORTAL ROUTER ============
+    74→function PortalApp({ noShell }: { noShell?: boolean }) {
+    75→  const { path } = useRouter();
+    76→  if (noShell || path === '/portal/login' || path === '/portal/signup') return <PortalRouter />;
+    77→  return <PortalShell><PortalRouter /></PortalShell>;
+    78→}
+    79→
+    80→function PortalRouter() {
+    81→  const { path, params } = useRouter();
+    82→  const { user } = usePortalAuth();
+    83→
+    84→  if (path === '/portal' || path === '/portal/') return <PortalHomePage />;
+    85→  if (path === '/portal/login') return <PortalLoginPage />;
+    86→  if (path === '/portal/signup') return <PortalSignupPage />;
+    87→  if (path === '/portal/dashboard') return <PortalDashboardPage />;
+    88→  if (path === '/portal/account') return <PortalLoyaltyPage />;
+    89→  if (path === '/portal/music' || path === '/portal/music/') return <PortalMusicPage />;
+    90→  if (path.startsWith('/portal/music/')) return <PortalReleaseDetailPage />;
+    91→  if (path === '/portal/events' || path === '/portal/events/') return <PortalEventsPage />;
+    92→  if (path.startsWith('/portal/events/')) return <PortalEventDetailPage />;
+    93→  if (path === '/portal/gallery') return <PortalGalleryPage />;
+    94→  if (path === '/portal/videos') return <PortalVideosPage />;
+    95→  if (path === '/portal/shop') return <PortalShopPageNew />;
+    96→  if (path.startsWith('/portal/shop/')) return <PortalProductDetailPage />;
+    97→  if (path === '/portal/wallet') return <PortalWalletPage />;
+    98→  if (path === '/portal/cart') return <PortalCartPage />;
+    99→  if (path === '/portal/orders') return <PortalOrdersPage />;
+   100→  if (path === '/portal/tours') return <PortalToursPage />;
+   101→  if (path === '/portal/membership') return <MembershipPage />;
+   102→  if (path === '/portal/exclusive') return <ExclusivePage />;
+   103→  if (path === '/portal/community') return <CommunityPage />;
+   104→  if (path === '/portal/premium') return <PremiumContentPage />;
+   105→  return <PortalHomePage />;
+   106→}
+   107→
+   108→// ============ FAN PORTAL PAGES (LIGHT THEME) ============
+   109→
+   110→function PortalHomePage() {
+   111→  const [banners] = useState<CmsBanner[]>(mockData.mockBanners);
+   112→  const [events] = useState<TicketEvent[]>(mockData.mockTicketEvents);
+   113→  const [bannerIdx, setBannerIdx] = useState(0);
+   114→  const heroBanners = banners.filter((b) => b.position === 'hero');
+   115→  const promoBanners = banners.filter((b) => b.position === 'promo');
+   116→
+   117→  const EXCLUSIVE_PERKS = [
+   118→    { icon: <Ticket size={20} className="text-emerald-600" />, title: 'Ticket Pre-Sales', desc: 'Get early access to tickets before the general public. Never miss a show.', color: 'bg-emerald-50' },
+   119→    { icon: <ShoppingBag size={20} className="text-purple-600" />, title: 'Exclusive Merch', desc: 'Limited edition drops only available to members. Collect rare items.', color: 'bg-purple-50' },
+   120→    { icon: <Heart size={20} className="text-rose-600" />, title: 'Meet & Greet', desc: 'VIP meet-and-greet opportunities at select events. Get up close.', color: 'bg-rose-50' },
+   121→    { icon: <VideoIcon size={20} className="text-blue-600" />, title: 'Behind the Scenes', desc: 'Studio updates, demo tracks, and rehearsal clips — see the process.', color: 'bg-blue-50' },
+   122→    { icon: <Radio size={20} className="text-amber-600" />, title: 'Live Streams & Q&A', desc: 'Member-only live streams and Q&A sessions with the artist.', color: 'bg-amber-50' },
+   123→    { icon: <UsersIcon size={20} className="text-teal-600" />, title: 'Community Spaces', desc: 'Connect with other fans in exclusive community channels and forums.', color: 'bg-teal-50' },
+   124→  ];
+   125→
+   126→  return (
+   127→    <div>
+   128→      {/* Hero Banner */}
+   129→      {heroBanners.length > 0 ? (
+   130→        <div className="relative h-[60vh] min-h-[400px] overflow-hidden">
+   131→          {heroBanners.map((b, i) => (
+   132→            <div key={b.id} className={`absolute inset-0 transition-opacity duration-700 ${i === bannerIdx ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+   133→              <img src={b.image_url} alt={b.title} className="w-full h-full object-cover" />
+   134→              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+   135→              <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12">
+   136→                <div className="max-w-2xl">
+   137→                  <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">{b.title}</h1>
+   138→                  {b.subtitle && <p className="text-lg text-white/70 mb-4">{b.subtitle}</p>}
+   139→                  {b.cta_text && <Link to={b.cta_link ?? '/portal/events'} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-neutral-900 font-medium hover:bg-white/90 transition-colors">{b.cta_text} <ArrowRight size={16} /></Link>}
+   140→                </div>
+   141→              </div>
+   142→            </div>
+   143→          ))}
+   144→          {heroBanners.length > 1 && (
+   145→            <>
+   146→              <button onClick={() => setBannerIdx((i) => (i - 1 + heroBanners.length) % heroBanners.length)} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-2 rounded-full text-white"><ChevronLeft size={20} /></button>
+   147→              <button onClick={() => setBannerIdx((i) => (i + 1) % heroBanners.length)} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-2 rounded-full text-white"><ChevronRight size={20} /></button>
+   148→              <div className="absolute bottom-4 right-8 flex gap-1.5">{heroBanners.map((_, i) => (<button key={i} onClick={() => setBannerIdx(i)} className={`w-2 h-2 rounded-full transition-colors ${i === bannerIdx ? 'bg-white' : 'bg-white/30'}`} />))}</div>
+   149→            </>
+   150→          )}
+   151→        </div>
+   152→      ) : (
+   153→        <div className="h-[40vh] min-h-[300px] bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center">
+   154→          <div className="text-center">
+   155→            <h1 className="text-3xl sm:text-5xl font-bold text-neutral-900 mb-2">Welcome</h1>
+   156→            <p className="text-neutral-500">Your new home for music, events, and more</p>
+   157→          </div>
+   158→        </div>
+   159→      )}
+   160→
+   161→      {/* Promo Banners */}
+   162→      {promoBanners.length > 0 && (
+   163→        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+   164→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   165→            {promoBanners.map((b) => (
+   166→              <Link key={b.id} to={b.cta_link ?? '/portal/events'} className="relative rounded-xl overflow-hidden group">
+   167→                <img src={b.image_url} alt={b.title} className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300" />
+   168→                <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
+   169→                <div className="absolute bottom-0 left-0 p-4">
+   170→                  <p className="text-sm font-semibold text-white">{b.title}</p>
+   171→                  {b.cta_text && <p className="text-xs text-white/60 mt-0.5">{b.cta_text} →</p>}
+   172→                </div>
+   173→              </Link>
+   174→            ))}
+   175→          </div>
+   176→        </div>
+   177→      )}
+   178→
+   179→      {/* Exclusive Perks & Access Section */}
+   180→      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+   181→        <div className="flex items-center justify-between mb-6">
+   182→          <div>
+   183→            <h2 className="text-2xl font-bold text-neutral-900">Exclusive Perks & Access</h2>
+   184→            <p className="text-sm text-neutral-500 mt-1">What you get as part of the community</p>
+   185→          </div>
+   186→          <Crown size={24} className="text-neutral-300" />
+   187→        </div>
+   188→        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   189→          {EXCLUSIVE_PERKS.map((perk) => (
+   190→            <div key={perk.title} className={`rounded-xl p-5 border border-neutral-200 ${perk.color} transition-colors hover:border-neutral-300`}>
+   191→              <div className="flex items-start gap-4">
+   192→                <div className="flex-shrink-0">{perk.icon}</div>
+   193→                <div className="min-w-0">
+   194→                  <h3 className="text-sm font-semibold text-neutral-900">{perk.title}</h3>
+   195→                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">{perk.desc}</p>
+   196→                </div>
+   197→              </div>
+   198→            </div>
+   199→          ))}
+   200→        </div>
+   201→      </section>
+   202→
+   203→      {/* Membership Tiers Preview */}
+   204→      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+   205→        <div className="flex items-center justify-between mb-6">
+   206→          <div>
+   207→            <h2 className="text-2xl font-bold text-neutral-900">Membership Tiers</h2>
+   208→            <p className="text-sm text-neutral-500 mt-1">More access, more content, more connection — at every level</p>
+   209→          </div>
+   210→          <Link to="/portal/membership" className="text-sm text-neutral-500 hover:text-neutral-900 flex items-center gap-1">View all tiers <ArrowRight size={14} /></Link>
+   211→        </div>
+   212→        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+   213→          {MEMBERSHIP_TIERS.map((tier) => (
+   214→            <Link key={tier.id} to="/portal/membership" className={`rounded-xl overflow-hidden ${tier.popular ? 'border-2 border-neutral-900' : 'border border-neutral-200'} transition-all hover:shadow-md`}>
+   215→              <div className={`${tier.headerBg} px-4 py-3 text-center`}>
+   216→                {tier.popular && <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold mb-1 ${tier.badgeColor}`}>Most Popular</span>}
+   217→                <p className={`text-xl font-bold ${tier.headerBg === 'bg-neutral-900' || tier.headerBg === 'bg-neutral-800' ? 'text-white' : 'text-neutral-900'}`}>
+   218→                  {tier.price}<span className="text-sm font-normal">{tier.period}</span>
+   219→                </p>
+   220→                <p className={`text-xs ${tier.headerBg === 'bg-neutral-900' || tier.headerBg === 'bg-neutral-800' ? 'text-white/40' : 'text-neutral-400'}`}>{tier.name}</p>
+   221→              </div>
+   222→              <div className="bg-white px-4 py-4">
+   223→                <ul className="space-y-1.5">
+   224→                  {tier.features.slice(0, 3).map((f, i) => (
+   225→                    <li key={i} className="flex items-start gap-2 text-xs text-neutral-600">
+   226→                      <CheckCircle2 size={12} className="text-neutral-400 flex-shrink-0 mt-0.5" />
+   227→                      {f}
+   228→                    </li>
+   229→                  ))}
+   230→                  {tier.features.length > 3 && <li className="text-xs text-neutral-400 pl-4">+ {tier.features.length - 3} more features</li>}
+   231→                </ul>
+   232→              </div>
+   233→            </Link>
+   234→          ))}
+   235→        </div>
+   236→      </section>
+   237→
+   238→      {/* Upcoming Events */}
+   239→      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+   240→        <div className="flex items-center justify-between mb-6">
+   241→          <h2 className="text-2xl font-bold text-neutral-900">Upcoming Events</h2>
+   242→          <Link to="/portal/events" className="text-sm text-neutral-500 hover:text-neutral-900 flex items-center gap-1">View all <ArrowRight size={14} /></Link>
+   243→        </div>
+   244→        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   245→          {events.map((e) => (
+   246→            <Link key={e.id} to={`/portal/events/${e.id}`} className="group rounded-xl overflow-hidden bg-white border border-neutral-200 hover:border-neutral-300 transition-colors">
+   247→              <div className="w-full h-44 bg-gradient-to-br from-neutral-100 to-neutral-300 flex items-center justify-center">
+   248→                <Calendar size={32} className="text-neutral-300" />
+   249→              </div>
+   250→              <div className="p-4">
+   251→                <p className="text-xs text-neutral-400 mb-1">{formatDate(e.event_date)}</p>
+   252→                <p className="text-lg font-semibold text-neutral-900 mb-1">{e.title}</p>
+   253→                <p className="text-sm text-neutral-500">{e.venue_name}{e.city ? `, ${e.city}` : ''}</p>
+   254→              </div>
+   255→            </Link>
+   256→          ))}
+   257→        </div>
+   258→      </section>
+   259→    </div>
+   260→  );
+   261→}
+   262→
+   263→function PortalLoginPage() {
+   264→  const [email, setEmail] = useState('');
+   265→  const [password, setPassword] = useState('');
+   266→  const [loading, setLoading] = useState(false);
+   267→  const { signIn } = usePortalAuth();
+   268→  const { navigate } = useRouter();
+   269→  const submit = async () => {
+   270→    if (!email || !password) { toast('error', 'Email and password are required'); return; }
+   271→    setLoading(true);
+   272→    const { error } = await signIn(email, password);
+   273→    setLoading(false);
+   274→    if (error) { toast('error', error); return; }
+   275→    toast('success', 'Welcome back!');
+   276→    navigate('/portal/dashboard');
+   277→  };
+   278→  return (
+   279→    <div className="min-h-screen bg-white font-sans flex flex-col">
+   280→      <div className="flex-1 flex flex-col lg:flex-row">
+   281→        {/* Left: Brand */}
+   282→        <div className="lg:w-1/2 flex flex-col justify-between p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-neutral-50 to-white border-r border-neutral-100">
+   283→          <div>
+   284→            <p className="text-xs tracking-[0.2em] text-neutral-300 uppercase mb-8">Adea Lyric</p>
+   285→            <h1 className="text-4xl sm:text-5xl font-bold leading-tight text-neutral-900 mb-4">Welcome back.</h1>
+   286→            <p className="text-lg text-neutral-500 max-w-md leading-relaxed">Sign in to your fan account to access exclusive content, pre-sale tickets, merch drops, and more.</p>
+   287→          </div>
+   288→          <div className="mt-8 pt-8 border-t border-neutral-100"><p className="text-xs text-neutral-300">West Philadelphia · 2026</p></div>
+   289→        </div>
+   290→        {/* Right: Sign in form */}
+   291→        <div className="lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-white">
+   292→          <div className="w-full max-w-sm">
+   293→            <div className="flex items-center gap-3 mb-8">
+   294→              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center"><Music size={20} className="text-white" /></div>
+   295→              <div>
+   296→                <p className="text-xs font-bold tracking-[0.15em] uppercase text-emerald-600">Fan Portal</p>
+   297→                <p className="text-sm font-semibold text-neutral-900">Sign In</p>
+   298→              </div>
+   299→            </div>
+   300→            <div className="border border-neutral-200 rounded-xl p-6 space-y-4 bg-white">
+   301→              <Field label="Email"><div className="relative"><Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9 border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="you@example.com" /></div></Field>
+   302→              <Field label="Password"><div className="relative"><Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9 border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="Your password" onKeyDown={(e) => e.key === 'Enter' && submit()} /></div></Field>
+   303→              <Button variant="primary" className="w-full bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center gap-2" onClick={submit} disabled={loading}>{loading ? 'Signing in...' : 'Sign In'} <ArrowRight size={16} /></Button>
+   304→            </div>
+   305→            <div className="mt-6 text-center space-y-2">
+   306→              <p className="text-sm text-neutral-500">Don't have an account? <button onClick={() => navigate('/portal/signup')} className="text-emerald-600 hover:underline font-medium">Create one</button></p>
+   307→              <p className="text-sm text-neutral-500">Not a fan? <button onClick={() => navigate('/')} className="text-neutral-900 hover:underline font-medium">Choose a different portal</button></p>
+   308→              <p className="text-xs text-neutral-400 mt-2">Demo: fan@test.com / password123</p>
+   309→            </div>
+   310→          </div>
+   311→        </div>
+   312→      </div>
+   313→    </div>
+   314→  );
+   315→}
+   316→
+   317→function PortalSignupPage() {
+   318→  const [email, setEmail] = useState('');
+   319→  const [password, setPassword] = useState('');
+   320→  const [name, setName] = useState('');
+   321→  const [loading, setLoading] = useState(false);
+   322→  const [step, setStep] = useState<'welcome' | 'details'>('welcome');
+   323→  const { signUp } = usePortalAuth();
+   324→  const { navigate } = useRouter();
+   325→  const submit = async () => {
+   326→    if (!email || !password) { toast('error', 'Email and password are required'); return; }
+   327→    if (password.length < 6) { toast('error', 'Password must be at least 6 characters'); return; }
+   328→    setLoading(true);
+   329→    const { error } = await signUp(email, password, name);
+   330→    setLoading(false);
+   331→    if (error) { toast('error', error); return; }
+   332→    toast('success', 'Account created! Welcome.');
+   333→    navigate('/portal/dashboard');
+   334→  };
+   335→  const FAN_PERKS = [
+   336→    { icon: <Crown size={16} className="text-emerald-600" />, label: 'Membership tiers from $4/mo' },
+   337→    { icon: <CheckCircle2 size={16} className="text-emerald-600" />, label: 'Ticket pre-sales & early access' },
+   338→    { icon: <CheckCircle2 size={16} className="text-emerald-600" />, label: 'Exclusive merch & limited drops' },
+   339→    { icon: <CheckCircle2 size={16} className="text-emerald-600" />, label: 'Behind-the-scenes content' },
+   340→    { icon: <CheckCircle2 size={16} className="text-emerald-600" />, label: 'Live streams & Q&A sessions' },
+   341→    { icon: <CheckCircle2 size={16} className="text-emerald-600" />, label: 'Loyalty rewards & VIP perks' },
+   342→  ];
+   343→  return (
+   344→    <div className="min-h-screen bg-white font-sans flex flex-col">
+   345→      <div className="flex-1 flex flex-col lg:flex-row">
+   346→        {/* Left: Brand */}
+   347→        <div className="lg:w-1/2 flex flex-col justify-between p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-neutral-50 to-white border-r border-neutral-100">
+   348→          <div>
+   349→            <p className="text-xs tracking-[0.2em] text-neutral-300 uppercase mb-8">Adea Lyric</p>
+   350→            <h1 className="text-4xl sm:text-5xl font-bold leading-tight text-neutral-900 mb-4">Join the<br />community.</h1>
+   351→            <p className="text-lg text-neutral-500 max-w-md leading-relaxed">Create your fan account and start exploring exclusive content, early access, and more.</p>
+   352→          </div>
+   353→          <div className="mt-8 pt-8 border-t border-neutral-100"><p className="text-xs text-neutral-300">West Philadelphia · 2026</p></div>
+   354→        </div>
+   355→        {/* Right: Sign-up flow */}
+   356→        <div className="lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-white">
+   357→          <div className="w-full max-w-sm">
+   358→            {/* Step indicator */}
+   359→            <div className="flex items-center gap-2 mb-8">
+   360→              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${step === 'welcome' ? 'bg-emerald-600 text-white' : 'bg-neutral-200 text-neutral-400'}`}>1</div>
+   361→              <div className="hidden sm:block"><p className="text-xs font-semibold text-neutral-900">Welcome</p><p className="text-xs text-neutral-400">What you get as a fan member</p></div>
+   362→              <div className="w-8 h-px bg-neutral-200 mx-1" />
+   363→              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${step === 'details' ? 'bg-emerald-600 text-white' : 'bg-neutral-200 text-neutral-400'}`}>2</div>
+   364→              <div className="hidden sm:block"><p className="text-xs font-semibold text-neutral-900">Create Account</p><p className="text-xs text-neutral-400">Set up your fan profile</p></div>
+   365→            </div>
+   366→            {/* Portal badge */}
+   367→            <div className="flex items-center gap-3 mb-6">
+   368→              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center"><Music size={20} className="text-white" /></div>
+   369→              <div><p className="text-xs font-bold tracking-[0.15em] uppercase text-emerald-600">Fan Portal</p><p className="text-sm font-semibold text-neutral-900">Create Your Account</p></div>
+   370→            </div>
+   371→            {step === 'welcome' ? (
+   372→              <div>
+   373→                <p className="text-sm text-neutral-500 mb-4">Here's what you get when you join:</p>
+   374→                <div className="space-y-3 mb-6">{FAN_PERKS.map((perk) => (<div key={perk.label} className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 border border-emerald-100">{perk.icon}<span className="text-sm text-neutral-700">{perk.label}</span></div>))}</div>
+   375→                <button onClick={() => setStep('details')} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors">Continue to Create Account <ArrowRight size={16} /></button>
+   376→              </div>
+   377→            ) : (
+   378→              <div className="border border-neutral-200 rounded-xl p-6 space-y-4 bg-white">
+   379→                <Field label="Display Name"><Input value={name} onChange={(e) => setName(e.target.value)} className="border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="Your name" /></Field>
+   380→                <Field label="Email"><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="you@example.com" /></Field>
+   381→                <Field label="Password"><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="Min 6 characters" onKeyDown={(e) => e.key === 'Enter' && submit()} /></Field>
+   382→                <Button variant="primary" className="w-full bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center gap-2" onClick={submit} disabled={loading}>{loading ? 'Creating...' : 'Create Account'} <ArrowRight size={16} /></Button>
+   383→                <button onClick={() => setStep('welcome')} className="w-full text-center text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Back to overview</button>
+   384→              </div>
+   385→            )}
+   386→            <div className="mt-6 text-center space-y-2">
+   387→              <p className="text-sm text-neutral-500">Already have an account? <button onClick={() => navigate('/portal/login')} className="text-emerald-600 hover:underline font-medium">Sign in</button></p>
+   388→              <p className="text-sm text-neutral-500">Not a fan? <button onClick={() => navigate('/')} className="text-neutral-900 hover:underline font-medium">Choose a different portal</button></p>
+   389→            </div>
+   390→          </div>
+   391→        </div>
+   392→      </div>
+   393→    </div>
+   394→  );
+   395→}
+   396→
+   397→function PortalDashboardPage() {
+   398→  const { user } = usePortalAuth();
+   399→  const { navigate } = useRouter();
+   400→  const [membershipTier] = useState('core');
+   401→  if (!user) { navigate('/portal/login'); return null; }
+   402→  const MEMBERSHIP_DISPLAY: Record<string, { name: string; price: string; color: string; iconBg: string }> = {
+   403→    entry: { name: 'Entry', price: '$4/mo', color: 'bg-neutral-50 border-neutral-200 text-neutral-900', iconBg: 'bg-neutral-100' },
+   404→    core: { name: 'Core', price: '$12/mo', color: 'bg-neutral-900 text-white border-neutral-900', iconBg: 'bg-white/10' },
+   405→    premium: { name: 'Premium', price: '$28/mo', color: 'bg-neutral-800 text-white border-neutral-700', iconBg: 'bg-white/10' },
+   406→  };
+   407→  const currentMembership = MEMBERSHIP_DISPLAY[membershipTier];
+   408→  const isDarkCard = currentMembership.color.includes('text-white');
+   409→
+   410→  return (
+   411→    <div className="max-w-5xl mx-auto py-8">
+   412→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">My Dashboard</h1>
+   413→
+   414→      {/* Membership status card */}
+   415→      <div className={`rounded-xl p-6 mb-6 border ${isDarkCard ? currentMembership.color.split(' ').slice(0,2).join(' ') : 'bg-white border-neutral-200'}`}>
+   416→        <div className="flex items-start justify-between">
+   417→          <div className="flex items-start gap-4">
+   418→            <div className={`w-14 h-14 rounded-xl ${currentMembership.iconBg} flex items-center justify-center`}>
+   419→              <Crown size={28} className={isDarkCard ? 'text-white' : 'text-neutral-700'} />
+   420→            </div>
+   421→            <div>
+   422→              <p className={`text-xs uppercase tracking-wider ${isDarkCard ? 'text-white/60' : 'text-neutral-400'}`}>Current Membership</p>
+   423→              <p className={`text-2xl font-bold ${isDarkCard ? 'text-white' : 'text-neutral-900'}`}>{currentMembership.name}</p>
+   424→              <p className={`text-sm ${isDarkCard ? 'text-white/40' : 'text-neutral-500'}`}>{currentMembership.price}</p>
+   425→            </div>
+   426→          </div>
+   427→          <Link to="/portal/membership" className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isDarkCard ? 'bg-white text-neutral-900 hover:bg-white/90' : 'bg-neutral-900 text-white hover:bg-neutral-700'}`}>
+   428→            Manage Membership <ArrowRight size={14} />
+   429→          </Link>
+   430→        </div>
+   431→      </div>
+   432→
+   433→      {/* Quick perks overview */}
+   434→      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+   435→        <Link to="/portal/exclusive" className="bg-white border border-neutral-200 rounded-xl p-4 hover:border-neutral-300 transition-colors">
+   436→          <div className="flex items-center gap-3">
+   437→            <Crown size={20} className="text-neutral-400" />
+   438→            <div>
+   439→              <p className="text-sm font-semibold text-neutral-900">Exclusive Access</p>
+   440→              <p className="text-xs text-neutral-500">Early drops, merch, downloads</p>
+   441→            </div>
+   442→          </div>
+   443→        </Link>
+   444→        <Link to="/portal/community" className="bg-white border border-neutral-200 rounded-xl p-4 hover:border-neutral-300 transition-colors">
+   445→          <div className="flex items-center gap-3">
+   446→            <MessageSquare size={20} className="text-neutral-400" />
+   447→            <div>
+   448→              <p className="text-sm font-semibold text-neutral-900">Community</p>
+   449→              <p className="text-xs text-neutral-500">Q&As, streams, social</p>
+   450→            </div>
+   451→          </div>
+   452→        </Link>
+   453→        <Link to="/portal/premium" className="bg-white border border-neutral-200 rounded-xl p-4 hover:border-neutral-300 transition-colors">
+   454→          <div className="flex items-center gap-3">
+   455→            <Gift size={20} className="text-neutral-400" />
+   456→            <div>
+   457→              <p className="text-sm font-semibold text-neutral-900">Premium Content</p>
+   458→              <p className="text-xs text-neutral-500">BTS, docs, concerts</p>
+   459→            </div>
+   460→          </div>
+   461→        </Link>
+   462→      </div>
+   463→
+   464→      {/* Profile */}
+   465→      <div className="bg-white border border-neutral-200 rounded-xl p-5 mb-6">
+   466→        <div className="flex items-start gap-4">
+   467→          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-800 flex items-center justify-center text-white text-xl font-medium">
+   468→            {(user.user_metadata?.display_name ?? user.email).charAt(0).toUpperCase()}
+   469→          </div>
+   470→          <div>
+   471→            <p className="text-lg font-semibold text-neutral-900">{(user.user_metadata?.display_name as string) ?? 'Fan'}</p>
+   472→            <p className="text-sm text-neutral-500">{user.email}</p>
+   473→          </div>
+   474→        </div>
+   475→      </div>
+   476→      <h2 className="text-xl font-semibold text-neutral-900 mb-3 flex items-center gap-2"><Ticket size={20} /> My Tickets</h2>
+   477→      <Card className="p-6">
+   478→        <p className="text-neutral-400 text-center py-4">No tickets yet. <Link to="/portal/events" className="text-neutral-600 hover:text-neutral-900 underline">Browse events</Link></p>
+   479→      </Card>
+   480→    </div>
+   481→  );
+   482→}
+   483→
+   484→function PortalMusicPage() {
+   485→  const [releases] = useState<Release[]>(mockData.mockReleases.filter(r => r.status === 'live' || r.status === 'submitted'));
+   486→  const [search, setSearch] = useState('');
+   487→  const [genreFilter, setGenreFilter] = useState('all');
+   488→  const genres = [...new Set(releases.map((r) => r.genre).filter(Boolean))] as string[];
+   489→  const filtered = releases.filter((r) => {
+   490→    if (genreFilter !== 'all' && r.genre !== genreFilter) return false;
+   491→    if (search) { const q = search.toLowerCase(); return r.title.toLowerCase().includes(q); }
+   492→    return true;
+   493→  });
+   494→  return (
+   495→    <div className="py-8">
+   496→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">Music</h1>
+   497→      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+   498→        <div className="relative flex-1 max-w-sm">
+   499→          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+   500→          <Input placeholder="Search releases…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-white border-neutral-200 text-neutral-900" />
+   501→        </div>
+   502→        {genres.length > 0 && (
+   503→          <select value={genreFilter} onChange={(e) => setGenreFilter(e.target.value)} className="bg-white border border-neutral-200 text-neutral-900 rounded-lg px-3 py-2 text-sm">
+   504→            <option value="all">All Genres</option>
+   505→            {genres.map((g) => <option key={g} value={g}>{g}</option>)}
+   506→          </select>
+   507→        )}
+   508→      </div>
+   509→      {filtered.length === 0 ? (
+   510→        <div className="text-center py-20">
+   511→          <Music size={48} className="text-neutral-200 mx-auto mb-4" />
+   512→          <p className="text-neutral-400">No releases available</p>
+   513→        </div>
+   514→      ) : (
+   515→        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+   516→          {filtered.map((r) => (
+   517→            <Link key={r.id} to={`/portal/music/${r.id}`} className="group rounded-xl overflow-hidden bg-white border border-neutral-200 hover:border-neutral-300 transition-colors">
+   518→              <div className="aspect-square bg-gradient-to-br from-neutral-100 to-neutral-300 flex items-center justify-center overflow-hidden">
+   519→                <Disc3 size={40} className="text-neutral-300 group-hover:scale-110 transition-transform duration-300" />
+   520→              </div>
+   521→              <div className="p-3">
+   522→                <p className="text-sm font-semibold text-neutral-900 truncate">{r.title}</p>
+   523→                <p className="text-xs text-neutral-400 mt-0.5">{formatDate(r.release_date)}</p>
+   524→                <div className="flex items-center gap-1.5 mt-2">
+   525→                  {r.is_free ? <Badge color="green">Free</Badge> : r.price_cents > 0 ? <Badge color="blue">{formatCents(r.price_cents)}</Badge> : null}
+   526→                  {r.explicit && <span className="text-xs text-neutral-400">E</span>}
+   527→                </div>
+   528→              </div>
+   529→            </Link>
+   530→          ))}
+   531→        </div>
+   532→      )}
+   533→    </div>
+   534→  );
+   535→}
+   536→
+   537→function PortalReleaseDetailPage() {
+   538→  const { path, navigate } = useRouter();
+   539→  const id = path.split('/portal/music/')[1];
+   540→  const release = mockData.mockReleases.find(r => r.id === id);
+   541→  const tracks = mockData.mockTracks.filter(t => t.release_id === id);
+   542→  const artist = release?.artist_id ? mockData.mockArtists.find(a => a.id === release.artist_id) : null;
+   543→  if (!release) return <div className="max-w-2xl mx-auto py-20 text-center"><p className="text-neutral-400">Release not found</p></div>;
+   544→  return (
+   545→    <div className="max-w-3xl mx-auto py-8">
+   546→      <Link to="/portal/music" className="inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 mb-6"><ArrowLeft size={16} /> All Music</Link>
+   547→      <div className="flex items-start gap-5 mb-8">
+   548→        <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-300 flex items-center justify-center flex-shrink-0">
+   549→          <Disc3 size={48} className="text-neutral-300" />
+   550→        </div>
+   551→        <div className="flex-1">
+   552→          <h1 className="text-3xl font-bold text-neutral-900">{release.title}</h1>
+   553→          <p className="text-lg text-neutral-500 mt-1">{artist?.name ?? 'Unknown Artist'}</p>
+   554→          <div className="flex items-center gap-2 mt-3">
+   555→            <Badge color="gray">{release.type}</Badge>
+   556→            <span className="text-sm text-neutral-400">{formatDate(release.release_date)}</span>
+   557→            {release.genre && <Badge color="blue">{release.genre}</Badge>}
+   558→            {release.explicit && <Badge color="red">Explicit</Badge>}
+   559→          </div>
+   560→          {!release.is_free && release.price_cents > 0 && (
+   561→            <div className="mt-4 flex items-center gap-3">
+   562→              <span className="text-2xl font-bold text-neutral-900">{formatCents(release.price_cents)}</span>
+   563→              <Button variant="primary"><ShoppingBagIcon size={16} /> Buy Full Release</Button>
+   564→            </div>
+   565→          )}
+   566→          {release.is_free && <div className="mt-4"><Badge color="green"><Gift size={12} className="inline mr-1" /> Free Release</Badge></div>}
+   567→        </div>
+   568→      </div>
+   569→      <div className="space-y-2">
+   570→        {tracks.map((track) => (
+   571→          <div key={track.id} className="bg-white border border-neutral-200 rounded-xl p-3">
+   572→            <div className="flex items-center gap-3 mb-2">
+   573→              <span className="text-sm text-neutral-400 w-6 text-center">{track.position}</span>
+   574→              <div className="flex-1 min-w-0">
+   575→                <p className="text-sm font-medium text-neutral-900 truncate">{track.title}</p>
+   576→                <div className="flex items-center gap-2 mt-0.5">
+   577→                  {track.is_free ? <span className="text-xs text-green-600">Free</span> : track.price_cents > 0 ? <span className="text-xs text-neutral-500">{formatCents(track.price_cents)}</span> : null}
+   578→                  {track.duration_seconds && <span className="text-xs text-neutral-400">{Math.floor(track.duration_seconds / 60)}:{String(track.duration_seconds % 60).padStart(2, '0')}</span>}
+   579→                </div>
+   580→              </div>
+   581→            </div>
+   582→          </div>
+   583→        ))}
+   584→      </div>
+   585→    </div>
+   586→  );
+   587→}
+   588→
+   589→function PortalEventsPage() {
+   590→  const events = mockData.mockTicketEvents;
+   591→  return (
+   592→    <div className="py-8">
+   593→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">Events</h1>
+   594→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   595→        {events.map((e) => (
+   596→          <Link key={e.id} to={`/portal/events/${e.id}`} className="group rounded-xl overflow-hidden bg-white border border-neutral-200 hover:border-neutral-300 transition-colors">
+   597→            <div className="w-full h-44 bg-gradient-to-br from-neutral-100 to-neutral-300 flex items-center justify-center">
+   598→              <Calendar size={32} className="text-neutral-300" />
+   599→            </div>
+   600→            <div className="p-4">
+   601→              <p className="text-xs text-neutral-400 mb-1">{formatDate(e.event_date)}</p>
+   602→              <p className="text-lg font-semibold text-neutral-900 mb-1">{e.title}</p>
+   603→              <p className="text-sm text-neutral-500">{e.venue_name}{e.city ? `, ${e.city}` : ''}</p>
+   604→            </div>
+   605→          </Link>
+   606→        ))}
+   607→      </div>
+   608→    </div>
+   609→  );
+   610→}
+   611→
+   612→function PortalEventDetailPage() {
+   613→  const { path } = useRouter();
+   614→  const id = path.split('/portal/events/')[1];
+   615→  const event = mockData.mockTicketEvents.find(e => e.id === id);
+   616→  const tiers = mockData.mockTicketTiers.filter(t => t.event_id === id);
+   617→  if (!event) return <div className="max-w-2xl mx-auto py-20 text-center"><p className="text-neutral-400">Event not found</p></div>;
+   618→  return (
+   619→    <div className="max-w-3xl mx-auto py-8">
+   620→      <Link to="/portal/events" className="inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 mb-4"><ArrowLeft size={16} /> All Events</Link>
+   621→      <h1 className="text-3xl font-bold text-neutral-900 mb-3">{event.title}</h1>
+   622→      <div className="space-y-1 text-neutral-600 mb-6">
+   623→        <p className="flex items-center gap-2"><Calendar size={16} /> {formatDate(event.event_date)}</p>
+   624→        <p className="flex items-center gap-2"><MapPin size={16} /> {event.venue_name}{event.address ? ` — ${event.address}` : ''}</p>
+   625→      </div>
+   626→      {event.description && <p className="text-neutral-700 mb-8">{event.description}</p>}
+   627→      <div className="bg-white border border-neutral-200 rounded-xl p-6">
+   628→        <h2 className="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2"><Ticket size={20} /> Get Tickets</h2>
+   629→        {tiers.length === 0 ? <p className="text-neutral-400 text-center py-4">Tickets coming soon</p> : (
+   630→          <div className="space-y-3">
+   631→            {tiers.map(t => (
+   632→              <div key={t.id} className="flex items-center justify-between p-3 rounded-lg bg-neutral-50">
+   633→                <div>
+   634→                  <p className="text-sm font-medium text-neutral-900">{t.name}</p>
+   635→                  <p className="text-xs text-neutral-500">{formatCents(t.price_cents)} · {t.quantity - t.sold_count} left</p>
+   636→                </div>
+   637→                <Badge color={t.sold_count >= t.quantity ? 'red' : 'green'}>{t.sold_count >= t.quantity ? 'Sold Out' : 'Available'}</Badge>
+   638→              </div>
+   639→            ))}
+   640→          </div>
+   641→        )}
+   642→      </div>
+   643→    </div>
+   644→  );
+   645→}
+   646→
+   647→function PortalGalleryPage() {
+   648→  const galleries = mockData.mockGalleries.filter(g => g.kind === 'image');
+   649→  const [activeGallery, setActiveGallery] = useState<CmsGallery | null>(null);
+   650→  const [images, setImages] = useState<CmsImage[]>([]);
+   651→  const [lightbox, setLightbox] = useState<number | null>(null);
+   652→  const openGallery = (g: CmsGallery) => { setActiveGallery(g); setImages(mockData.mockImages.filter(i => i.gallery_id === g.id)); };
+   653→  return (
+   654→    <div className="py-8">
+   655→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">Gallery</h1>
+   656→      {activeGallery ? (
+   657→        <div>
+   658→          <button onClick={() => setActiveGallery(null)} className="text-sm text-neutral-500 hover:text-neutral-900 mb-4">← Back to galleries</button>
+   659→          <h2 className="text-xl font-semibold text-neutral-900 mb-4">{activeGallery.title}</h2>
+   660→          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+   661→            {images.map((img, i) => (
+   662→              <button key={img.id} onClick={() => setLightbox(i)} className="group relative rounded-lg overflow-hidden bg-neutral-100">
+   663→                <img src={img.image_url} alt={img.title ?? ''} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" />
+   664→              </button>
+   665→            ))}
+   666→          </div>
+   667→        </div>
+   668→      ) : (
+   669→        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   670→          {galleries.map((g) => (
+   671→            <button key={g.id} onClick={() => openGallery(g)} className="group rounded-xl overflow-hidden bg-white border border-neutral-200 hover:border-neutral-300 transition-colors text-left">
+   672→              {g.cover_image_url ? <img src={g.cover_image_url} alt={g.title} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" /> : <div className="w-full h-44 bg-neutral-100 flex items-center justify-center"><ImageIcon size={32} className="text-neutral-300" /></div>}
+   673→              <div className="p-4"><p className="text-lg font-semibold text-neutral-900">{g.title}</p></div>
+   674→            </button>
+   675→          ))}
+   676→        </div>
+   677→      )}
+   678→      {lightbox !== null && images[lightbox] && (
+   679→        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
+   680→          <button className="absolute top-4 right-4 text-white/60 hover:text-white" onClick={() => setLightbox(null)}><X size={28} /></button>
+   681→          <img src={images[lightbox].image_url} alt={images[lightbox].title ?? ''} className="max-w-full max-h-[85vh] object-contain" onClick={(e) => e.stopPropagation()} />
+   682→        </div>
+   683→      )}
+   684→    </div>
+   685→  );
+   686→}
+   687→
+   688→function PortalVideosPage() {
+   689→  const galleries = mockData.mockGalleries.filter(g => g.kind === 'video');
+   690→  const [activeGallery, setActiveGallery] = useState<CmsGallery | null>(null);
+   691→  const [videos, setVideos] = useState<CmsVideo[]>([]);
+   692→  const [playing, setPlaying] = useState<CmsVideo | null>(null);
+   693→  const openGallery = (g: CmsGallery) => { setActiveGallery(g); setVideos(mockData.mockVideos.filter(v => v.gallery_id === g.id)); };
+   694→  return (
+   695→    <div className="py-8">
+   696→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">Videos</h1>
+   697→      {activeGallery ? (
+   698→        <div>
+   699→          <button onClick={() => setActiveGallery(null)} className="text-sm text-neutral-500 hover:text-neutral-900 mb-4">← Back to galleries</button>
+   700→          <h2 className="text-xl font-semibold text-neutral-900 mb-4">{activeGallery.title}</h2>
+   701→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   702→            {videos.map((v) => (
+   703→              <button key={v.id} onClick={() => setPlaying(v)} className="group rounded-xl overflow-hidden bg-white border border-neutral-200 hover:border-neutral-300 transition-colors text-left">
+   704→                <div className="relative h-40 bg-neutral-100">
+   705→                  {v.thumbnail_url ? <img src={v.thumbnail_url} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" /> : <div className="w-full h-full flex items-center justify-center"><VideoIcon size={32} className="text-neutral-300" /></div>}
+   706→                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10">
+   707→                    <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center"><Play size={20} className="text-neutral-900 ml-0.5" /></div>
+   708→                  </div>
+   709→                </div>
+   710→                <div className="p-3"><p className="text-sm font-semibold text-neutral-900">{v.title}</p></div>
+   711→              </button>
+   712→            ))}
+   713→          </div>
+   714→        </div>
+   715→      ) : (
+   716→        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   717→          {galleries.map((g) => (
+   718→            <button key={g.id} onClick={() => openGallery(g)} className="group rounded-xl overflow-hidden bg-white border border-neutral-200 hover:border-neutral-300 transition-colors text-left">
+   719→              {g.cover_image_url ? <img src={g.cover_image_url} alt={g.title} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" /> : <div className="w-full h-44 bg-neutral-100 flex items-center justify-center"><VideoIcon size={32} className="text-neutral-300" /></div>}
+   720→              <div className="p-4"><p className="text-lg font-semibold text-neutral-900">{g.title}</p></div>
+   721→            </button>
+   722→          ))}
+   723→        </div>
+   724→      )}
+   725→      {playing && (
+   726→        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setPlaying(null)}>
+   727→          <button className="absolute top-4 right-4 text-white/60 hover:text-white" onClick={() => setPlaying(null)}><X size={28} /></button>
+   728→          <div className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+   729→            <div className="aspect-video bg-black rounded-lg overflow-hidden"><video src={playing.video_url} controls autoPlay className="w-full h-full" /></div>
+   730→            <div className="mt-4"><p className="text-lg font-semibold text-white">{playing.title}</p></div>
+   731→          </div>
+   732→        </div>
+   733→      )}
+   734→    </div>
+   735→  );
+   736→}
+   737→
+   738→function PortalShopPage() {
+   739→  const products = mockData.mockShopProducts;
+   740→  const [search, setSearch] = useState('');
+   741→  const [category, setCategory] = useState('all');
+   742→  const categories = [...new Set(products.map(p => p.category).filter(Boolean))] as string[];
+   743→  const filtered = products.filter(p => {
+   744→    if (category !== 'all' && p.category !== category) return false;
+   745→    if (search) return p.title.toLowerCase().includes(search.toLowerCase());
+   746→    return true;
+   747→  });
+   748→  return (
+   749→    <div className="py-8">
+   750→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">Shop</h1>
+   751→      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+   752→        <div className="relative flex-1 max-w-sm">
+   753→          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+   754→          <Input placeholder="Search products…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-white border-neutral-200 text-neutral-900" />
+   755→        </div>
+   756→        {categories.length > 0 && (
+   757→          <select value={category} onChange={(e) => setCategory(e.target.value)} className="bg-white border border-neutral-200 text-neutral-900 rounded-lg px-3 py-2 text-sm">
+   758→            <option value="all">All Categories</option>
+   759→            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+   760→          </select>
+   761→        )}
+   762→      </div>
+   763→      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+   764→        {filtered.map(p => (
+   765→          <div key={p.id} className="group rounded-xl overflow-hidden bg-white border border-neutral-200 hover:border-neutral-300 transition-colors">
+   766→            <div className="aspect-square bg-neutral-100 overflow-hidden">
+   767→              {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag size={32} className="text-neutral-300" /></div>}
+   768→            </div>
+   769→            <div className="p-3">
+   770→              <p className="text-sm font-semibold text-neutral-900 truncate">{p.title}</p>
+   771→              {p.category && <p className="text-xs text-neutral-400 mt-0.5">{p.category}</p>}
+   772→              <div className="flex items-center justify-between mt-2">
+   773→                <span className="text-lg font-bold text-neutral-900">{formatCents(Math.round(p.price * 100))}</span>
+   774→                {p.inventory_count <= 5 && p.inventory_count > 0 && <Badge color="amber">Only {p.inventory_count} left</Badge>}
+   775→                {p.inventory_count === 0 && <Badge color="red">Sold Out</Badge>}
+   776→              </div>
+   777→            </div>
+   778→          </div>
+   779→        ))}
+   780→      </div>
+   781→    </div>
+   782→  );
+   783→}
+   784→
+   785→function PortalToursPage() {
+   786→  const tours = mockData.mockTourDates;
+   787→  return (
+   788→    <div className="max-w-4xl mx-auto py-8">
+   789→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">Tour Dates</h1>
+   790→      <div className="space-y-3">
+   791→        {tours.map(t => {
+   792→          const dateObj = new Date(t.date);
+   793→          return (
+   794→            <div key={t.id} className="flex items-center gap-4 p-4 rounded-xl bg-white border border-neutral-200 hover:border-neutral-300 transition-colors">
+   795→              <div className="flex-shrink-0 text-center w-14">
+   796→                <p className="text-xs text-neutral-400 uppercase">{dateObj.toLocaleDateString('en', { month: 'short' })}</p>
+   797→                <p className="text-2xl font-bold text-neutral-900">{dateObj.getDate()}</p>
+   798→                <p className="text-xs text-neutral-400">{dateObj.getFullYear()}</p>
+   799→              </div>
+   800→              <div className="flex-1 min-w-0">
+   801→                <p className="text-sm font-semibold text-neutral-900">{t.title}</p>
+   802→                <p className="text-sm text-neutral-500 flex items-center gap-1 mt-0.5"><MapPin size={12} /> {t.venue}{t.city ? `, ${t.city}` : ''}</p>
+   803→              </div>
+   804→              <div className="flex-shrink-0">
+   805→                {t.is_sold_out ? <Badge color="red">Sold Out</Badge> : <Link to={`/portal/events/${t.ticket_event_id}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-700"><Ticket size={14} /> Tickets</Link>}
+   806→              </div>
+   807→            </div>
+   808→          );
+   809→        })}
+   810→      </div>
+   811→    </div>
+   812→  );
+   813→}
+   814→
+   815→function PortalLoyaltyPage() {
+   816→  const { user } = usePortalAuth();
+   817→  const { navigate } = useRouter();
+   818→  if (!user) { navigate('/portal/login'); return null; }
+   819→  const loyalty = mockData.mockUserLoyalty;
+   820→  const TIER_COLORS: Record<string, string> = { fan: 'from-neutral-600 to-neutral-800', silver: 'from-gray-400 to-gray-600', gold: 'from-amber-400 to-amber-600', platinum: 'from-cyan-300 to-cyan-500' };
+   821→  return (
+   822→    <div className="max-w-4xl mx-auto py-8">
+   823→      <h1 className="text-3xl font-bold text-neutral-900 mb-6">My Account</h1>
+   824→      <div className={`relative rounded-2xl p-6 mb-6 bg-gradient-to-br ${TIER_COLORS[loyalty.tier]} overflow-hidden`}>
+   825→        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-12 translate-x-12" />
+   826→        <div className="relative">
+   827→          <div className="flex items-start justify-between mb-4">
+   828→            <div>
+   829→              <p className="text-xs uppercase tracking-wider text-white/60">Loyalty Tier</p>
+   830→              <p className="text-2xl font-bold text-white capitalize">{loyalty.tier}</p>
+   831→            </div>
+   832→            <Award size={32} className="text-white/40" />
+   833→          </div>
+   834→          <div className="grid grid-cols-2 gap-4">
+   835→            <div><p className="text-xs text-white/60">Total Points</p><p className="text-xl font-bold text-white">{loyalty.total_points.toLocaleString()}</p></div>
+   836→            <div><p className="text-xs text-white/60">Lifetime Spend</p><p className="text-xl font-bold text-white">{formatCents(Math.round(loyalty.lifetime_spend * 100))}</p></div>
+   837→          </div>
+   838→        </div>
+   839→      </div>
+   840→    </div>
+   841→  );
+   842→}
+   843→
+   844→// ============ PRO PORTAL (LIGHT THEME) ============
+   845→
+   846→
+   847→// ============ FAN CLUB - NEW PAGES ============
+   848→
+   849→// ─── Membership Tiers Page ───
+   850→const MEMBERSHIP_TIERS = [
+   851→  {
+   852→    id: 'entry',
+   853→    name: 'Entry',
+   854→    price: '$4',
+   855→    period: '/mo',
+   856→    annual: '$40/yr (save 2 months)',
+   857→    color: 'border-neutral-200',
+   858→    headerBg: 'bg-neutral-50',
+   859→    badgeColor: 'bg-neutral-100 text-neutral-700',
+   860→    iconBg: 'bg-neutral-100',
+   861→    features: [
+   862→      'Early access to music & merch drops',
+   863→      'Exclusive digital downloads (unreleased tracks, wallpapers)',
+   864→      'Members-only discount codes',
+   865→      'Access to fan community feed',
+   866→    ],
+   867→    cta: 'Start with Entry',
+   868→  },
+   869→  {
+   870→    id: 'core',
+   871→    name: 'Core',
+   872→    price: '$12',
+   873→    period: '/mo',
+   874→    annual: '$120/yr (save 2 months)',
+   875→    color: 'border-neutral-900 ring-1 ring-neutral-900',
+   876→    headerBg: 'bg-neutral-900',
+   877→    badgeColor: 'bg-white text-neutral-900',
+   878→    iconBg: 'bg-white/10',
+   879→    popular: true,
+   880→    features: [
+   881→      'Everything in Entry',
+   882→      'Monthly Q&A sessions with the artist',
+   883→      'Behind-the-scenes photos, videos & blogs',
+   884→      'Exclusive live stream access',
+   885→      'Ticket pre-sale codes (48h before public)',
+   886→      'Limited-edition merch drops (first chance)',
+   887→    ],
+   888→    cta: 'Join Core',
+   889→  },
+   890→  {
+   891→    id: 'premium',
+   892→    name: 'Premium',
+   893→    price: '$28',
+   894→    period: '/mo',
+   895→    annual: '$280/yr (save 2 months)',
+   896→    color: 'border-neutral-300',
+   897→    headerBg: 'bg-neutral-800',
+   898→    badgeColor: 'bg-neutral-100 text-neutral-800',
+   899→    iconBg: 'bg-white/10',
+   900→    features: [
+   901→      'Everything in Core',
+   902→      'Premium on-demand documentaries & interviews',
+   903→      'Raffle entries for limited-edition merch',
+   904→      'First priority for in-person meetup tickets',
+   905→      'Annual exclusive merch bundle (hoodie + signed print + vinyl)',
+   906→      '1-on-1 video call (1 per year, 15 min)',
+   907→    ],
+   908→    cta: 'Go Premium',
+   909→  },
+   910→];
+   911→
+   912→function MembershipPage() {
+   913→  const [selectedTier, setSelectedTier] = useState('core');
+   914→  const [billing, setBilling] = useState<'monthly' | 'annual'>('annual');
+   915→
+   916→  return (
+   917→    <div className="max-w-5xl mx-auto py-8">
+   918→      <div className="text-center mb-10">
+   919→        <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3">Membership Tiers</h1>
+   920→        <p className="text-lg text-neutral-500 max-w-xl mx-auto">
+   921→          Pick the tier that matches your passion. Every level gives you more access, more content, and more connection to the artist.
+   922→        </p>
+   923→      </div>
+   924→
+   925→      {/* Billing toggle */}
+   926→      <div className="flex items-center justify-center gap-3 mb-8">
+   927→        <button
+   928→          onClick={() => setBilling('monthly')}
+   929→          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+   930→            billing === 'monthly' ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+   931→          }`}
+   932→        >
+   933→          Monthly
+   934→        </button>
+   935→        <button
+   936→          onClick={() => setBilling('annual')}
+   937→          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+   938→            billing === 'annual' ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+   939→          }`}
+   940→        >
+   941→          Annual (save 2 months)
+   942→        </button>
+   943→      </div>
+   944→
+   945→      {/* Tier cards */}
+   946→      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+   947→        {MEMBERSHIP_TIERS.map((tier) => (
+   948→          <div
+   949→            key={tier.id}
+   950→            className={`relative rounded-xl overflow-hidden ${tier.color} ${selectedTier === tier.id ? 'shadow-lg' : 'shadow-sm'} transition-all cursor-pointer`}
+   951→            onClick={() => setSelectedTier(tier.id)}
+   952→          >
+   953→            {tier.popular && (
+   954→              <div className="absolute top-4 right-4">
+   955→                <span className={`px-2 py-1 rounded-full text-xs font-bold ${tier.badgeColor}`}>Most Popular</span>
+   956→              </div>
+   957→            )}
+   958→            {/* Header */}
+   959→            <div className={`${tier.headerBg} px-6 py-6 text-center`}>
+   960→              <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${tier.headerBg === 'bg-neutral-900' || tier.headerBg === 'bg-neutral-800' ? 'text-white/60' : 'text-neutral-400'}`}>
+   961→                {tier.name}
+   962→              </p>
+   963→              <p className={`text-4xl font-bold ${tier.headerBg === 'bg-neutral-900' || tier.headerBg === 'bg-neutral-800' ? 'text-white' : 'text-neutral-900'}`}>
+   964→                {tier.price}<span className="text-lg font-normal">{tier.period}</span>
+   965→              </p>
+   966→              {billing === 'annual' && (
+   967→                <p className={`text-xs mt-1 ${tier.headerBg === 'bg-neutral-900' || tier.headerBg === 'bg-neutral-800' ? 'text-white/40' : 'text-neutral-400'}`}>
+   968→                  {tier.annual}
+   969→                </p>
+   970→              )}
+   971→            </div>
+   972→            {/* Features */}
+   973→            <div className="bg-white px-6 py-6">
+   974→              <ul className="space-y-3">
+   975→                {tier.features.map((f, i) => (
+   976→                  <li key={i} className="flex items-start gap-3">
+   977→                    <CheckCircle2 size={16} className="text-neutral-400 flex-shrink-0 mt-0.5" />
+   978→                    <span className="text-sm text-neutral-700">{f}</span>
+   979→                  </li>
+   980→                ))}
+   981→              </ul>
+   982→              <button
+   983→                className={`w-full mt-6 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+   984→                  selectedTier === tier.id
+   985→                    ? 'bg-neutral-900 text-white hover:bg-neutral-700'
+   986→                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+   987→                }`}
+   988→                onClick={(e) => { e.stopPropagation(); setSelectedTier(tier.id); }}
+   989→              >
+   990→                {tier.cta}
+   991→              </button>
+   992→            </div>
+   993→          </div>
+   994→        ))}
+   995→      </div>
+   996→
+   997→      {/* Monetization Strategy Summary */}
+   998→      <div className="mt-12 border border-neutral-200 rounded-xl p-6 bg-white">
+   999→        <h2 className="text-xl font-bold text-neutral-900 mb-4">How This Works for the Artist</h2>
+  1000→        <p className="text-sm text-neutral-600 mb-6 leading-relaxed">
+  1001→          A fan club is more than just a community — it is a crucial source of funding and a direct avenue to build a sustainable career. By offering tiered memberships, the artist can monetize their talent while fostering a loyal fanbase that feels genuinely connected to the journey.
+  1002→        </p>
+  1003→        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  1004→          <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+  1005→            <h3 className="text-sm font-semibold text-neutral-900 mb-2 flex items-center gap-2"><DollarSign size={16} /> Recurring Revenue</h3>
+  1006→            <p className="text-xs text-neutral-500 leading-relaxed">Predictable monthly income from tiered subscriptions. Casual fans pay a little, superfans pay more.</p>
+  1007→          </div>
+  1008→          <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+  1009→            <h3 className="text-sm font-semibold text-neutral-900 mb-2 flex items-center gap-2"><ShoppingBag size={16} /> Direct Sales</h3>
+  1010→            <p className="text-xs text-neutral-500 leading-relaxed">High-margin revenue through scarcity and exclusivity — limited drops, presale codes, PPV archives.</p>
+  1011→          </div>
+  1012→          <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+  1013→            <h3 className="text-sm font-semibold text-neutral-900 mb-2 flex items-center gap-2"><Crown size={16} /> Experience Upsells</h3>
+  1014→            <p className="text-xs text-neutral-500 leading-relaxed">Premium one-time fees for deep personal connections — VIP meetups, 1-on-1 calls, annual bundles.</p>
+  1015→          </div>
+  1016→        </div>
+  1017→      </div>
+  1018→
+  1019→      {/* Smart Tactics */}
+  1020→      <div className="mt-6 border border-neutral-200 rounded-xl p-6 bg-white">
+  1021→        <h2 className="text-xl font-bold text-neutral-900 mb-4">Smart Monetization Tactics</h2>
+  1022→        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  1023→          <div className="flex items-start gap-3">
+  1024→            <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0"><Sparkles size={18} className="text-amber-600" /></div>
+  1025→            <div>
+  1026→              <p className="text-sm font-semibold text-neutral-900">Free Trial Funnel</p>
+  1027→              <p className="text-xs text-neutral-500 mt-1">Give one BTS piece away for free on social, then say "Want the full documentary? Join the club." Converts casual fans into paying members.</p>
+  1028→            </div>
+  1029→          </div>
+  1030→          <div className="flex items-start gap-3">
+  1031→            <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0"><Clock size={18} className="text-red-600" /></div>
+  1032→            <div>
+  1033→              <p className="text-sm font-semibold text-neutral-900">Expiring Perks</p>
+  1034→              <p className="text-xs text-neutral-500 mt-1">Digital downloads available for only 30 days. Fans stay subscribed so they never miss the next drop.</p>
+  1035→            </div>
+  1036→          </div>
+  1037→          <div className="flex items-start gap-3">
+  1038→            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0"><Gift size={18} className="text-emerald-600" /></div>
+  1039→            <div>
+  1040→              <p className="text-sm font-semibold text-neutral-900">Annual Billing Discount</p>
+  1041→              <p className="text-xs text-neutral-500 mt-1">2 months free if fans pay for a full year upfront — gives the artist a large cash injection immediately.</p>
+  1042→            </div>
+  1043→          </div>
+  1044→          <div className="flex items-start gap-3">
+  1045→            <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0"><Target size={18} className="text-purple-600" /></div>
+  1046→            <div>
+  1047→              <p className="text-sm font-semibold text-neutral-900">The Holy Grail Upsell</p>
+  1048→              <p className="text-xs text-neutral-500 mt-1">Always keep one premium item (video call, signed vinyl) as a paid upsell outside the subscription — the ultimate collector experience.</p>
+  1049→            </div>
+  1050→          </div>
+  1051→        </div>
+  1052→      </div>
+  1053→
+  1054→      {/* Monetization Summary Table */}
+  1055→      <div className="mt-6 border border-neutral-200 rounded-xl overflow-hidden bg-white">
+  1056→        <div className="overflow-x-auto">
+  1057→          <table className="w-full text-sm">
+  1058→            <thead className="bg-neutral-50 border-b border-neutral-200">
+  1059→              <tr>
+  1060→                <th className="px-4 py-3 text-left font-semibold text-neutral-900">Feature</th>
+  1061→                <th className="px-4 py-3 text-left font-semibold text-neutral-900">Monetization Strategy</th>
+  1062→                <th className="px-4 py-3 text-left font-semibold text-neutral-900">Revenue Type</th>
+  1063→              </tr>
+  1064→            </thead>
+  1065→            <tbody className="divide-y divide-neutral-100">
+  1066→              <tr className="hover:bg-neutral-50 transition-colors">
+  1067→                <td className="px-4 py-3 text-neutral-700">Early Music / Merch Access</td>
+  1068→                <td className="px-4 py-3 text-neutral-500">Gated behind monthly subscription</td>
+  1069→                <td className="px-4 py-3"><Badge color="green">Recurring</Badge></td>
+  1070→              </tr>
+  1071→              <tr className="hover:bg-neutral-50 transition-colors">
+  1072→                <td className="px-4 py-3 text-neutral-700">Limited-Edition Merch</td>
+  1073→                <td className="px-4 py-3 text-neutral-500">Sold at premium price with low supply</td>
+  1074→                <td className="px-4 py-3"><Badge color="blue">One-time Sale</Badge></td>
+  1075→              </tr>
+  1076→              <tr className="hover:bg-neutral-50 transition-colors">
+  1077→                <td className="px-4 py-3 text-neutral-700">Discount Codes</td>
+  1078→                <td className="px-4 py-3 text-neutral-500">Drives merch volume; member pays to unlock</td>
+  1079→                <td className="px-4 py-3"><Badge color="gray">Indirect</Badge></td>
+  1080→              </tr>
+  1081→              <tr className="hover:bg-neutral-50 transition-colors">
+  1082→                <td className="px-4 py-3 text-neutral-700">Monthly Q&A</td>
+  1083→                <td className="px-4 py-3 text-neutral-500">Included in mid/high tiers to justify upgrades</td>
+  1084→                <td className="px-4 py-3"><Badge color="green">Recurring</Badge></td>
+  1085→              </tr>
+  1086→              <tr className="hover:bg-neutral-50 transition-colors">
+  1087→                <td className="px-4 py-3 text-neutral-700">BTS Content</td>
+  1088→                <td className="px-4 py-3 text-neutral-500">Gateway content to convert free followers to paid</td>
+  1089→                <td className="px-4 py-3"><Badge color="green">Recurring</Badge></td>
+  1090→              </tr>
+  1091→              <tr className="hover:bg-neutral-50 transition-colors">
+  1092→                <td className="px-4 py-3 text-neutral-700">Live Streams</td>
+  1093→                <td className="px-4 py-3 text-neutral-500">Free for members; $5 PPV for non-members</td>
+  1094→                <td className="px-4 py-3"><Badge color="blue">Recurring + One-time</Badge></td>
+  1095→              </tr>
+  1096→              <tr className="hover:bg-neutral-50 transition-colors">
+  1097→                <td className="px-4 py-3 text-neutral-700">Premium Video Docs</td>
+  1098→                <td className="px-4 py-3 text-neutral-500">Gated to highest-priced tier only</td>
+  1099→                <td className="px-4 py-3"><Badge color="green">Recurring (higher ARPU)</Badge></td>
+  1100→              </tr>
+  1101→              <tr className="hover:bg-neutral-50 transition-colors">
+  1102→                <td className="px-4 py-3 text-neutral-700">In-Person VIP Meetups</td>
+  1103→                <td className="px-4 py-3 text-neutral-500">Separate ticketed event outside monthly fee</td>
+  1104→                <td className="px-4 py-3"><Badge color="blue">One-time High Ticket</Badge></td>
+  1105→              </tr>
+  1106→              <tr className="hover:bg-neutral-50 transition-colors">
+  1107→                <td className="px-4 py-3 text-neutral-700">Co-Branded Collabs</td>
+  1108→                <td className="px-4 py-3 text-neutral-500">Affiliate % or flat fee from brand partnerships</td>
+  1109→                <td className="px-4 py-3"><Badge color="gray">Sponsorship</Badge></td>
+  1110→              </tr>
+  1111→            </tbody>
+  1112→          </table>
+  1113→        </div>
+  1114→      </div>
+  1115→    </div>
+  1116→  );
+  1117→}
+  1118→
+  1119→// ─── Exclusive Access Page ───
+  1120→const EXCLUSIVE_FEATURES = [
+  1121→  {
+  1122→    category: 'Early Access & Releases',
+  1123→    items: [
+  1124→      { icon: <Music size={20} className="text-emerald-600" />, title: 'Early Access to Music', desc: 'Sneak peeks and first-purchase opportunities for new music before the general public. Never miss a drop.', bgColor: 'bg-emerald-50' },
+  1125→      { icon: <ShoppingBag size={20} className="text-purple-600" />, title: 'Limited Edition Merch', desc: 'Unique, collectible products designed exclusively for fan club members. Small-batch, numbered, and never reprinted.', bgColor: 'bg-purple-50' },
+  1126→      { icon: <Download size={20} className="text-blue-600" />, title: 'Exclusive Digital Downloads', desc: 'Unreleased tracks, music videos, wallpapers, printable artwork, and lyric sheets — available only to members.', bgColor: 'bg-blue-50' },
+  1127→    ],
+  1128→  },
+  1129→  {
+  1130→    category: 'Financial Perks & Loyalty Rewards',
+  1131→    items: [
+  1132→      { icon: <DollarSign size={20} className="text-amber-600" />, title: 'Exclusive Discounts', desc: 'Special pricing and sales on music, merchandise, and concert tickets as a thank you for your loyalty and support.', bgColor: 'bg-amber-50' },
+  1133→      { icon: <Ticket size={20} className="text-teal-600" />, title: 'Ticket Pre-Sales', desc: 'Get a unique code to buy concert tickets 48 hours before the general public. Secure your spot at every show.', bgColor: 'bg-teal-50' },
+  1134→    ],
+  1135→  },
+  1136→  {
+  1137→    category: 'Interactive Experiences',
+  1138→    items: [
+  1139→      { icon: <MessageSquare size={20} className="text-rose-600" />, title: 'Monthly Q&A Sessions', desc: 'Regular opportunities for members to ask questions and connect personally with the artist in live group sessions.', bgColor: 'bg-rose-50' },
+  1140→      { icon: <Heart size={20} className="text-pink-600" />, title: 'Meet & Greet VIP Access', desc: 'VIP meet-and-greet opportunities at select events — soundcheck parties, dinner meetups, and private hangouts.', bgColor: 'bg-pink-50' },
+  1141→    ],
+  1142→  },
+  1143→];
+  1144→
+  1145→function ExclusivePage() {
+  1146→  return (
+  1147→    <div className="max-w-5xl mx-auto py-8">
+  1148→      <div className="mb-8">
+  1149→        <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3">Exclusive Access & Releases</h1>
+  1150→        <p className="text-lg text-neutral-500 max-w-xl">
+  1151→          What you get when you join. Every tier unlocks more — from early drops to in-person VIP experiences.
+  1152→        </p>
+  1153→      </div>
+  1154→
+  1155→      {EXCLUSIVE_FEATURES.map((cat) => (
+  1156→        <section key={cat.category} className="mb-10">
+  1157→          <h2 className="text-xl font-bold text-neutral-900 mb-4">{cat.category}</h2>
+  1158→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  1159→            {cat.items.map((item) => (
+  1160→              <div key={item.title} className={`${item.bgColor} border border-neutral-200 rounded-xl p-5 transition-colors hover:border-neutral-300`}>
+  1161→                <div className="flex items-start gap-3">
+  1162→                  <div className="flex-shrink-0">{item.icon}</div>
+  1163→                  <div className="min-w-0">
+  1164→                    <h3 className="text-sm font-semibold text-neutral-900">{item.title}</h3>
+  1165→                    <p className="text-xs text-neutral-500 mt-1 leading-relaxed">{item.desc}</p>
+  1166→                  </div>
+  1167→                </div>
+  1168→              </div>
+  1169→            ))}
+  1170→          </div>
+  1171→        </section>
+  1172→      ))}
+  1173→
+  1174→      {/* Upsell callout */}
+  1175→      <div className="mt-8 bg-neutral-900 rounded-xl p-6 text-center">
+  1176→        <Crown size={32} className="text-white/40 mx-auto mb-3" />
+  1177→        <h2 className="text-2xl font-bold text-white mb-2">Ready to unlock everything?</h2>
+  1178→        <p className="text-sm text-white/60 mb-4">Start with Entry for $4/mo — or go all-in with Premium at $28/mo for the ultimate fan experience.</p>
+  1179→        <Link to="/portal/membership" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-neutral-900 font-medium hover:bg-white/90 transition-colors">
+  1180→          View Membership Tiers <ArrowRight size={16} />
+  1181→        </Link>
+  1182→      </div>
+  1183→    </div>
+  1184→  );
+  1185→}
+  1186→
+  1187→// ─── Community Hub Page ───
+  1188→const COMMUNITY_FEATURES = [
+  1189→  { icon: <Radio size={24} className="text-neutral-700" />, title: 'Live Streams', desc: 'Exclusive broadcasts of live performances, studio sessions, and intimate sets — members-only access to moments you won\'t find anywhere else.', badge: 'Core & Premium' },
+  1190→  { icon: <MessageSquare size={24} className="text-neutral-700" />, title: 'Monthly Q&A Sessions', desc: 'Regular live Q&A sessions where you can ask questions directly. The artist answers in real time — no filter, no delay.', badge: 'Core & Premium' },
+  1191→  { icon: <UsersIcon size={24} className="text-neutral-700" />, title: 'Social Spaces', desc: 'Connect with other fans in exclusive community channels. Share thoughts, discuss new releases, and build friendships with people who share your passion.', badge: 'All Tiers' },
+  1192→  { icon: <Calendar size={24} className="text-neutral-700" />, title: 'In-Person Meetups', desc: 'Special meetups and events to foster community and show appreciation. Soundcheck parties, local hangouts, and annual fan gatherings.', badge: 'Premium Priority' },
+  1193→  { icon: <Bell size={24} className="text-neutral-700" />, title: 'In-App Notifications', desc: 'Never miss a drop, a stream, or an event. Push notifications keep you in the loop on everything happening in the community.', badge: 'All Tiers' },
+  1194→  { icon: <Activity size={24} className="text-neutral-700" />, title: 'Fan Leaderboard', desc: 'See where you rank among the community. Points earned from engagement, purchases, and attendance — climb the board and earn recognition.', badge: 'All Tiers' },
+  1195→];
+  1196→
+  1197→const UPCOMING_EVENTS_DATA = [
+  1198→  { title: 'Studio Session Live Stream', date: 'Aug 12, 2026', time: '7:00 PM EST', type: 'Live Stream', tier: 'Core+' },
+  1199→  { title: 'Monthly Q&A: Ask Adea Anything', date: 'Aug 15, 2026', time: '3:00 PM EST', type: 'Q&A', tier: 'Core+' },
+  1200→  { title: 'Philadelphia Fan Meetup', date: 'Sep 20, 2026', time: '6:00 PM EST', type: 'In-Person', tier: 'Premium' },
+  1201→  { title: 'Fall Tour Pre-Sale Opens', date: 'Oct 1, 2026', time: '12:00 PM EST', type: 'Pre-Sale', tier: 'Entry+' },
+  1202→];
+  1203→
+  1204→function CommunityPage() {
+  1205→  return (
+  1206→    <div className="max-w-5xl mx-auto py-8">
+  1207→      <div className="mb-8">
+  1208→        <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3">Community Hub</h1>
+  1209→        <p className="text-lg text-neutral-500 max-w-xl">
+  1210→          Where fans connect, interact, and experience the music together. Live streams, Q&As, meetups, and social spaces — all in one place.
+  1211→        </p>
+  1212→      </div>
+  1213→
+  1214→      {/* Community features */}
+  1215→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+  1216→        {COMMUNITY_FEATURES.map((f) => (
+  1217→          <div key={f.title} className="bg-white border border-neutral-200 rounded-xl p-5 transition-colors hover:border-neutral-300">
+  1218→            <div className="flex items-center gap-2 mb-3">
+  1219→              {f.icon}
+  1220→              <h3 className="text-sm font-semibold text-neutral-900">{f.title}</h3>
+  1221→            </div>
+  1222→            <p className="text-xs text-neutral-500 leading-relaxed mb-3">{f.desc}</p>
+  1223→            <Badge color="gray" className="text-xs">{f.badge}</Badge>
+  1224→          </div>
+  1225→        ))}
+  1226→      </div>
+  1227→
+  1228→      {/* Upcoming community events */}
+  1229→      <section className="mb-10">
+  1230→        <h2 className="text-xl font-bold text-neutral-900 mb-4">Upcoming Community Events</h2>
+  1231→        <div className="bg-white border border-neutral-200 rounded-xl divide-y divide-neutral-100">
+  1232→          {UPCOMING_EVENTS_DATA.map((ev, i) => (
+  1233→            <div key={i} className="flex items-center justify-between px-5 py-4 hover:bg-neutral-50 transition-colors">
+  1234→              <div>
+  1235→                <p className="text-sm font-semibold text-neutral-900">{ev.title}</p>
+  1236→                <p className="text-xs text-neutral-500 mt-0.5">{ev.date} · {ev.time}</p>
+  1237→              </div>
+  1238→              <div className="flex items-center gap-2">
+  1239→                <Badge color="gray" className="text-xs">{ev.type}</Badge>
+  1240→                <Badge color="green" className="text-xs">{ev.tier}</Badge>
+  1241→              </div>
+  1242→            </div>
+  1243→          ))}
+  1244→        </div>
+  1245→      </section>
+  1246→
+  1247→      {/* Join prompt */}
+  1248→      <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-6 text-center">
+  1249→        <h2 className="text-xl font-bold text-neutral-900 mb-2">Not a member yet?</h2>
+  1250→        <p className="text-sm text-neutral-500 mb-4">Join the community to unlock live streams, Q&As, and exclusive social spaces.</p>
+  1251→        <Link to="/portal/membership" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-neutral-900 text-white font-medium hover:bg-neutral-700 transition-colors">
+  1252→          Choose Your Tier <ArrowRight size={16} />
+  1253→        </Link>
+  1254→      </div>
+  1255→    </div>
+  1256→  );
+  1257→}
+  1258→
+  1259→// ─── Premium Content Page ───
+  1260→const CONTENT_CATEGORIES = [
+  1261→  {
+  1262→    title: 'Behind-the-Scenes',
+  1263→    icon: <Eye size={20} className="text-neutral-700" />,
+  1264→    items: [
+  1265→      { title: 'Studio Session: Midnight Echoes', type: 'Photo Gallery', date: 'Jul 15, 2026', tier: 'Core+', duration: '24 photos' },
+  1266→      { title: 'Making of Urban Frequencies', type: 'Video Documentary', date: 'Jun 28, 2026', tier: 'Core+', duration: '18 min' },
+  1267→      { title: 'Tour Rehearsal Clips', type: 'Short Video', date: 'Jul 20, 2026', tier: 'Entry+', duration: '5 min' },
+  1268→    ],
+  1269→  },
+  1270→  {
+  1271→    title: 'Premium Video Content',
+  1272→    icon: <VideoIcon size={20} className="text-neutral-700" />,
+  1273→    items: [
+  1274→      { title: 'Adea Lyric: The Story So Far', type: 'Feature Documentary', date: 'May 10, 2026', tier: 'Premium', duration: '45 min' },
+  1275→      { title: 'Exclusive Interview: On Creativity & Process', type: 'Interview', date: 'Jun 5, 2026', tier: 'Premium', duration: '22 min' },
+  1276→      { title: 'Live at The Fillmore — Full Performance', type: 'Concert Film', date: 'Apr 20, 2026', tier: 'Core+', duration: '90 min' },
+  1277→    ],
+  1278→  },
+  1279→  {
+  1280→    title: 'Live Streams',
+  1281→    icon: <Radio size={20} className="text-neutral-700" />,
+  1282→    items: [
+  1283→      { title: 'Studio Session — Writing New Material', type: 'Live Stream', date: 'Aug 12, 2026', tier: 'Core+', duration: 'Live' },
+  1284→      { title: 'Adea Answers: Monthly Fan Q&A', type: 'Live Q&A', date: 'Aug 15, 2026', tier: 'Core+', duration: '60 min' },
+  1285→      { title: 'Intimate Acoustic Set — Members Only', type: 'Live Performance', date: 'Sep 1, 2026', tier: 'Premium', duration: '45 min' },
+  1286→    ],
+  1287→  },
+  1288→  {
+  1289→    title: 'Collaborative Content',
+  1290→    icon: <Handshake size={20} className="text-neutral-700" />,
+  1291→    items: [
+  1292→      { title: 'Co-Branded Merch Drop with Waverly Supply Co.', type: 'Shoppable Collab', date: 'Aug 25, 2026', tier: 'Core+', duration: 'Limited run' },
+  1293→    ],
+  1294→  },
+  1295→];
+  1296→
+  1297→function PremiumContentPage() {
+  1298→  return (
+  1299→    <div className="max-w-5xl mx-auto py-8">
+  1300→      <div className="mb-8">
+  1301→        <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3">Premium Content & Storytelling</h1>
+  1302→        <p className="text-lg text-neutral-500 max-w-xl">
+  1303→          A Netflix for fans. Behind-the-scenes, documentaries, live streams, and exclusive interviews — all on demand.
+  1304→        </p>
+  1305→      </div>
+  1306→
+  1307→      {CONTENT_CATEGORIES.map((cat) => (
+  1308→        <section key={cat.title} className="mb-8">
+  1309→          <h2 className="text-lg font-bold text-neutral-900 mb-3 flex items-center gap-2">
+  1310→            {cat.icon} {cat.title}
+  1311→          </h2>
+  1312→          <div className="bg-white border border-neutral-200 rounded-xl divide-y divide-neutral-100">
+  1313→            {cat.items.map((item) => (
+  1314→              <div key={item.title} className="flex items-center justify-between px-5 py-4 hover:bg-neutral-50 transition-colors cursor-pointer">
+  1315→                <div className="flex-1 min-w-0">
+  1316→                  <p className="text-sm font-semibold text-neutral-900 truncate">{item.title}</p>
+  1317→                  <p className="text-xs text-neutral-500 mt-0.5">{item.type} · {item.date} · {item.duration}</p>
+  1318→                </div>
+  1319→                <Badge color={item.tier === 'Premium' ? 'amber' : item.tier === 'Core+' ? 'green' : 'gray'} className="text-xs">{item.tier}</Badge>
+  1320→              </div>
+  1321→            ))}
+  1322→          </div>
+  1323→        </section>
+  1324→      ))}
+  1325→
+  1326→      {/* Upsell */}
+  1327→      <div className="mt-8 bg-neutral-900 rounded-xl p-6 text-center">
+  1328→        <VideoIcon size={32} className="text-white/40 mx-auto mb-3" />
+  1329→        <h2 className="text-2xl font-bold text-white mb-2">Unlock the full library</h2>
+  1330→        <p className="text-sm text-white/60 mb-4">From BTS photos to feature-length documentaries — Premium members get it all, on demand.</p>
+  1331→        <Link to="/portal/membership" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-neutral-900 font-medium hover:bg-white/90 transition-colors">
+  1332→          Upgrade to Premium <ArrowRight size={16} />
+  1333→        </Link>
+  1334→      </div>
+  1335→    </div>
+  1336→  );
+  1337→}
+  1338→
+  1339→
+  1340→
+  1341→function ProApp() {
+  1342→  const { path, navigate } = useRouter();
+  1343→  const { portalUser } = useProAuth();
+  1344→
+  1345→  if (path === '/pro/login' || path === '/pro/login/') return <ProLoginPage />;
+  1346→  if (path === '/pro/signup' || path.startsWith('/pro/signup')) return <ProSignupPage />;
+  1347→  if (path === '/pro/pending') return <ProPendingPage />;
+  1348→  if (path === '/pro/suspended') return <ProSuspendedPage />;
+  1349→
+  1350→  const roleFromPath = path.startsWith('/pro/dashboard/label') ? 'label' : path.startsWith('/pro/dashboard/booking') ? 'booking' : path.startsWith('/pro/dashboard/writer') ? 'writer' : path.startsWith('/pro/dashboard/admin') ? 'admin' : null;
+  1351→  const role = roleFromPath ?? portalUser?.role ?? 'label';
+  1352→
+  1353→  if (path === '/pro/dashboard/label' || path === '/pro/dashboard/label/') return <ProPortalShell role="label"><LabelOverview /></ProPortalShell>;
+  1354→  if (path === '/pro/dashboard/label/catalog') return <ProPortalShell role="label"><LabelCatalog /></ProPortalShell>;
+  1355→  if (path === '/pro/dashboard/label/requests') return <ProPortalShell role="label"><LabelRequests /></ProPortalShell>;
+  1356→  if (path === '/pro/dashboard/label/deals') return <ProPortalShell role="label"><LabelDeals /></ProPortalShell>;
+  1357→  if (path === '/pro/dashboard/label/custom') return <ProPortalShell role="label"><LabelCustomWrite /></ProPortalShell>;
+  1358→  if (path === '/pro/dashboard/label/messages') return <ProPortalShell role="label"><LabelMessages /></ProPortalShell>;
+  1359→  if (path === '/pro/dashboard/label/documents') return <ProPortalShell role="label"><LabelDocuments /></ProPortalShell>;
+  1360→  if (path === '/pro/dashboard/booking' || path === '/pro/dashboard/booking/') return <ProPortalShell role="booking"><BookingOverview /></ProPortalShell>;
+  1361→  if (path.startsWith('/pro/dashboard/booking/')) return <ProPortalShell role="booking"><GenericProPage title={path.split('/pro/dashboard/booking/')[1]} role="booking" /></ProPortalShell>;
+  1362→  if (path === '/pro/dashboard/writer' || path === '/pro/dashboard/writer/') return <ProPortalShell role="writer"><WriterOverview /></ProPortalShell>;
+  1363→  if (path.startsWith('/pro/dashboard/writer/')) return <ProPortalShell role="writer"><GenericProPage title={path.split('/pro/dashboard/writer/')[1]} role="writer" /></ProPortalShell>;
+  1364→  if (path === '/pro/dashboard/admin' || path === '/pro/dashboard/admin/') return <ProPortalShell role="admin"><ProAdminDashboard /></ProPortalShell>;
+  1365→  if (path.startsWith('/pro/dashboard/admin/')) return <ProPortalShell role="admin"><GenericProPage title={path.split('/pro/dashboard/admin/')[1]} role="admin" /></ProPortalShell>;
+  1366→
+  1367→  // ─── Default Pro landing (no sub-path specified) ───
+  1368→  if (path === '/pro' || path === '/pro/') return <ProPortalShell role={role}><LabelOverview /></ProPortalShell>;
+  1369→
+  1370→  // New Industry & Sync Portal routes
+  1371→  if (path === '/pro/catalog/releases') return <ProPortalShell role={role}><ProCatalogReleasesPage /></ProPortalShell>;
+  1372→  if (path === '/pro/catalog/tracks') return <ProPortalShell role={role}><ProCatalogTracksPage /></ProPortalShell>;
+  1373→  if (path === '/pro/catalog/assets') return <ProPortalShell role={role}><ProCatalogAssetsPage /></ProPortalShell>;
+  1374→  if (path === '/pro/distribution/status') return <ProPortalShell role={role}><ProDistributionStatusPage /></ProPortalShell>;
+  1375→  if (path === '/pro/distribution/submit') return <ProPortalShell role={role}><ProDistributionSubmitPage /></ProPortalShell>;
+  1376→  if (path === '/pro/distribution/corrections') return <ProPortalShell role={role}><ProDistributionCorrectionsPage /></ProPortalShell>;
+  1377→  if (path === '/pro/sync/search') return <ProPortalShell role={role}><ProSyncSearchPage /></ProPortalShell>;
+  1378→  if (path === '/pro/sync/deals') return <ProPortalShell role={role}><ProSyncDealRoomsPage /></ProPortalShell>;
+  1379→  if (path === '/pro/sync/workspace') return <ProPortalShell role={role}><ProSyncWorkspacePage /></ProPortalShell>;
+  1380→  if (path === '/pro/sync/history') return <ProPortalShell role={role}><ProSyncLicenseHistoryPage /></ProPortalShell>;
+  1381→  if (path === '/pro/rights') return <ProPortalShell role={role}><ProRightsPage /></ProPortalShell>;
+  1382→  if (path === '/pro/royalties') return <ProPortalShell role={role}><ProRoyaltiesPage /></ProPortalShell>;
+  1383→  if (path === '/pro/analytics') return <ProPortalShell role={role}><ProAnalyticsPage /></ProPortalShell>;
+  1384→  if (path === '/pro/settings') return <ProPortalShell role={role}><ProSettingsPage /></ProPortalShell>;
+  1385→
+  1386→  // ─── Fallback: redirect to the label dashboard for unknown /pro/ routes ───
+  1387→  navigate('/pro/dashboard/label');
+  1388→  return null;
+  1389→}
+  1390→
+  1391→function ProLoginPage() {
+  1392→  const { signIn } = useProAuth();
+  1393→  const { navigate } = useRouter();
+  1394→  const [email, setEmail] = useState('');
+  1395→  const [password, setPassword] = useState('');
+  1396→  const [loading, setLoading] = useState(false);
+  1397→  const submit = async () => {
+  1398→    if (!email || !password) { toast('error', 'Email and password are required'); return; }
+  1399→    setLoading(true);
+  1400→    const { error } = await signIn(email, password);
+  1401→    setLoading(false);
+  1402→    if (error) { toast('error', error); return; }
+  1403→    const stored = localStorage.getItem('pro-auth-session');
+  1404→    if (stored) {
+  1405→      try {
+  1406→        const parsed = JSON.parse(stored);
+  1407→        const pu = parsed.portalUser;
+  1408→        if (pu?.status === 'pending') { navigate('/pro/pending'); return; }
+  1409→        if (pu?.status === 'suspended') { navigate('/pro/suspended'); return; }
+  1410→        // Smart redirect based on role
+  1411→        if (pu?.role === 'writer') { navigate('/writer'); return; }
+  1412→        if (pu?.role === 'admin') { navigate('/admin'); return; }
+  1413→        if (pu?.role === 'booking') { navigate('/pro/dashboard/booking'); return; }
+  1414→        navigate('/pro/dashboard/label');
+  1415→      } catch { navigate('/pro/dashboard/label'); }
+  1416→    } else {
+  1417→      navigate('/pro/dashboard/label');
+  1418→    }
+  1419→  };
+  1420→  return (
+  1421→    <div className="min-h-screen bg-white font-sans flex flex-col">
+  1422→      <div className="flex-1 flex flex-col lg:flex-row">
+  1423→        <div className="lg:w-1/2 flex flex-col justify-between p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-neutral-50 to-white border-r border-neutral-100">
+  1424→          <div>
+  1425→            <p className="text-xs tracking-[0.2em] text-neutral-300 uppercase mb-8">Adea Lyric</p>
+  1426→            <h1 className="text-4xl sm:text-5xl font-bold leading-tight text-neutral-900 mb-4">Professional<br />sign in.</h1>
+  1427→            <p className="text-lg text-neutral-500 max-w-md leading-relaxed">Access your industry, sync, booking, or writer dashboard. You'll be routed to the right portal based on your role.</p>
+  1428→          </div>
+  1429→          <div className="mt-8 pt-8 border-t border-neutral-100"><p className="text-xs text-neutral-300">West Philadelphia · 2026</p></div>
+  1430→        </div>
+  1431→        <div className="lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-white">
+  1432→          <div className="w-full max-w-sm">
+  1433→            <div className="flex items-center gap-3 mb-8">
+  1434→              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center"><Building2 size={20} className="text-white" /></div>
+  1435→              <div><p className="text-xs font-bold tracking-[0.15em] uppercase text-neutral-500">Professional Portal</p><p className="text-sm font-semibold text-neutral-900">Sign In</p></div>
+  1436→            </div>
+  1437→            <div className="border border-neutral-200 rounded-xl p-6 space-y-4 bg-white">
+  1438→              <Field label="Email"><div className="relative"><Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9 border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="you@company.com" /></div></Field>
+  1439→              <Field label="Password"><div className="relative"><Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9 border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="Your password" onKeyDown={(e) => e.key === 'Enter' && submit()} /></div></Field>
+  1440→              <Button variant="primary" className="w-full bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2" onClick={submit} disabled={loading}>{loading ? 'Signing in...' : 'Sign In'} <ArrowRight size={16} /></Button>
+  1441→            </div>
+  1442→            <div className="mt-6 text-center space-y-2">
+  1443→              <p className="text-sm text-neutral-500">Need access? <button onClick={() => navigate('/pro/signup')} className="text-blue-600 hover:underline font-medium">Request industry access</button> or <button onClick={() => navigate('/pro/signup?role=writer')} className="text-violet-600 hover:underline font-medium">Request writer access</button></p>
+  1444→              <p className="text-sm text-neutral-500">Looking for a different portal? <button onClick={() => navigate('/')} className="text-neutral-900 hover:underline font-medium">Go back</button></p>
+  1445→              <p className="text-xs text-neutral-400 mt-2">Demo accounts: admin@test.com, label@test.com, booking@test.com, writer@test.com (any password)</p>
+  1446→              <p className="text-xs text-neutral-400 mt-1">Or navigate directly to the <button onClick={() => navigate('/admin')} className="text-neutral-900 hover:underline font-medium">Admin Dashboard</button></p>
+  1447→            </div>
+  1448→          </div>
+  1449→        </div>
+  1450→      </div>
+  1451→    </div>
+  1452→  );
+  1453→}
+  1454→
+  1455→function ProSignupPage() {
+  1456→  const { signUp } = useProAuth();
+  1457→  const { navigate, path } = useRouter();
+  1458→  // Determine if this is a Writer signup (from Writer portal card) or Industry signup
+  1459→  const isWriterSignup = (() => {
+  1460→    const params = new URLSearchParams(path.split('?')[1] || '');
+  1461→    return params.get('role') === 'writer';
+  1462→  })();
+  1463→  const [step, setStep] = useState<'role' | 'perks' | 'details'>(isWriterSignup ? 'perks' : 'role');
+  1464→  const [selectedRole, setSelectedRole] = useState(isWriterSignup ? 'writer' : '');
+  1465→  const [form, setForm] = useState({ email: '', password: '', orgName: '', displayName: '' });
+  1466→  const [loading, setLoading] = useState(false);
+  1467→  // Industry roles ONLY — writers have their own portal and signup flow
+  1468→  const INDUSTRY_ROLES = [
+  1469→    { value: 'label', label: 'Label / Sync Agent', desc: 'Browse catalog, request sync licenses, negotiate deals', icon: Building2, color: 'bg-blue-600' },
+  1470→    { value: 'booking', label: 'Booking Agent', desc: 'View EPK, check availability, submit booking requests', icon: Music, color: 'bg-blue-600' },
+  1471→  ];
+  1472→  const WRITER_ROLE = { value: 'writer', label: 'Writer / Collaborator', desc: 'View open collab calls, submit demos, buy songs', icon: PenLine, color: 'bg-violet-600' };
+  1473→  const ROLES = isWriterSignup ? [WRITER_ROLE] : INDUSTRY_ROLES;
+  1474→  const ROLE_PERKS: Record<string, { label: string }[]> = {
+  1475→    label: [{ label: 'Full sync catalog with metadata' }, { label: 'Request sync licenses directly' }, { label: 'Deal history & contract management' }, { label: 'Direct messaging with artist team' }, { label: 'Custom write request submission' }],
+  1476→    booking: [{ label: 'Artist EPK & press materials' }, { label: 'Real-time availability calendar' }, { label: 'Submit booking requests' }, { label: 'Manage bookings & documents' }, { label: 'Direct messaging with artist team' }],
+  1477→    writer: [{ label: 'Browse open collaboration calls' }, { label: 'Submit demos & pitches' }, { label: 'Buy songs outright' }, { label: 'Track submission status' }, { label: 'Direct messaging with artist team' }],
+  1478→  };
+  1479→  const submit = async () => {
+  1480→    if (!form.email || !form.password || !selectedRole) { toast('error', 'All fields are required'); return; }
+  1481→    if (form.password.length < 8) { toast('error', 'Password must be at least 8 characters'); return; }
+  1482→    setLoading(true);
+  1483→    const { error } = await signUp(form.email, form.password, selectedRole, form.orgName, form.displayName);
+  1484→    setLoading(false);
+  1485→    if (error) { toast('error', error); return; }
+  1486→    toast('success', 'Account created — pending admin approval');
+  1487→    navigate('/pro/login');
+  1488→  };
+  1489→  const currentRole = ROLES.find(r => r.value === selectedRole);
+  1490→  const currentPerks = ROLE_PERKS[selectedRole] ?? [];
+  1491→  return (
+  1492→    <div className="min-h-screen bg-white font-sans flex flex-col">
+  1493→      <div className="flex-1 flex flex-col lg:flex-row">
+  1494→        <div className="lg:w-1/2 flex flex-col justify-between p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-neutral-50 to-white border-r border-neutral-100">
+  1495→          <div>
+  1496→            <p className="text-xs tracking-[0.2em] text-neutral-300 uppercase mb-8">Adea Lyric</p>
+  1497→            <h1 className="text-4xl sm:text-5xl font-bold leading-tight text-neutral-900 mb-4">{isWriterSignup ? 'Writer' : 'Industry'}<br />access.</h1>
+  1498→            <p className="text-lg text-neutral-500 max-w-md leading-relaxed">{isWriterSignup ? 'Join the songwriter and collaborator community. Pitch demos, browse collab calls, and buy songs. Your account will be reviewed by the artist team.' : 'Request access to sync licensing and booking tools. Your account will be reviewed by the artist team.'}</p>
+  1499→          </div>
+  1500→          <div className="mt-8 pt-8 border-t border-neutral-100"><p className="text-xs text-neutral-300">West Philadelphia · 2026</p><p className="text-xs text-neutral-300 mt-1">{isWriterSignup ? 'Writer access requires admin approval.' : 'Industry access requires admin approval.'}</p></div>
+  1501→        </div>
+  1502→        <div className="lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-white">
+  1503→          <div className="w-full max-w-sm">
+  1504→            <div className="flex items-center gap-2 mb-8">
+  1505→              {[{ id: 'role', t: isWriterSignup ? 'Writer Portal' : 'Choose Role', d: isWriterSignup ? 'Songwriter & collaborator access' : 'What type of professional?' }, { id: 'perks', t: 'What You Get', d: 'Features based on role' }, { id: 'details', t: 'Create Account', d: 'Set up your profile' }].map((s, i) => {
+  1506→                const stepIndex = step === 'role' ? 0 : step === 'perks' ? 1 : 2;
+  1507→                const isActive = i <= stepIndex;
+  1508→                const activeColor = isWriterSignup ? 'bg-violet-600' : 'bg-blue-600';
+  1509→                return (<div key={s.id} className="flex items-center gap-2"><div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? activeColor + ' text-white' : 'bg-neutral-200 text-neutral-400'}`}>{i + 1}</div><div className="hidden sm:block"><p className={`text-xs font-semibold ${isActive ? 'text-neutral-900' : 'text-neutral-400'}`}>{s.t}</p><p className="text-xs text-neutral-400">{s.d}</p></div>{i < 2 && <div className="w-8 h-px bg-neutral-200 mx-1" />}</div>);
+  1510→              })}
+  1511→            </div>
+  1512→            {step === 'role' ? (
+  1513→              <div>
+  1514→                <p className="text-sm font-semibold text-neutral-900 mb-2">I am a...</p>
+  1515→                <p className="text-xs text-neutral-400 mb-4">Choose your professional role to get started.</p>
+  1516→                <div className="space-y-3">{ROLES.map((r) => { const Icon = r.icon; return (<button key={r.value} onClick={() => { setSelectedRole(r.value); setStep('perks'); }} className="w-full text-left p-4 rounded-xl border border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50 transition-all group bg-white"><div className="flex items-start gap-3"><div className={`w-10 h-10 rounded-lg ${r.color} flex items-center justify-center flex-shrink-0 text-white`}><Icon size={20} /></div><div className="flex-1"><p className="font-semibold text-sm text-neutral-900">{r.label}</p><p className="text-xs text-neutral-500 mt-0.5">{r.desc}</p></div><ArrowRight size={16} className="text-neutral-300 group-hover:text-neutral-600 mt-2 transition-colors" /></div></button>); })}</div>
+  1517→              </div>
+  1518→            ) : step === 'perks' ? (
+  1519→              <div>
+  1520→                <div className="flex items-center gap-3 mb-6">
+  1521→                  {currentRole && (<><div className={`w-10 h-10 rounded-lg ${currentRole.color} flex items-center justify-center text-white`}>{(() => { const Icon = currentRole.icon; return <Icon size={20} />; })()}</div><div><p className={`text-xs font-bold tracking-[0.15em] uppercase ${isWriterSignup ? 'text-violet-600' : 'text-blue-600'}`}>{currentRole.label}</p><p className="text-sm font-semibold text-neutral-900">What you get</p></div></>)}
+  1522→                  {!isWriterSignup && <button onClick={() => setStep('role')} className="ml-auto text-xs text-neutral-400 hover:text-neutral-600">Change role</button>}
+  1523→                </div>
+  1524→                <div className="space-y-3 mb-6">{currentPerks.map((perk) => (<div key={perk.label} className={`flex items-center gap-3 p-3 rounded-lg ${isWriterSignup ? 'bg-violet-50 border border-violet-100' : 'bg-blue-50 border border-blue-100'}`}><CheckCircle2 size={16} className={isWriterSignup ? 'text-violet-600' : 'text-blue-600'} /><span className="text-sm text-neutral-700">{perk.label}</span></div>))}</div>
+  1525→                <button onClick={() => setStep('details')} className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl ${isWriterSignup ? 'bg-violet-600 text-white hover:bg-violet-700' : 'bg-blue-600 text-white hover:bg-blue-700'} text-sm font-medium transition-colors`}>Continue to Create Account <ArrowRight size={16} /></button>
+  1526→                {!isWriterSignup && <button onClick={() => setStep('role')} className="w-full text-center text-xs text-neutral-400 hover:text-neutral-600 mt-3 transition-colors">Back to role selection</button>}
+  1527→              </div>
+  1528→            ) : (
+  1529→              <div>
+  1530→                <div className="flex items-center gap-3 mb-6">
+  1531→                  {currentRole && (<><div className={`w-10 h-10 rounded-lg ${currentRole.color} flex items-center justify-center text-white`}>{(() => { const Icon = currentRole.icon; return <Icon size={20} />; })()}</div><div><span className={`text-xs px-2 py-1 rounded-full ${isWriterSignup ? 'bg-violet-100 text-violet-600' : 'bg-blue-100 text-blue-600'} font-medium`}>{currentRole.label}</span><p className="text-sm font-semibold text-neutral-900 mt-1">Create Account</p></div></>)}
+  1532→                </div>
+  1533→                <div className="border border-neutral-200 rounded-xl p-6 space-y-4 bg-white">
+  1534→                  <Field label="Email" required><div className="relative"><Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-9 border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="you@company.com" /></div></Field>
+  1535→                  <Field label="Password" required><div className="relative"><Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="pl-9 border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="Min 8 characters" /></div></Field>
+  1536→                  <Field label="Your Name"><Input value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} className="border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="Full name" /></Field>
+  1537→                  <Field label="Organization"><Input value={form.orgName} onChange={(e) => setForm({ ...form, orgName: e.target.value })} className="border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400" placeholder="Label, agency, or self" /></Field>
+  1538→                  <Button variant="primary" className={`w-full ${isWriterSignup ? 'bg-violet-600 text-white hover:bg-violet-700' : 'bg-blue-600 text-white hover:bg-blue-700'} flex items-center justify-center gap-2`} onClick={submit} disabled={loading}>{loading ? 'Creating...' : 'Request Access'} <ArrowRight size={16} /></Button>
+  1539→                  <p className="text-xs text-neutral-400 text-center">Your account will be reviewed by the artist team before activation</p>
+  1540→                </div>
+  1541→                <button onClick={() => setStep('perks')} className="w-full text-center text-xs text-neutral-400 hover:text-neutral-600 mt-3 transition-colors">Back to overview</button>
+  1542→              </div>
+  1543→            )}
+  1544→            <div className="mt-6 text-center space-y-2">
+  1545→              <p className="text-sm text-neutral-500">Already have access? <button onClick={() => navigate('/pro/login')} className={`${isWriterSignup ? 'text-violet-600' : 'text-blue-600'} hover:underline font-medium`}>Sign in</button></p>
+  1546→              <p className="text-sm text-neutral-500">{isWriterSignup ? 'Not a songwriter or collaborator?' : 'Not an industry professional?'} <button onClick={() => navigate('/')} className="text-neutral-900 hover:underline font-medium">Choose a different portal</button></p>
+  1547→            </div>
+  1548→          </div>
+  1549→        </div>
+  1550→      </div>
+  1551→    </div>
+  1552→  );
+  1553→}
+  1554→
+  1555→function ProPendingPage() {
+  1556→  return (
+  1557→    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
+  1558→      <div className="text-center max-w-sm">
+  1559→        <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4"><Clock size={32} className="text-neutral-400" /></div>
+  1560→        <h1 className="text-2xl font-bold text-neutral-900 mb-2">Awaiting Approval</h1>
+  1561→        <p className="text-neutral-500 mb-6">Your account is pending review by the artist team.</p>
+  1562→        <Link to="/pro/login"><Button variant="secondary">Back to Login</Button></Link>
+  1563→      </div>
+  1564→    </div>
+  1565→  );
+  1566→}
+  1567→
+  1568→function ProSuspendedPage() {
+  1569→  return (
+  1570→    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
+  1571→      <div className="text-center max-w-sm">
+  1572→        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4"><Ban size={32} className="text-red-500" /></div>
+  1573→        <h1 className="text-2xl font-bold text-neutral-900 mb-2">Account Suspended</h1>
+  1574→        <p className="text-neutral-500 mb-6">Your portal access has been suspended.</p>
+  1575→        <Link to="/pro/login"><Button variant="secondary">Back to Login</Button></Link>
+  1576→      </div>
+  1577→    </div>
+  1578→  );
+  1579→}
+  1580→
+  1581→// ============ PRO PORTAL PAGE CONTENT (LIGHT THEME) ============
+  1582→// Label pages are now imported from @/pro/pages/label/*
+  1583→
+  1584→function BookingOverview() {
+  1585→  const { portalUser } = useProAuth();
+  1586→  const holds = mockData.mockAvailabilityHolds;
+  1587→  const requests = mockData.mockPortalRequests.filter(r => r.type === 'booking');
+  1588→  return (
+  1589→    <div className="space-y-8">
+  1590→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  1591→        <div>
+  1592→          <h1 className="text-2xl font-bold text-neutral-900">Booking Overview</h1>
+  1593→          <p className="mt-1 text-sm text-neutral-500">Welcome back{portalUser?.display_name ? `, ${portalUser.display_name}` : ''}.</p>
+  1594→        </div>
+  1595→        <Link to="/pro/dashboard/booking/request">
+  1596→          <Button variant="primary" size="lg"><Send size={18} /> Request a Booking</Button>
+  1597→        </Link>
+  1598→      </div>
+  1599→      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  1600→        {[
+  1601→          { label: 'Upcoming Shows', value: holds.filter(h => h.status === 'booked').length, icon: <Calendar size={24} /> },
+  1602→          { label: 'Pending Requests', value: requests.filter(r => r.status === 'pending').length, icon: <Clock size={24} /> },
+  1603→          { label: 'Confirmed (Month)', value: holds.filter(h => h.status === 'booked').length, icon: <TrendingUp size={24} /> },
+  1604→        ].map(s => (
+  1605→          <div key={s.label} className="bg-white border border-neutral-200 rounded-xl p-5">
+  1606→            <div className="flex items-start justify-between">
+  1607→              <div>
+  1608→                <p className="text-sm font-medium text-neutral-500">{s.label}</p>
+  1609→                <p className="mt-2 text-2xl font-semibold text-neutral-900">{s.value}</p>
+  1610→              </div>
+  1611→              <div className="text-neutral-300">{s.icon}</div>
+  1612→            </div>
+  1613→          </div>
+  1614→        ))}
+  1615→      </div>
+  1616→      <div className="bg-white border border-neutral-200 rounded-xl p-6">
+  1617→        <h2 className="text-lg font-semibold text-neutral-900 mb-4">Upcoming Confirmed Shows</h2>
+  1618→        {holds.filter(h => h.status === 'booked').length === 0 ? <EmptyState title="No upcoming confirmed shows" /> : (
+  1619→          <div className="space-y-2">
+  1620→            {holds.filter(h => h.status === 'booked').map(hold => (
+  1621→              <div key={hold.id} className="flex items-center justify-between p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
+  1622→                <div>
+  1623→                  <p className="text-sm font-medium text-neutral-900">{hold.label ?? 'Booked Date'}</p>
+  1624→                  <p className="text-xs text-neutral-500">{formatDate(hold.date)}</p>
+  1625→                </div>
+  1626→                <Badge color="green">Booked</Badge>
+  1627→              </div>
+  1628→            ))}
+  1629→          </div>
+  1630→        )}
+  1631→      </div>
+  1632→    </div>
+  1633→  );
+  1634→}
+  1635→
+  1636→function WriterOverview() {
+  1637→  const { portalUser } = useProAuth();
+  1638→  const calls = mockData.mockCollabCalls.filter(c => c.status === 'open');
+  1639→  return (
+  1640→    <div className="max-w-5xl mx-auto py-10">
+  1641→      <div className="mb-10">
+  1642→        <div className="flex items-center gap-2 text-neutral-400 text-sm mb-2"><Sparkles size={16} /><span>Writer & Collaborator Portal</span></div>
+  1643→        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Welcome back, {portalUser?.display_name?.split(' ')[0] ?? 'there'}.</h1>
+  1644→        <p className="mt-2 text-neutral-500 max-w-2xl">Browse open collaboration calls, submit unsolicited pitches, explore the catalog for sale, and track every submission.</p>
+  1645→      </div>
+  1646→      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+  1647→        {[
+  1648→          { to: '/pro/dashboard/writer/submit', icon: <Send size={20} />, title: 'Submit a pitch', desc: 'Send us a demo or co-write idea.' },
+  1649→          { to: '/pro/dashboard/writer/buy', icon: <Music2 size={20} />, title: 'Browse catalog', desc: 'Songs available for purchase.' },
+  1650→          { to: '/pro/dashboard/writer/submissions', icon: <Target size={20} />, title: 'Track submissions', desc: 'See where your pitches stand.' },
+  1651→        ].map(a => (
+  1652→          <Link key={a.to} to={a.to} className="block">
+  1653→            <div className="bg-white hover:bg-neutral-50 border border-neutral-200 hover:border-neutral-300 rounded-xl p-5 transition-colors h-full">
+  1654→              <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center mb-3">{a.icon}</div>
+  1655→              <h3 className="font-semibold text-neutral-900">{a.title}</h3>
+  1656→              <p className="text-sm text-neutral-500 mt-1">{a.desc}</p>
+  1657→            </div>
+  1658→          </Link>
+  1659→        ))}
+  1660→      </div>
+  1661→      <div className="flex items-center justify-between mb-4">
+  1662→        <h2 className="text-xl font-semibold text-neutral-900">Open collaboration calls</h2>
+  1663→        <Link to="/pro/dashboard/writer/collab-calls" className="text-sm text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-1">View all <ArrowRight size={14} /></Link>
+  1664→      </div>
+  1665→      {calls.length === 0 ? <EmptyState title="No open calls right now" /> : (
+  1666→        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  1667→          {calls.slice(0, 4).map(call => (
+  1668→            <div key={call.id} className="bg-white border border-neutral-200 rounded-xl p-5 flex flex-col">
+  1669→              <h3 className="font-semibold text-neutral-900 leading-snug">{call.title}</h3>
+  1670→              {call.deadline && <Badge color="amber" size="sm"><Clock size={11} /> {formatDate(call.deadline)}</Badge>}
+  1671→              <p className="text-sm text-neutral-500 line-clamp-2 mb-3">{call.description}</p>
+  1672→              <div className="mt-auto pt-3 border-t border-neutral-200">
+  1673→                <p className="text-xs uppercase tracking-wide text-neutral-400 mb-1">What's needed</p>
+  1674→                <p className="text-sm text-neutral-600 line-clamp-2">{call.what_needed}</p>
+  1675→              </div>
+  1676→            </div>
+  1677→          ))}
+  1678→        </div>
+  1679→      )}
+  1680→    </div>
+  1681→  );
+  1682→}
+  1683→
+  1684→function ProAdminDashboard() {
+  1685→  const { portalUser } = useProAuth();
+  1686→  const requests = mockData.mockPortalRequests;
+  1687→  const songs = mockData.mockCatalogSongs;
+  1688→  const spend = mockData.mockSpendEntries;
+  1689→  return (
+  1690→    <div className="space-y-6">
+  1691→      <div className="flex items-center justify-between">
+  1692→        <div>
+  1693→          <h1 className="text-2xl font-bold text-neutral-900">Admin Dashboard</h1>
+  1694→          <p className="mt-1 text-sm text-neutral-500">Welcome back{portalUser?.display_name ? `, ${portalUser.display_name}` : ''}.</p>
+  1695→        </div>
+  1696→      </div>
+  1697→      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+  1698→        {[
+  1699→          { label: 'New Requests (7d)', value: 3, icon: <Inbox size={20} /> },
+  1700→          { label: 'Open Bookings', value: 2, icon: <Activity size={20} /> },
+  1701→          { label: 'Catalog Size', value: songs.length, icon: <Music size={20} /> },
+  1702→          { label: 'Revenue (30d)', value: formatCents(spend.filter(s => s.direction === 'revenue').reduce((sum, s) => sum + s.amount * 100, 0)), icon: <DollarSign size={20} /> },
+  1703→          { label: 'Pipeline Value', value: formatCents(300000), icon: <TrendingUp size={20} /> },
+  1704→        ].map(s => (
+  1705→          <div key={s.label} className="bg-white border border-neutral-200 rounded-xl p-4">
+  1706→            <div className="flex items-start justify-between">
+  1707→              <div className="min-w-0">
+  1708→                <p className="text-xs font-medium text-neutral-500 truncate">{s.label}</p>
+  1709→                <p className="mt-2 text-xl font-semibold text-neutral-900">{s.value}</p>
+  1710→              </div>
+  1711→              <div className="text-neutral-300 flex-shrink-0">{s.icon}</div>
+  1712→            </div>
+  1713→          </div>
+  1714→        ))}
+  1715→      </div>
+  1716→      <div className="bg-white border border-neutral-200 rounded-xl p-5">
+  1717→        <h2 className="text-sm font-semibold text-neutral-900 mb-4">Recent Activity</h2>
+  1718→        <div className="space-y-1">
+  1719→          {requests.map(req => (
+  1720→            <div key={req.id} className="flex items-center justify-between gap-3 py-2.5 border-b border-neutral-100 last:border-0">
+  1721→              <div className="flex items-center gap-3 min-w-0">
+  1722→                <Badge color={req.type === 'sync' ? 'purple' : req.type === 'booking' ? 'blue' : req.type === 'purchase' ? 'amber' : 'teal'} size="sm">{req.type.replace(/_/g, ' ')}</Badge>
+  1723→                <div className="min-w-0">
+  1724→                  <p className="text-sm font-medium text-neutral-900 truncate">{req.type === 'sync' ? 'Label Agent' : req.type === 'booking' ? 'Booking Agent' : 'Writer'}</p>
+  1725→                </div>
+  1726→              </div>
+  1727→              <div className="flex items-center gap-3 flex-shrink-0">
+  1728→                <StatusBadge status={req.status} />
+  1729→                <span className="text-xs text-neutral-400">{timeAgo(req.created_at)}</span>
+  1730→              </div>
+  1731→            </div>
+  1732→          ))}
+  1733→        </div>
+  1734→      </div>
+  1735→    </div>
+  1736→  );
+  1737→}
+  1738→
+  1739→// ============ INDUSTRY PORTAL PAGE COMPONENTS ============
+  1740→
+  1741→function ProCatalogReleasesPage() {
+  1742→  const [filterStatus, setFilterStatus] = useState<string>('all');
+  1743→  const [filterArtist, setFilterArtist] = useState<string>('all');
+  1744→  const releases = [
+  1745→    { id: 'r1', title: 'Midnight Echoes', artist: 'Adea Lyric', type: 'Album', status: 'live', releaseDate: '2025-09-15', dspStatus: [{ dsp: 'Spotify', status: 'live' }, { dsp: 'Apple Music', status: 'live' }, { dsp: 'Amazon Music', status: 'live' }, { dsp: 'Tidal', status: 'pending' }, { dsp: 'Deezer', status: 'rejected', reason: 'Metadata mismatch: ISRC duplicate' }] },
+  1746→    { id: 'r2', title: 'Velvet Skies', artist: 'Marcus Cole', type: 'Single', status: 'live', releaseDate: '2025-11-01', dspStatus: [{ dsp: 'Spotify', status: 'live' }, { dsp: 'Apple Music', status: 'live' }, { dsp: 'Amazon Music', status: 'pending' }] },
+  1747→    { id: 'r3', title: 'Neon Dreams', artist: 'Adea Lyric', type: 'EP', status: 'submitted', releaseDate: '2026-02-20', dspStatus: [{ dsp: 'Spotify', status: 'pending' }, { dsp: 'Apple Music', status: 'pending' }, { dsp: 'Amazon Music', status: 'pending' }] },
+  1748→    { id: 'r4', title: 'Still Waters', artist: 'Kai Nakamura', type: 'Album', status: 'draft', releaseDate: '2026-04-10', dspStatus: [] },
+  1749→    { id: 'r5', title: 'Golden Hour', artist: 'Luna Vega', type: 'Single', status: 'live', releaseDate: '2025-07-22', dspStatus: [{ dsp: 'Spotify', status: 'live' }, { dsp: 'Apple Music', status: 'live' }, { dsp: 'Amazon Music', status: 'live' }, { dsp: 'Tidal', status: 'live' }] },
+  1750→    { id: 'r6', title: 'Paper Trails', artist: 'Marcus Cole', type: 'EP', status: 'rejected', releaseDate: '2025-12-05', dspStatus: [{ dsp: 'Spotify', status: 'rejected', reason: 'Cover art resolution below minimum 3000x3000' }] },
+  1751→  ];
+  1752→  const filtered = releases.filter(r => (filterStatus === 'all' || r.status === filterStatus) && (filterArtist === 'all' || r.artist === filterArtist));
+  1753→  const artists = [...new Set(releases.map(r => r.artist))];
+  1754→  const dspColors: Record<string, string> = { Spotify: 'bg-green-100 text-green-700', 'Apple Music': 'bg-red-100 text-red-700', 'Amazon Music': 'bg-amber-100 text-amber-700', Tidal: 'bg-blue-100 text-blue-700', Deezer: 'bg-purple-100 text-purple-700' };
+  1755→  const statusIcons: Record<string, ReactNode> = { live: <CheckCircle2 size={12} className="text-green-600" />, pending: <Clock size={12} className="text-amber-500" />, rejected: <XCircle size={12} className="text-red-500" /> };
+  1756→  return (
+  1757→    <div>
+  1758→      <PageHeader title="Catalog Releases" description="Manage releases across your catalog with delivery status per DSP" actions={<Button variant="primary"><Plus size={16} /> New Release</Button>} />
+  1759→      <div className="flex flex-wrap gap-3 mb-4">
+  1760→        <Select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-auto"><option value="all">All Status</option><option value="live">Live</option><option value="submitted">Submitted</option><option value="draft">Draft</option><option value="rejected">Rejected</option></Select>
+  1761→        <Select value={filterArtist} onChange={e => setFilterArtist(e.target.value)} className="w-auto"><option value="all">All Artists</option>{artists.map(a => <option key={a} value={a}>{a}</option>)}</Select>
+  1762→      </div>
+  1763→      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+  1764→        {filtered.map(r => (
+  1765→          <Card key={r.id} className="p-4">
+  1766→            <div className="flex items-start justify-between mb-3">
+  1767→              <div className="flex items-center gap-3">
+  1768→                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neutral-700 to-neutral-900 flex items-center justify-center"><Disc3 size={18} className="text-white/30" /></div>
+  1769→                <div><p className="text-sm font-semibold text-neutral-900">{r.title}</p><p className="text-xs text-neutral-500">{r.artist} · {r.type} · {r.releaseDate}</p></div>
+  1770→              </div>
+  1771→              <StatusBadge status={r.status} />
+  1772→            </div>
+  1773→            {r.dspStatus.length > 0 && (
+  1774→              <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-neutral-100">
+  1775→                {r.dspStatus.map(d => (
+  1776→                  <div key={d.dsp} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${dspColors[d.dsp] ?? 'bg-neutral-100 text-neutral-700'}`}>
+  1777→                    {statusIcons[d.status] ?? <Circle size={12} className="text-neutral-400" />}
+  1778→                    <span>{d.dsp}</span>
+  1779→                    {d.reason && <span className="text-red-500 font-normal ml-1">({d.reason})</span>}
+  1780→                  </div>
+  1781→                ))}
+  1782→              </div>
+  1783→            )}
+  1784→            {r.dspStatus.length === 0 && <p className="text-xs text-neutral-400 mt-2 pt-2 border-t border-neutral-100">Not yet submitted for distribution</p>}
+  1785→          </Card>
+  1786→        ))}
+  1787→      </div>
+  1788→    </div>
+  1789→  );
+  1790→}
+  1791→
+  1792→function ProCatalogTracksPage() {
+  1793→  const [filterBpm, setFilterBpm] = useState<string>('all');
+  1794→  const [filterMood, setFilterMood] = useState<string>('all');
+  1795→  const tracks = [
+  1796→    { id: 't1', title: 'Midnight Run', artist: 'Adea Lyric', release: 'Midnight Echoes', bpm: 128, key: 'Am', mood: ['dark', 'energetic'], clearance: 'cleared', duration: '3:42' },
+  1797→    { id: 't2', title: 'Velvet Sunrise', artist: 'Adea Lyric', release: 'Midnight Echoes', bpm: 92, key: 'C', mood: ['warm', 'uplifting'], clearance: 'cleared', duration: '4:15' },
+  1798→    { id: 't3', title: 'Neon Pulse', artist: 'Marcus Cole', release: 'Velvet Skies', bpm: 140, key: 'Dm', mood: ['energetic', 'dark'], clearance: 'partial', duration: '2:58' },
+  1799→    { id: 't4', title: 'Still Breathing', artist: 'Kai Nakamura', release: 'Still Waters', bpm: 76, key: 'F', mood: ['calm', 'reflective'], clearance: 'pending', duration: '5:20' },
+  1800→    { id: 't5', title: 'Golden Light', artist: 'Luna Vega', release: 'Golden Hour', bpm: 110, key: 'G', mood: ['warm', 'romantic'], clearance: 'cleared', duration: '3:55' },
+  1801→    { id: 't6', title: 'Paper Hearts', artist: 'Marcus Cole', release: 'Paper Trails', bpm: 85, key: 'Eb', mood: ['romantic', 'reflective'], clearance: 'blocked', duration: '4:30' },
+  1802→    { id: 't7', title: 'Thunder Road', artist: 'Adea Lyric', release: 'Midnight Echoes', bpm: 155, key: 'Em', mood: ['energetic', 'aggressive'], clearance: 'cleared', duration: '2:45' },
+  1803→    { id: 't8', title: 'Ocean Memory', artist: 'Kai Nakamura', release: 'Still Waters', bpm: 68, key: 'Bb', mood: ['calm', 'nostalgic'], clearance: 'cleared', duration: '6:10' },
+  1804→  ];
+  1805→  const moods = [...new Set(tracks.flatMap(t => t.mood))];
+  1806→  const bpmRanges = ['0-80', '81-110', '111-140', '141+'];
+  1807→  const filtered = tracks.filter(t => {
+  1808→    if (filterBpm !== 'all') {
+  1809→      const [lo, hi] = filterBpm === '141+' ? [141, 999] : filterBpm.split('-').map(Number);
+  1810→      if (t.bpm < lo || t.bpm > hi) return false;
+  1811→    }
+  1812→    if (filterMood !== 'all' && !t.mood.includes(filterMood)) return false;
+  1813→    return true;
+  1814→  });
+  1815→  const clearanceColors: Record<string, string> = { cleared: 'green', partial: 'amber', pending: 'gray', blocked: 'red' };
+  1816→  return (
+  1817→    <div>
+  1818→      <PageHeader title="Catalog Tracks" description="Sync-search-friendly track listing with metadata, mood tags, and clearance status" />
+  1819→      <div className="flex flex-wrap gap-3 mb-4">
+  1820→        <Select value={filterBpm} onChange={e => setFilterBpm(e.target.value)} className="w-auto"><option value="all">All BPM</option>{bpmRanges.map(r => <option key={r} value={r}>{r} BPM</option>)}</Select>
+  1821→        <Select value={filterMood} onChange={e => setFilterMood(e.target.value)} className="w-auto"><option value="all">All Moods</option>{moods.map(m => <option key={m} value={m}>{m}</option>)}</Select>
+  1822→      </div>
+  1823→      <div className="overflow-x-auto">
+  1824→        <table className="w-full text-sm">
+  1825→          <thead><tr className="border-b border-neutral-200"><th className="py-3 px-4 text-left font-medium text-neutral-500">Track</th><th className="py-3 px-4 text-left font-medium text-neutral-500">Release</th><th className="py-3 px-4 text-left font-medium text-neutral-500">BPM</th><th className="py-3 px-4 text-left font-medium text-neutral-500">Key</th><th className="py-3 px-4 text-left font-medium text-neutral-500">Mood</th><th className="py-3 px-4 text-left font-medium text-neutral-500">Duration</th><th className="py-3 px-4 text-left font-medium text-neutral-500">Clearance</th></tr></thead>
+  1826→          <tbody>{filtered.map(t => (
+  1827→            <tr key={t.id} className="border-b border-neutral-100 hover:bg-neutral-50"><td className="py-3 px-4"><div><p className="font-medium text-neutral-900">{t.title}</p><p className="text-xs text-neutral-400">{t.artist}</p></div></td><td className="py-3 px-4 text-neutral-600">{t.release}</td><td className="py-3 px-4 text-neutral-900 font-mono">{t.bpm}</td><td className="py-3 px-4 text-neutral-900 font-mono">{t.key}</td><td className="py-3 px-4"><div className="flex gap-1">{t.mood.map(m => <Badge key={m} color="purple" size="sm">{m}</Badge>)}</div></td><td className="py-3 px-4 text-neutral-600">{t.duration}</td><td className="py-3 px-4"><Badge color={clearanceColors[t.clearance]}>{t.clearance}</Badge></td></tr>
+  1828→          ))}</tbody>
+  1829→        </table>
+  1830→      </div>
+  1831→      {filtered.length === 0 && <EmptyState title="No tracks match your filters" description="Try adjusting BPM range or mood tags" />}
+  1832→    </div>
+  1833→  );
+  1834→}
+  1835→
+  1836→function ProCatalogAssetsPage() {
+  1837→  const [expanded, setExpanded] = useState<string | null>(null);
+  1838→  const assets = [
+  1839→    { id: 'a1', title: 'Midnight Run', artist: 'Adea Lyric', assets: [{ type: 'Vocal Stem', format: 'WAV 24-bit', size: '48 MB', status: 'available' }, { type: 'Instrumental', format: 'WAV 24-bit', size: '42 MB', status: 'available' }, { type: 'TV Mix (no lead vocal)', format: 'WAV 16-bit', size: '38 MB', status: 'available' }, { type: 'Dolby Atmos', format: 'ADM BWF', size: '180 MB', status: 'available' }] },
+  1840→    { id: 'a2', title: 'Velvet Sunrise', artist: 'Adea Lyric', assets: [{ type: 'Vocal Stem', format: 'WAV 24-bit', size: '52 MB', status: 'available' }, { type: 'Instrumental', format: 'WAV 24-bit', size: '44 MB', status: 'available' }, { type: 'TV Mix', format: 'WAV 16-bit', size: '36 MB', status: 'pending' }] },
+  1841→    { id: 'a3', title: 'Neon Pulse', artist: 'Marcus Cole', assets: [{ type: 'Vocal Stem', format: 'WAV 24-bit', size: '38 MB', status: 'available' }, { type: 'Instrumental', format: 'WAV 24-bit', size: '35 MB', status: 'available' }] },
+  1842→    { id: 'a4', title: 'Still Breathing', artist: 'Kai Nakamura', assets: [{ type: 'Vocal Stem', format: 'WAV 24-bit', size: '55 MB', status: 'missing' }, { type: 'Dolby Atmos', format: 'ADM BWF', size: '210 MB', status: 'available' }] },
+  1843→  ];
+  1844→  const statusIcons: Record<string, ReactNode> = { available: <CheckCircle2 size={14} className="text-green-600" />, pending: <Clock size={14} className="text-amber-500" />, missing: <AlertTriangle size={14} className="text-red-500" /> };
+  1845→  return (
+  1846→    <div>
+  1847→      <PageHeader title="Catalog Assets" description="Stems, TV mixes, instrumentals, and Dolby Atmos deliverables per track" />
+  1848→      <div className="space-y-3">
+  1849→        {assets.map(a => (
+  1850→          <Card key={a.id} className="p-0 overflow-hidden">
+  1851→            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-neutral-50" onClick={() => setExpanded(expanded === a.id ? null : a.id)}>
+  1852→              <div className="flex items-center gap-3"><Disc3 size={18} className="text-neutral-400" /><div><p className="text-sm font-semibold text-neutral-900">{a.title}</p><p className="text-xs text-neutral-500">{a.artist} · {a.assets.length} assets</p></div></div>
+  1853→              <div className="flex items-center gap-2"><Badge color="green" size="sm">{a.assets.filter(x => x.status === 'available').length} ready</Badge>{expanded === a.id ? <ChevronUp size={16} className="text-neutral-400" /> : <ChevronDown size={16} className="text-neutral-400" />}</div>
+  1854→            </div>
+  1855→            {expanded === a.id && (
+  1856→              <div className="border-t border-neutral-100 bg-neutral-50/50">
+  1857→                <table className="w-full text-sm"><thead><tr className="border-b border-neutral-200"><th className="py-2 px-4 text-left font-medium text-neutral-500">Asset Type</th><th className="py-2 px-4 text-left font-medium text-neutral-500">Format</th><th className="py-2 px-4 text-left font-medium text-neutral-500">Size</th><th className="py-2 px-4 text-left font-medium text-neutral-500">Status</th><th className="py-2 px-4 text-right font-medium text-neutral-500">Action</th></tr></thead>
+  1858→                <tbody>{a.assets.map((asset, i) => (
+  1859→                  <tr key={i} className="border-b border-neutral-100"><td className="py-2.5 px-4 font-medium text-neutral-900">{asset.type}</td><td className="py-2.5 px-4 text-neutral-600">{asset.format}</td><td className="py-2.5 px-4 text-neutral-600">{asset.size}</td><td className="py-2.5 px-4"><div className="flex items-center gap-1.5">{statusIcons[asset.status]}<span className="text-neutral-700">{asset.status}</span></div></td><td className="py-2.5 px-4 text-right">{asset.status === 'available' ? <Button variant="secondary" size="sm"><Download size={14} /> Download</Button> : asset.status === 'pending' ? <Badge color="amber">Processing</Badge> : <Badge color="red">Missing</Badge>}</td></tr>
+  1860→                ))}</tbody></table>
+  1861→              </div>
+  1862→            )}
+  1863→          </Card>
+  1864→        ))}
+  1865→      </div>
+  1866→    </div>
+  1867→  );
+  1868→}
+  1869→
+  1870→function ProDistributionStatusPage() {
+  1871→  const [filterRelease, setFilterRelease] = useState<string>('all');
+  1872→  const deliveries = [
+  1873→    { id: 'd1', release: 'Midnight Echoes', artist: 'Adea Lyric', dsp: 'Spotify', status: 'live', deliveredAt: '2025-09-12', rejectionReason: null },
+  1874→    { id: 'd2', release: 'Midnight Echoes', artist: 'Adea Lyric', dsp: 'Apple Music', status: 'live', deliveredAt: '2025-09-12', rejectionReason: null },
+  1875→    { id: 'd3', release: 'Midnight Echoes', artist: 'Adea Lyric', dsp: 'Amazon Music', status: 'live', deliveredAt: '2025-09-13', rejectionReason: null },
+  1876→    { id: 'd4', release: 'Midnight Echoes', artist: 'Adea Lyric', dsp: 'Tidal', status: 'pending', deliveredAt: null, rejectionReason: null },
+  1877→    { id: 'd5', release: 'Midnight Echoes', artist: 'Adea Lyric', dsp: 'Deezer', status: 'rejected', deliveredAt: null, rejectionReason: 'ISRC code duplicate in metadata' },
+  1878→    { id: 'd6', release: 'Velvet Skies', artist: 'Marcus Cole', dsp: 'Spotify', status: 'live', deliveredAt: '2025-10-29', rejectionReason: null },
+  1879→    { id: 'd7', release: 'Velvet Skies', artist: 'Marcus Cole', dsp: 'Apple Music', status: 'live', deliveredAt: '2025-10-29', rejectionReason: null },
+  1880→    { id: 'd8', release: 'Velvet Skies', artist: 'Marcus Cole', dsp: 'Amazon Music', status: 'pending', deliveredAt: null, rejectionReason: null },
+  1881→    { id: 'd9', release: 'Neon Dreams', artist: 'Adea Lyric', dsp: 'Spotify', status: 'pending', deliveredAt: null, rejectionReason: null },
+  1882→    { id: 'd10', release: 'Neon Dreams', artist: 'Adea Lyric', dsp: 'Apple Music', status: 'pending', deliveredAt: null, rejectionReason: null },
+  1883→  ];
+  1884→  const releaseNames = [...new Set(deliveries.map(d => d.release))];
+  1885→  const grouped = deliveries.filter(d => filterRelease === 'all' || d.release === filterRelease).reduce<Record<string, typeof deliveries>>((acc, d) => { (acc[d.release] ??= []).push(d); return acc; }, {});
+  1886→  return (
+  1887→    <div>
+  1888→      <PageHeader title="Delivery Status" description="Track delivery status per DSP for each release in your catalog" />
+  1889→      <div className="mb-4"><Select value={filterRelease} onChange={e => setFilterRelease(e.target.value)} className="w-auto"><option value="all">All Releases</option>{releaseNames.map(r => <option key={r} value={r}>{r}</option>)}</Select></div>
+  1890→      {Object.entries(grouped).map(([release, rows]) => (
+  1891→        <div key={release} className="mb-6">
+  1892→          <div className="flex items-center gap-2 mb-3"><Disc3 size={16} className="text-neutral-400" /><h3 className="text-sm font-semibold text-neutral-900">{release}</h3><span className="text-xs text-neutral-500">{rows[0]?.artist}</span></div>
+  1893→          <Card className="overflow-hidden p-0">
+  1894→            <table className="w-full text-sm"><thead><tr className="border-b border-neutral-200 bg-neutral-50"><th className="py-2.5 px-4 text-left font-medium text-neutral-500">DSP</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Status</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Delivered</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Rejection Reason</th></tr></thead>
+  1895→            <tbody>{rows.map(r => (
+  1896→              <tr key={r.id} className="border-b border-neutral-100 hover:bg-neutral-50"><td className="py-2.5 px-4 font-medium text-neutral-900">{r.dsp}</td><td className="py-2.5 px-4"><StatusBadge status={r.status} /></td><td className="py-2.5 px-4 text-neutral-600">{r.deliveredAt ?? '—'}</td><td className="py-2.5 px-4 text-neutral-600">{r.rejectionReason ?? '—'}</td></tr>
+  1897→            ))}</tbody></table>
+  1898→          </Card>
+  1899→        </div>
+  1900→      ))}
+  1901→    </div>
+  1902→  );
+  1903→}
+  1904→
+  1905→function ProDistributionSubmitPage() {
+  1906→  const [step, setStep] = useState(0);
+  1907→  const [form, setForm] = useState({ title: '', artist: '', type: 'Single', releaseDate: '', upc: '', genre: '', label: '', coverArt: false, metadata: false, audio: false });
+  1908→  const steps = ['Release Info', 'Metadata & Assets', 'DSP Selection', 'Review & Submit'];
+  1909→  const dspOptions = ['Spotify', 'Apple Music', 'Amazon Music', 'Tidal', 'Deezer', 'YouTube Music', 'Pandora'];
+  1910→  const [selectedDsps, setSelectedDsps] = useState<string[]>(['Spotify', 'Apple Music']);
+  1911→  const canProceed = () => {
+  1912→    if (step === 0) return form.title && form.artist && form.releaseDate;
+  1913→    if (step === 1) return form.coverArt && form.metadata && form.audio;
+  1914→    if (step === 2) return selectedDsps.length > 0;
+  1915→    return true;
+  1916→  };
+  1917→  return (
+  1918→    <div>
+  1919→      <PageHeader title="New Release Submission" description="Submit a new release for distribution across DSPs" />
+  1920→      <div className="flex items-center gap-2 mb-8">{steps.map((s, i) => (
+  1921→        <div key={s} className="flex items-center gap-2"><div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${i <= step ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-400'}`}>{i + 1}</div><span className={`text-sm font-medium hidden sm:inline ${i <= step ? 'text-neutral-900' : 'text-neutral-400'}`}>{s}</span>{i < steps.length - 1 && <div className="w-6 h-px bg-neutral-200" />}</div>
+  1922→      ))}</div>
+  1923→      {step === 0 && (
+  1924→        <Card className="p-6">
+  1925→          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  1926→            <Field label="Release Title" required><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Midnight Echoes" /></Field>
+  1927→            <Field label="Primary Artist" required><Input value={form.artist} onChange={e => setForm({...form, artist: e.target.value})} placeholder="e.g. Adea Lyric" /></Field>
+  1928→            <Field label="Release Type" required><Select value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option value="Single">Single</option><option value="EP">EP</option><option value="Album">Album</option></Select></Field>
+  1929→            <Field label="Release Date" required><Input type="date" value={form.releaseDate} onChange={e => setForm({...form, releaseDate: e.target.value})} /></Field>
+  1930→            <Field label="UPC/EAN"><Input value={form.upc} onChange={e => setForm({...form, upc: e.target.value})} placeholder="Auto-generated if blank" /></Field>
+  1931→            <Field label="Genre"><Select value={form.genre} onChange={e => setForm({...form, genre: e.target.value})}><option value="">Select genre</option><option value="Pop">Pop</option><option value="R&B">R&B</option><option value="Hip-Hop">Hip-Hop</option><option value="Electronic">Electronic</option><option value="Jazz">Jazz</option><option value="Rock">Rock</option></Select></Field>
+  1932→          </div>
+  1933→        </Card>
+  1934→      )}
+  1935→      {step === 1 && (
+  1936→        <Card className="p-6">
+  1937→          <div className="space-y-4">
+  1938→            <div className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200"><div className={`w-8 h-8 rounded-lg flex items-center justify-center ${form.coverArt ? 'bg-green-100' : 'bg-neutral-100'}`}>{form.coverArt ? <CheckCircle2 size={18} className="text-green-600" /> : <ImageIcon size={18} className="text-neutral-400" />}</div><div className="flex-1"><p className="text-sm font-medium text-neutral-900">Cover Art</p><p className="text-xs text-neutral-500">3000×3000px minimum, JPG or PNG</p></div><button onClick={() => setForm({...form, coverArt: !form.coverArt})} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${form.coverArt ? 'bg-green-100 text-green-700' : 'bg-neutral-100 text-neutral-600'}`}>{form.coverArt ? 'Uploaded' : 'Upload'}</button></div>
+  1939→            <div className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200"><div className={`w-8 h-8 rounded-lg flex items-center justify-center ${form.metadata ? 'bg-green-100' : 'bg-neutral-100'}`}>{form.metadata ? <CheckCircle2 size={18} className="text-green-600" /> : <FileText size={18} className="text-neutral-400" />}</div><div className="flex-1"><p className="text-sm font-medium text-neutral-900">Metadata Sheet</p><p className="text-xs text-neutral-500">Track titles, ISRCs, songwriters, publishers</p></div><button onClick={() => setForm({...form, metadata: !form.metadata})} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${form.metadata ? 'bg-green-100 text-green-700' : 'bg-neutral-100 text-neutral-600'}`}>{form.metadata ? 'Validated' : 'Upload'}</button></div>
+  1940→            <div className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200"><div className={`w-8 h-8 rounded-lg flex items-center justify-center ${form.audio ? 'bg-green-100' : 'bg-neutral-100'}`}>{form.audio ? <CheckCircle2 size={18} className="text-green-600" /> : <Music size={18} className="text-neutral-400" />}</div><div className="flex-1"><p className="text-sm font-medium text-neutral-900">Audio Files</p><p className="text-xs text-neutral-500">WAV 16-bit/44.1kHz minimum per track</p></div><button onClick={() => setForm({...form, audio: !form.audio})} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${form.audio ? 'bg-green-100 text-green-700' : 'bg-neutral-100 text-neutral-600'}`}>{form.audio ? 'Uploaded' : 'Upload'}</button></div>
+  1941→          </div>
+  1942→        </Card>
+  1943→      )}
+  1944→      {step === 2 && (
+  1945→        <Card className="p-6">
+  1946→          <p className="text-sm text-neutral-500 mb-4">Select the DSPs you want to distribute to:</p>
+  1947→          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">{dspOptions.map(dsp => (
+  1948→            <button key={dsp} onClick={() => setSelectedDsps(prev => prev.includes(dsp) ? prev.filter(d => d !== dsp) : [...prev, dsp])} className={`p-3 rounded-lg border text-sm font-medium text-left transition-colors ${selectedDsps.includes(dsp) ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'}`}>
+  1949→              <div className="flex items-center justify-between">{dsp}{selectedDsps.includes(dsp) && <CheckCircle2 size={16} />}</div>
+  1950→            </button>
+  1951→          ))}</div>
+  1952→        </Card>
+  1953→      )}
+  1954→      {step === 3 && (
+  1955→        <Card className="p-6">
+  1956→          <h3 className="text-sm font-semibold text-neutral-900 mb-4">Submission Summary</h3>
+  1957→          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  1958→            <Field label="Release Title"><p className="text-sm text-neutral-900">{form.title || '—'}</p></Field>
+  1959→            <Field label="Artist"><p className="text-sm text-neutral-900">{form.artist || '—'}</p></Field>
+  1960→            <Field label="Type"><p className="text-sm text-neutral-900">{form.type}</p></Field>
+  1961→            <Field label="Release Date"><p className="text-sm text-neutral-900">{form.releaseDate || '—'}</p></Field>
+  1962→            <Field label="Target DSPs"><div className="flex flex-wrap gap-1">{selectedDsps.map(d => <Badge key={d} color="gray">{d}</Badge>)}</div></Field>
+  1963→            <Field label="Assets Status"><div className="flex flex-wrap gap-1">{form.coverArt && <Badge color="green">Cover Art ✓</Badge>}{form.metadata && <Badge color="green">Metadata ✓</Badge>}{form.audio && <Badge color="green">Audio ✓</Badge>}</div></Field>
+  1964→          </div>
+  1965→        </Card>
+  1966→      )}
+  1967→      <div className="flex items-center justify-between mt-6">
+  1968→        <Button variant="secondary" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>Back</Button>
+  1969→        {step < 3 ? <Button variant="primary" onClick={() => setStep(step + 1)} disabled={!canProceed()}>Continue</Button> : <Button variant="primary" onClick={() => { toast('success', 'Release submitted for distribution'); setStep(0); }}>Submit Release</Button>}
+  1970→      </div>
+  1971→    </div>
+  1972→  );
+  1973→}
+  1974→
+  1975→function ProDistributionCorrectionsPage() {
+  1976→  const corrections = [
+  1977→    { id: 'c1', release: 'Midnight Echoes', dsp: 'Deezer', field: 'ISRC', issue: 'Duplicate ISRC code detected for track 3', status: 'open', submittedAt: '2025-09-14' },
+  1978→    { id: 'c2', release: 'Paper Trails', dsp: 'Spotify', field: 'Cover Art', issue: 'Image resolution below 3000×3000px minimum', status: 'open', submittedAt: '2025-12-06' },
+  1979→    { id: 'c3', release: 'Velvet Skies', dsp: 'Amazon Music', field: 'Metadata', issue: 'Missing publisher field on track 1', status: 'in_progress', submittedAt: '2025-11-02' },
+  1980→    { id: 'c4', release: 'Golden Hour', dsp: 'Tidal', field: 'Audio', issue: 'Bitrate below minimum threshold', status: 'resolved', submittedAt: '2025-07-25' },
+  1981→  ];
+  1982→  return (
+  1983→    <div>
+  1984→      <PageHeader title="Store Corrections" description="Track and resolve metadata, artwork, and audio issues flagged by DSPs" actions={<Button variant="primary"><Plus size={16} /> New Correction</Button>} />
+  1985→      <Card className="overflow-hidden p-0">
+  1986→        <table className="w-full text-sm"><thead><tr className="border-b border-neutral-200 bg-neutral-50"><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Ticket</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Release</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">DSP</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Field</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Issue</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Status</th><th className="py-2.5 px-4 text-left font-medium text-neutral-500">Date</th></tr></thead>
+  1987→        <tbody>{corrections.map(c => (
+  1988→          <tr key={c.id} className="border-b border-neutral-100 hover:bg-neutral-50"><td className="py-2.5 px-4 font-mono text-xs text-neutral-500">{c.id}</td><td className="py-2.5 px-4 font-medium text-neutral-900">{c.release}</td><td className="py-2.5 px-4 text-neutral-600">{c.dsp}</td><td className="py-2.5 px-4"><Badge color="gray" size="sm">{c.field}</Badge></td><td className="py-2.5 px-4 text-neutral-700 max-w-xs truncate">{c.issue}</td><td className="py-2.5 px-4"><StatusBadge status={c.status} /></td><td className="py-2.5 px-4 text-neutral-500">{c.submittedAt}</td></tr>
+  1989→        ))}</tbody></table>
+  1990→      </Card>
+  1991→    </div>
+  1992→  );
+  1993→}
+  1994→
+  1995→function ProSyncSearchPage() {
+  1996→  const [search, setSearch] = useState('');
+  1997→  const [filterBpm, setFilterBpm] = useState<string>('all');
+  1998→  const [filterMood, setFilterMood] = useState<string>('all');
+  1999→  const [filterClearance, setFilterClearance] = useState<string>('all');
+  2000→  const tracks = [
+
+[showing lines 1-2000 of 5887; use offset=2001 with limit to continue reading]

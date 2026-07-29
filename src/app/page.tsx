@@ -1,14 +1,7 @@
 'use client';
-import dynamic from 'next/dynamic';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const AdeaHome = dynamic(() => import('@/components/adea/Landing').then(m => ({ default: m.Landing })), { ssr: false }) as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const EntryGate = dynamic(() => import('@/components/adea/EntryGate').then(m => ({ default: m.EntryGate })), { ssr: false }) as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SiteHeader = dynamic(() => import('@/components/adea/SiteChrome').then(m => ({ default: m.SiteHeader })), { ssr: false }) as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SiteFooter = dynamic(() => import('@/components/adea/SiteChrome').then(m => ({ default: m.SiteFooter })), { ssr: false }) as any;
+import { EntryGate } from '@/components/adea/EntryGate';
+import { Landing } from '@/components/adea/Landing';
+import { SiteHeader, SiteFooter } from '@/components/adea/SiteChrome';
 import { useAppStore } from '@/lib/store';
 
 export default function Home() {
@@ -19,7 +12,7 @@ export default function Home() {
       {entered && (
         <>
           <SiteHeader />
-          <main><AdeaHome /></main>
+          <main><Landing /></main>
           <SiteFooter />
         </>
       )}
