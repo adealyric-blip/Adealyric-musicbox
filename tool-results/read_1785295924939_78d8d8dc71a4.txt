@@ -1,0 +1,773 @@
+     1→// ============================================================================
+     2→// MUSIC-IN-A-BOX — CORE SCHEMA
+     3→// ============================================================================
+     4→// Design principle: Organization is the tenant root. Every domain table
+     5→// carries an `organizationId`. Today there is exactly one Organization row
+     6→// (your label/artist). Later, onboarding a second label or a solo indie
+     7→// artist is just another row — no migration, no schema change, no rewrite.
+     8→//
+     9→// The ONE deliberate exception is the sync marketplace (SyncListing /
+    10→// DealRoom), which is designed to cross tenant boundaries on purpose,
+    11→// explicitly, and auditably — everything else stays strictly siloed.
+    12→// ============================================================================
+    13→
+    14→generator client {
+    15→  provider = "prisma-client-js"
+    16→}
+    17→
+    18→datasource db {
+    19→  provider = "sqlite"
+    20→  url      = env("DATABASE_URL")
+    21→}
+    22→
+    23→// ============================================================================
+    24→// TENANT ROOT
+    25→// ============================================================================
+    26→
+    27→enum OrganizationType {
+    28→  LABEL       // multi-artist roster
+    29→  ARTIST      // solo indie artist acting as their own tenant
+    30→  PUBLISHER
+    31→  SYNC_BUYER  // external supervisor/agency org, no catalog of their own
+    32→  ENTERPRISE
+    33→}
+    34→
+    35→enum OrganizationPlan {
+    36→  SOLO
+    37→  INDIE
+    38→  LABEL_SERVICES
+    39→  ENTERPRISE
+    40→}
+    41→
+    42→model Organization {
+    43→  id           String           @id @default(cuid())
+    44→  name         String
+    45→  slug         String           @unique
+    46→  type         OrganizationType @default(ARTIST)
+    47→  plan         OrganizationPlan @default(SOLO)
+    48→  isWhiteLabel Boolean          @default(false)
+    49→  domain       String?          @unique // custom domain, for later white-label tenants
+    50→  logoUrl      String?
+    51→  settings     Json?            // theme, feature flags, per-org branding
+    52→
+    53→  createdAt DateTime @default(now())
+    54→  updatedAt DateTime @updatedAt
+    55→
+    56→  memberships         Membership[]
+    57→  roles               Role[]
+    58→  artists             Artist[]
+    59→  labels              Label[]
+    60→  publishers          Publisher[]
+    61→  songs               Song[]
+    62→  tracks              Track[]
+    63→  releases            Release[]
+    64→  projects            Project[]
+    65→  assets              Asset[]
+    66→  rights              RightsRecord[]
+    67→  splitSheets         SplitSheet[]
+    68→  royaltyStatements   RoyaltyStatement[]
+    69→  dealRoomsAsLicensor DealRoom[]         @relation("LicensorOrg")
+    70→  dealRoomsAsBuyer    DealRoom[]         @relation("BuyerOrg")
+    71→  venues              Venue[]
+    72→  tours               Tour[]
+    73→  orders              Order[]
+    74→  products            Product[]
+    75→  cmsPages            CmsPage[]
+    76→  notifications       Notification[]
+    77→  ledgerAccounts      LedgerAccount[]
+    78→  ledgerTransactions  LedgerTransaction[]
+    79→  aiJobs              AiJob[]
+    80→  collabDocs          CollabDoc[]
+    81→
+    82→  @@index([type])
+    83→}
+    84→
+    85→// ============================================================================
+    86→// IDENTITY — Users are global; Memberships are what scope them to a tenant
+    87→// ============================================================================
+    88→
+    89→model User {
+    90→  id        String   @id @default(cuid())
+    91→  email     String   @unique
+    92→  name      String?
+    93→  avatarUrl String?
+    94→  createdAt DateTime @default(now())
+    95→
+    96→  memberships    Membership[]
+    97→  hostedSessions Session[]    @relation("SessionHost")
+    98→}
+    99→
+   100→/// The join table that makes multi-tenancy work. A user can hold zero, one,
+   101→/// or many memberships — e.g. a session musician invited into three
+   102→/// different labels' projects keeps one User row and three Memberships,
+   103→/// each with its own Role scoped to that Organization.
+   104→model Membership {
+   105→  id             String @id @default(cuid())
+   106→  userId         String
+   107→  organizationId String
+   108→  roleId         String
+   109→
+   110→  user         User         @relation(fields: [userId], references: [id])
+   111→  organization Organization @relation(fields: [organizationId], references: [id])
+   112→  role         Role         @relation(fields: [roleId], references: [id])
+   113→
+   114→  createdAt DateTime @default(now())
+   115→
+   116→  @@unique([userId, organizationId])
+   117→  @@index([organizationId])
+   118→}
+   119→
+   120→enum SystemRoleName {
+   121→  OWNER
+   122→  LABEL_ADMIN
+   123→  ARTIST
+   124→  MANAGER
+   125→  A_AND_R
+   126→  SYNC_AGENT
+   127→  PUBLISHER
+   128→  ACCOUNTANT
+   129→  MUSIC_SUPERVISOR
+   130→  DSP_PARTNER
+   131→  BOOKING_AGENT
+   132→  EDUCATOR
+   133→  STUDENT
+   134→}
+   135→
+   136→/// Roles are org-scoped (not global) so that a label can eventually define
+   137→/// custom roles without touching every other tenant. System roles are
+   138→/// seeded per-org at creation time.
+   139→model Role {
+   140→  id             String         @id @default(cuid())
+   141→  organizationId String
+   142→  name           SystemRoleName
+   143→
+   144→  organization Organization @relation(fields: [organizationId], references: [id])
+   145→  memberships  Membership[]
+   146→  permissions  Permission[]
+   147→
+   148→  @@unique([organizationId, name])
+   149→}
+   150→
+   151→model Permission {
+   152→  id     String @id @default(cuid())
+   153→  action String // e.g. "release:publish", "royalty:view", "sync:approve"
+   154→  roles  Role[]
+   155→}
+   156→
+   157→// ============================================================================
+   158→// CATALOG ROOT ENTITIES — every one of these is org-scoped
+   159→// ============================================================================
+   160→
+   161→model Artist {
+   162→  id             String  @id @default(cuid())
+   163→  organizationId String
+   164→  name           String
+   165→  bio            String?
+   166→  avatarUrl      String?
+   167→
+   168→  organization Organization       @relation(fields: [organizationId], references: [id])
+   169→  tracks       Track[]
+   170→  releases     Release[]
+   171→  projects     Project[]
+   172→  splitShares  SplitParticipant[]
+   173→
+   174→  @@index([organizationId])
+   175→}
+   176→
+   177→model Label {
+   178→  id             String  @id @default(cuid())
+   179→  organizationId String
+   180→  name           String
+   181→  imprintOfId    String? // self-relation: parent-label -> sub-imprint hierarchy
+   182→
+   183→  organization Organization @relation(fields: [organizationId], references: [id])
+   184→  parent       Label?       @relation("Imprints", fields: [imprintOfId], references: [id])
+   185→  imprints     Label[]      @relation("Imprints")
+   186→
+   187→  @@index([organizationId])
+   188→}
+   189→
+   190→model Publisher {
+   191→  id             String  @id @default(cuid())
+   192→  organizationId String
+   193→  name           String
+   194→  ipiNumber      String?
+   195→
+   196→  organization Organization @relation(fields: [organizationId], references: [id])
+   197→
+   198→  @@index([organizationId])
+   199→}
+   200→
+   201→// ============================================================================
+   202→// SONG / TRACK / RELEASE
+   203→// ============================================================================
+   204→
+   205→model Song {
+   206→  id             String   @id @default(cuid())
+   207→  organizationId String
+   208→  title          String
+   209→  iswc           String?
+   210→  createdAt      DateTime @default(now())
+   211→
+   212→  organization Organization @relation(fields: [organizationId], references: [id])
+   213→  tracks       Track[]
+   214→  splitSheets  SplitSheet[]
+   215→
+   216→  @@index([organizationId])
+   217→}
+   218→
+   219→/// Governs whether a track is even eligible to appear in the cross-tenant
+   220→/// SyncListing table below. PRIVATE/CATALOG_ONLY never leave this org's
+   221→/// own queries; only SYNC_MARKETPLACE does, and only via an explicit
+   222→/// publish action (Section 7.6-style automatic package generation).
+   223→enum SyncVisibility {
+   224→  PRIVATE
+   225→  CATALOG_ONLY
+   226→  SYNC_MARKETPLACE
+   227→}
+   228→
+   229→model Track {
+   230→  id             String  @id @default(cuid())
+   231→  organizationId String
+   232→  songId         String?
+   233→  artistId       String
+   234→  releaseId      String?
+   235→  projectId      String?
+   236→
+   237→  title       String
+   238→  isrc        String?
+   239→  bpm         Int?
+   240→  musicalKey  String?
+   241→  genre       String?
+   242→  mood        String?
+   243→  durationSec Int?
+   244→
+   245→  syncVisibility SyncVisibility @default(PRIVATE)
+   246→
+   247→  organization Organization @relation(fields: [organizationId], references: [id])
+   248→  song         Song?        @relation(fields: [songId], references: [id])
+   249→  artist       Artist       @relation(fields: [artistId], references: [id])
+   250→  release      Release?     @relation(fields: [releaseId], references: [id])
+   251→  project      Project?     @relation(fields: [projectId], references: [id])
+   252→
+   253→  assets      Asset[]
+   254→  metadata    Metadata?
+   255→  rights      RightsRecord[]
+   256→  splitSheets SplitSheet[]
+   257→  syncListing SyncListing?
+   258→
+   259→  createdAt DateTime @default(now())
+   260→  updatedAt DateTime @updatedAt
+   261→
+   262→  @@index([organizationId])
+   263→  @@index([syncVisibility])
+   264→}
+   265→
+   266→model Release {
+   267→  id             String    @id @default(cuid())
+   268→  organizationId String
+   269→  artistId       String
+   270→  title          String
+   271→  upc            String?
+   272→  releaseDate    DateTime?
+   273→  status         String    @default("draft") // draft | in_review | live | takedown
+   274→
+   275→  organization Organization @relation(fields: [organizationId], references: [id])
+   276→  artist       Artist       @relation(fields: [artistId], references: [id])
+   277→  tracks       Track[]
+   278→
+   279→  @@index([organizationId])
+   280→}
+   281→
+   282→// ============================================================================
+   283→// STUDIO / COLLABORATION
+   284→// ============================================================================
+   285→
+   286→model Project {
+   287→  id             String  @id @default(cuid())
+   288→  organizationId String
+   289→  artistId       String?
+   290→  name           String
+   291→
+   292→  organization Organization @relation(fields: [organizationId], references: [id])
+   293→  artist       Artist?      @relation(fields: [artistId], references: [id])
+   294→  tracks       Track[]
+   295→  sessions     Session[]
+   296→
+   297→  createdAt DateTime @default(now())
+   298→
+   299→  @@index([organizationId])
+   300→}
+   301→
+   302→model Session {
+   303→  id        String    @id @default(cuid())
+   304→  projectId String
+   305→  hostId    String
+   306→  startedAt DateTime  @default(now())
+   307→  endedAt   DateTime?
+   308→
+   309→  project Project @relation(fields: [projectId], references: [id])
+   310→  host    User    @relation("SessionHost", fields: [hostId], references: [id])
+   311→}
+   312→
+   313→// ============================================================================
+   314→// ASSETS & METADATA
+   315→// ============================================================================
+   316→
+   317→enum AssetType {
+   318→  AUDIO
+   319→  ARTWORK
+   320→  VIDEO
+   321→  STEM
+   322→  CONTRACT
+   323→  PRESS
+   324→  DOCUMENT
+   325→}
+   326→
+   327→model Asset {
+   328→  id             String    @id @default(cuid())
+   329→  organizationId String
+   330→  trackId        String?
+   331→  type           AssetType
+   332→  bucket         String    // maps to a Supabase Storage bucket
+   333→  storageKey     String
+   334→  checksum       String?
+   335→
+   336→  organization Organization @relation(fields: [organizationId], references: [id])
+   337→  track        Track?       @relation(fields: [trackId], references: [id])
+   338→  splitSheets  SplitSheet[] // back-reference for SplitSheet.pdfAssetId
+   339→
+   340→  createdAt DateTime @default(now())
+   341→
+   342→  @@index([organizationId])
+   343→}
+   344→
+   345→model Metadata {
+   346→  id      String @id @default(cuid())
+   347→  trackId String @unique
+   348→  track   Track  @relation(fields: [trackId], references: [id])
+   349→
+   350→  // Sync-searchable creative/legal fields
+   351→  vocalGender      String?
+   352→  instrumentation  String?
+   353→  language         String?
+   354→  explicit         Boolean  @default(false)
+   355→  oneStopClearance Boolean  @default(false)
+   356→  keywords         String[]
+   357→  aiAssisted       Boolean  @default(false)
+   358→  aiGenerated      Boolean  @default(false)
+   359→}
+   360→
+   361→// ============================================================================
+   362→// RIGHTS & SPLITS
+   363→// ============================================================================
+   364→
+   365→enum RightsType {
+   366→  MASTER
+   367→  PUBLISHING
+   368→  NEIGHBORING
+   369→  MECHANICAL
+   370→  SYNC
+   371→}
+   372→
+   373→model RightsRecord {
+   374→  id             String     @id @default(cuid())
+   375→  organizationId String
+   376→  trackId        String
+   377→  type           RightsType
+   378→  owner          String
+   379→  territory      String     @default("WORLDWIDE")
+   380→  ownershipPct   Float
+   381→  expiresAt      DateTime?
+   382→
+   383→  organization Organization @relation(fields: [organizationId], references: [id])
+   384→  track        Track        @relation(fields: [trackId], references: [id])
+   385→
+   386→  @@index([organizationId])
+   387→}
+   388→
+   389→model SplitSheet {
+   390→  id             String  @id @default(cuid())
+   391→  organizationId String
+   392→  songId         String?
+   393→  trackId        String?
+   394→  status         String  @default("draft") // draft | pending_signatures | executed
+   395→  pdfAssetId     String? // set once generate-split-sheet-pdf edge function runs
+   396→
+   397→  organization Organization       @relation(fields: [organizationId], references: [id])
+   398→  song         Song?              @relation(fields: [songId], references: [id])
+   399→  track        Track?             @relation(fields: [trackId], references: [id])
+   400→  pdfAsset     Asset?             @relation(fields: [pdfAssetId], references: [id])
+   401→  participants SplitParticipant[]
+   402→  signatures   SplitSignature[]
+   403→
+   404→  createdAt DateTime @default(now())
+   405→
+   406→  @@index([organizationId])
+   407→}
+   408→
+   409→/// One row per required signer. A split sheet is "executed" only once every
+   410→/// participant with requiresSignature = true has signedAt set — this is
+   411→/// what the PDF export and the DealRoom contract step both check before
+   412→/// treating ownership as final.
+   413→model SplitSignature {
+   414→  id                    String    @id @default(cuid())
+   415→  splitSheetId          String
+   416→  participantId         String
+   417→  signedAt              DateTime?
+   418→  signatureImageAssetId String?
+   419→  ipAddress             String?
+   420→
+   421→  splitSheet  SplitSheet       @relation(fields: [splitSheetId], references: [id])
+   422→  participant SplitParticipant @relation(fields: [participantId], references: [id])
+   423→
+   424→  @@index([splitSheetId])
+   425→}
+   426→
+   427→model SplitParticipant {
+   428→  id           String  @id @default(cuid())
+   429→  splitSheetId String
+   430→  artistId     String?
+   431→  role         String  // writer | producer | artist | publisher ...
+   432→  percentage   Float
+   433→  requiresSignature Boolean @default(true)
+   434→
+   435→  splitSheet SplitSheet       @relation(fields: [splitSheetId], references: [id])
+   436→  artist     Artist?          @relation(fields: [artistId], references: [id])
+   437→  signatures SplitSignature[]
+   438→}
+   439→
+   440→// ============================================================================
+   441→// ROYALTIES
+   442→// ============================================================================
+   443→
+   444→model RoyaltyStatement {
+   445→  id             String   @id @default(cuid())
+   446→  organizationId String
+   447→  periodStart    DateTime
+   448→  periodEnd      DateTime
+   449→  status         String   @default("pending") // pending | frozen | paid
+   450→  totalAmount    Decimal? @db.Decimal(12, 2)
+   451→
+   452→  organization Organization      @relation(fields: [organizationId], references: [id])
+   453→  lineItems    RoyaltyLineItem[]
+   454→
+   455→  createdAt DateTime @default(now())
+   456→
+   457→  @@index([organizationId])
+   458→}
+   459→
+   460→model RoyaltyLineItem {
+   461→  id                 String  @id @default(cuid())
+   462→  royaltyStatementId String
+   463→  trackId            String?
+   464→  participantId      String?
+   465→  source             String  // DSP name | sync fee | direct-to-fan | ...
+   466→  amount             Decimal @db.Decimal(12, 2)
+   467→
+   468→  royaltyStatement RoyaltyStatement @relation(fields: [royaltyStatementId], references: [id])
+   469→}
+   470→
+   471→// ============================================================================
+   472→// SYNC MARKETPLACE — the deliberate, audited cross-tenant exception
+   473→// ============================================================================
+   474→
+   475→/// A SyncListing is the ONE place a tenant-scoped Track becomes readable
+   476→/// outside its own Organization. It only exists if a Track was explicitly
+   477→/// set to SyncVisibility.SYNC_MARKETPLACE and published. Every other model
+   478→/// in this schema is strictly org-scoped; this is not a leak, it's the
+   479→/// one intentional door, and it's easy to audit because it's one table.
+   480→model SyncListing {
+   481→  id          String   @id @default(cuid())
+   482→  trackId     String   @unique
+   483→  publishedAt DateTime @default(now())
+   484→  status      String   @default("available") // available | on_hold | withdrawn
+   485→
+   486→  track     Track      @relation(fields: [trackId], references: [id])
+   487→  dealRooms DealRoom[]
+   488→}
+   489→
+   490→model DealRoom {
+   491→  id               String  @id @default(cuid())
+   492→  syncListingId    String
+   493→  licensorOrgId    String  // the org that owns the track
+   494→  buyerOrgId       String? // the requesting org, IF they're a platform tenant
+   495→  buyerContactName String? // fallback for a one-off external supervisor
+   496→  status           String  @default("requested")
+   497→  // requested -> reviewing -> approved -> negotiating -> contracted
+   498→  // -> signed -> invoiced -> delivered -> tracking
+   499→
+   500→  syncListing SyncListing   @relation(fields: [syncListingId], references: [id])
+   501→  licensorOrg Organization  @relation("LicensorOrg", fields: [licensorOrgId], references: [id])
+   502→  buyerOrg    Organization? @relation("BuyerOrg", fields: [buyerOrgId], references: [id])
+   503→
+   504→  createdAt DateTime @default(now())
+   505→
+   506→  @@index([licensorOrgId])
+   507→  @@index([buyerOrgId])
+   508→}
+   509→
+   510→// ============================================================================
+   511→// TOURING
+   512→// ============================================================================
+   513→
+   514→model Venue {
+   515→  id             String  @id @default(cuid())
+   516→  organizationId String
+   517→  name           String
+   518→  capacity       Int?
+   519→  city           String?
+   520→  country        String?
+   521→
+   522→  organization Organization @relation(fields: [organizationId], references: [id])
+   523→  tours        Tour[]
+   524→
+   525→  @@index([organizationId])
+   526→}
+   527→
+   528→model Tour {
+   529→  id             String    @id @default(cuid())
+   530→  organizationId String
+   531→  venueId        String?
+   532→  artistId       String?
+   533→  date           DateTime?
+   534→  status         String    @default("hold") // hold | confirmed | complete
+   535→
+   536→  organization Organization @relation(fields: [organizationId], references: [id])
+   537→  venue        Venue?       @relation(fields: [venueId], references: [id])
+   538→
+   539→  @@index([organizationId])
+   540→}
+   541→
+   542→// ============================================================================
+   543→// COMMERCE
+   544→// ============================================================================
+   545→
+   546→model Product {
+   547→  id             String @id @default(cuid())
+   548→  organizationId String
+   549→  name           String
+   550→  priceCents     Int
+   551→  type           String // merch | vinyl | digital_bundle
+   552→
+   553→  organization Organization @relation(fields: [organizationId], references: [id])
+   554→  orders       Order[]
+   555→
+   556→  @@index([organizationId])
+   557→}
+   558→
+   559→model Order {
+   560→  id             String @id @default(cuid())
+   561→  organizationId String
+   562→  productId      String
+   563→  buyerEmail     String
+   564→  amountCents    Int
+   565→  status         String @default("pending")
+   566→
+   567→  organization Organization @relation(fields: [organizationId], references: [id])
+   568→  product      Product      @relation(fields: [productId], references: [id])
+   569→
+   570→  createdAt DateTime @default(now())
+   571→
+   572→  @@index([organizationId])
+   573→}
+   574→
+   575→// ============================================================================
+   576→// CMS
+   577→// ============================================================================
+   578→
+   579→model CmsPage {
+   580→  id             String @id @default(cuid())
+   581→  organizationId String
+   582→  slug           String
+   583→  title          String
+   584→  contentJson    Json
+   585→
+   586→  organization Organization @relation(fields: [organizationId], references: [id])
+   587→
+   588→  @@unique([organizationId, slug])
+   589→}
+   590→
+   591→// ============================================================================
+   592→// NOTIFICATIONS
+   593→// ============================================================================
+   594→
+   595→model Notification {
+   596→  id             String    @id @default(cuid())
+   597→  organizationId String
+   598→  userId         String?
+   599→  type           String
+   600→  payload        Json?
+   601→  readAt         DateTime?
+   602→
+   603→  organization Organization @relation(fields: [organizationId], references: [id])
+   604→
+   605→  createdAt DateTime @default(now())
+   606→
+   607→  @@index([organizationId])
+   608→}
+   609→
+   610→// ============================================================================
+   611→// LEDGER — double-entry accounting, ledger-cli principles
+   612→// ============================================================================
+   613→// Every money-moving event (a DSP payout landing, a sync fee, a split
+   614→// payout, a withdrawal) is a Transaction with two or more Entries whose
+   615→// signed amounts sum to zero. Nothing ever mutates a "balance" column —
+   616→// balance is always the sum of Entries for an Account, computed at read
+   617→// time (or in a materialized view once volume demands it). This is the
+   618→// same principle ledger-cli/hledger/beancount use: the ledger is an
+   619→// immutable, append-only log; you never edit history, you post a
+   620→// correcting entry.
+   621→
+   622→enum LedgerAccountType {
+   623→  ASSET       // e.g. "Cash", "Royalties Receivable"
+   624→  LIABILITY   // e.g. "Royalties Payable — Artist X"
+   625→  EQUITY
+   626→  REVENUE     // e.g. "Master Streaming Income", "Sync Fee Income"
+   627→  EXPENSE     // e.g. "Distribution Fees", "Platform Commission"
+   628→}
+   629→
+   630→/// The chart of accounts. Platform-level accounts (owner = PLATFORM) and
+   631→/// per-participant payable accounts (owner = PARTICIPANT, ownerId =
+   632→/// SplitParticipant.id) both live here, scoped to the org that owns the
+   633→/// catalog the money relates to.
+   634→model LedgerAccount {
+   635→  id             String            @id @default(cuid())
+   636→  organizationId String
+   637→  code           String            // chart-of-accounts code, e.g. "2100-ROYALTIES-PAYABLE"
+   638→  name           String
+   639→  type           LedgerAccountType
+   640→  ownerType      String            @default("PLATFORM") // PLATFORM | ARTIST | PARTICIPANT
+   641→  ownerId        String?           // Artist.id or SplitParticipant.id when scoped to a person
+   642→  currency       String            @default("USD")
+   643→
+   644→  organization Organization  @relation(fields: [organizationId], references: [id])
+   645→  entries      LedgerEntry[] // filter by `direction` for "all debits" vs "all credits"
+   646→
+   647→  @@unique([organizationId, code])
+   648→  @@index([organizationId])
+   649→  @@index([ownerType, ownerId])
+   650→}
+   651→
+   652→enum LedgerSourceType {
+   653→  DSP_ROYALTY
+   654→  SYNC_FEE
+   655→  DIRECT_TO_FAN
+   656→  SPLIT_PAYOUT
+   657→  WITHDRAWAL
+   658→  PLATFORM_COMMISSION
+   659→  ADJUSTMENT
+   660→}
+   661→
+   662→/// A Transaction is the atomic, balanced unit — it either has all its
+   663→/// Entries or none of them (wrap the insert in a single db transaction at
+   664→/// the application layer). sourceType + sourceId point back at whatever
+   665→/// business event caused the posting (a RoyaltyStatement, a DealRoom, etc.)
+   666→/// without a hard FK, since the source table varies.
+   667→model LedgerTransaction {
+   668→  id             String           @id @default(cuid())
+   669→  organizationId String
+   670→  date           DateTime         @default(now())
+   671→  memo           String?
+   672→  sourceType     LedgerSourceType
+   673→  sourceId       String?
+   674→
+   675→  organization Organization  @relation(fields: [organizationId], references: [id])
+   676→  entries      LedgerEntry[]
+   677→
+   678→  createdAt DateTime @default(now())
+   679→
+   680→  @@index([organizationId])
+   681→  @@index([sourceType, sourceId])
+   682→}
+   683→
+   684→enum LedgerEntryDirection {
+   685→  DEBIT
+   686→  CREDIT
+   687→}
+   688→
+   689→model LedgerEntry {
+   690→  id            String               @id @default(cuid())
+   691→  transactionId String
+   692→  accountId     String
+   693→  direction     LedgerEntryDirection
+   694→  amount        Decimal              @db.Decimal(12, 2) // always positive; direction carries the sign
+   695→
+   696→  transaction LedgerTransaction @relation(fields: [transactionId], references: [id])
+   697→  account     LedgerAccount    @relation(fields: [accountId], references: [id])
+   698→
+   699→  @@index([transactionId])
+   700→  @@index([accountId])
+   701→}
+   702→
+   703→// ============================================================================
+   704→// ASYNC AI JOBS — stem separation, mastering, voice, song-idea generation
+   705→// ============================================================================
+   706→// Demucs, Matchering, and RVC are compute-heavy (GPU-friendly) and do NOT
+   707→// belong in a Vercel Edge Function or a Supabase Edge Function (Deno,
+   708→// no GPU, short timeout). They run as an async worker job (a queue +
+   709→// container service — Modal, Replicate, Fly.io, or a self-hosted GPU box).
+   710→// This table is the queue's source of truth so the UI can poll or
+   711→// subscribe (Supabase Realtime) for job status instead of blocking.
+   712→
+   713→enum AiJobType {
+   714→  STEM_SEPARATION   // Demucs / Spleeter
+   715→  MASTERING         // Matchering / Roex
+   716→  VOICE_CONVERSION  // RVC
+   717→  SONG_IDEA         // Magenta MusicVAE / MelodyRNN
+   718→  METADATA_ANALYSIS // Essentia.js / Librosa (BPM, key, mood)
+   719→}
+   720→
+   721→enum AiJobStatus {
+   722→  QUEUED
+   723→  RUNNING
+   724→  SUCCEEDED
+   725→  FAILED
+   726→}
+   727→
+   728→model AiJob {
+   729→  id             String      @id @default(cuid())
+   730→  organizationId String
+   731→  trackId        String?
+   732→  type           AiJobType
+   733→  status         AiJobStatus @default(QUEUED)
+   734→  inputAssetId   String?
+   735→  outputAssetId  String?
+   736→  errorMessage   String?
+   737→
+   738→  organization Organization @relation(fields: [organizationId], references: [id])
+   739→
+   740→  createdAt   DateTime  @default(now())
+   741→  startedAt   DateTime?
+   742→  completedAt DateTime?
+   743→
+   744→  @@index([organizationId])
+   745→  @@index([status])
+   746→}
+   747→
+   748→// ============================================================================
+   749→// COLLABORATIVE DOCS — Writers' Room (Yjs)
+   750→// ============================================================================
+   751→// Yjs documents are binary CRDT state, not relational data — Postgres
+   752→// stores the pointer, Supabase Storage (or a dedicated y-websocket server
+   753→// with its own persistence) stores the actual binary snapshot. This row
+   754→// is what ties a Yjs room back to a Project/Song and enforces org scoping
+   755→// for who's allowed to connect to that room at all (checked before the
+   756→// websocket upgrade, not after).
+   757→
+   758→model CollabDoc {
+   759→  id             String   @id @default(cuid())
+   760→  organizationId String
+   761→  projectId      String?
+   762→  songId         String?
+   763→  roomName       String   @unique // the y-websocket / y-webrtc room identifier
+   764→  snapshotAssetId String? // periodic binary snapshot, for cold starts / backup
+   765→
+   766→  organization Organization @relation(fields: [organizationId], references: [id])
+   767→
+   768→  createdAt DateTime @default(now())
+   769→  updatedAt DateTime @updatedAt
+   770→
+   771→  @@index([organizationId])
+   772→}
+   773→

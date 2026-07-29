@@ -148,7 +148,7 @@ export function SiteFooter() {
                       {link.external ? (
                         <span className="text-sm text-bone/70">{link.label}</span>
                       ) : (
-                        <Link href={link.href} className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left">{link.label}</Link>
+                        <Link href={link.href || '/'} className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left">{link.label}</Link>
                       )}
                     </li>
                   ))}
