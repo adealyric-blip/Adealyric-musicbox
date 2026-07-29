@@ -80,3 +80,32 @@ Stage Summary:
 - Dark theme with custom color tokens (ink, bone, ash, smoke, mist)
 - Fraunces/Inter Tight/JetBrains Mono typography
 - MusicBox legacy code preserved as reference but NOT loaded at /
+---
+Task ID: 2
+Agent: main
+Task: Apply feature/adea-foundation-migration branch fixes and get app loading
+
+Work Log:
+- Fetched feature/adea-foundation-migration branch from GitHub (34 changed files)
+- Applied the key fix: `@/lib/supabase-stub` → `@/lib/supabase` across 34 files (sed replacement)
+- Removed `output: 'standalone'` from next.config.ts (caused instability)
+- Added `allowedDevOrigins: ['*']` to next.config.ts
+- Fixed page.tsx: replaced dynamic() imports with direct imports (EntryGate, Landing, SiteHeader, SiteFooter)
+- Discovered dev server OOM/crash issue: background `&` processes get cleaned up by sandbox
+- Set `NODE_OPTIONS='--max-old-space-size=512'` in dev script for stability
+- Created `/home/z/start-next.sh` daemon wrapper for persistent server
+- Created `src/lib/supabase.ts` - Supabase API compatibility shim (chainable query builder, returns empty data)
+- Created `src/lib/react-router-stub.tsx` - React Router stub (re-exports next/link, provides useParams/useNavigate/Navigate)
+- Created `src/lib/dashboard/database.ts` - Type definitions for dashboard entities
+- Created `src/lib/dashboard/format.ts` - formatCents, formatDate, formatDateTime utilities
+- Verified app loads in browser: EntryGate renders with ADEA/LYRIC branding, ENTER/LOGIN buttons
+- Verified Landing page: Hero, Bio (ADEA LYRIC acronym), Letter to My Fans, Discography, Newsletter, Footer all render
+- No JavaScript errors in browser console
+- Screenshot saved to preview-home.png
+
+Stage Summary:
+- App is fully loading and interactive at http://localhost:3000/
+- EntryGate splash screen with shatter animation → Landing page with full content
+- All Adea components rendering: SiteHeader nav, Landing sections, SiteFooter with platform marquee
+- Dashboard/portal components exist but are not yet routed (stub modules prevent build failures)
+- Dev server stable via daemon wrapper at /home/z/start-next.sh
