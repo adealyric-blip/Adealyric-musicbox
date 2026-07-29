@@ -41,7 +41,6 @@ import {
   Ticket,
   Plus,
   Sparkles,
-  Megaphone as Announce,
   ChevronDown,
   ChevronRight,
   Scissors,
