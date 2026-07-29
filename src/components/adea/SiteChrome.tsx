@@ -101,12 +101,18 @@ export function PlatformIcon({ name, className = "h-5 w-5" }: { name: string; cl
   return <>{icons[name] ?? null}</>;
 }
 
+const MUSICBOX_URL = process.env.NEXT_PUBLIC_MUSICBOX_URL || 'https://musicbox.adealyric.com';
+
 const FOOTER_LINKS = [
   { heading: "Music", links: [{ label: "Discography", href: "/music" }, { label: "Latest Release", href: "/music" }, { label: "Streaming", external: true }] },
   { heading: "Shop", links: [{ label: "Merchandise", href: "/shop" }, { label: "Vinyl & CDs", href: "/shop" }, { label: "USB Drives", href: "/shop" }] },
   { heading: "Connect", links: [{ label: "Tour Dates", href: "/events" }, { label: "Vocal Coaching Booking", href: "/booking" }, { label: "Newsletter", href: "/" }] },
   { heading: "Account", links: [{ label: "Log In", href: "/login" }, { label: "Sign Up", href: "/signup" }] },
-  { heading: "MusicBox", links: [{ label: "For Labels", href: "https://musicbox.com/labels" }, { label: "For Artists", href: "https://musicbox.com/artists" }, { label: "For Sync Agents", href: "https://musicbox.com/sync" }] },
+  { heading: "MusicBox", external: true, links: [
+    { label: "For Labels", href: `${MUSICBOX_URL}/labels` },
+    { label: "For Artists", href: `${MUSICBOX_URL}/artists` },
+    { label: "For Sync Agents", href: `${MUSICBOX_URL}/sync` },
+  ] },
 ];
 
 const PLATFORMS = [
@@ -124,67 +130,69 @@ const ALL_PLATFORMS = [...PLATFORMS, ...PLATFORMS, ...PLATFORMS, ...PLATFORMS];
 
 export function SiteFooter() {
   return (
-    <footer className="relative bg-ink px-6 pt-20 pb-10 md:px-12 md:pt-28 md:pb-12">
-      <div className="mx-auto max-w-[1600px]">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-16">
-          <div className="md:col-span-4">
-            <Link href="/" className="relative block cursor-pointer group" aria-label="Adea Lyric Home">
-              <img
-                src="/footer/logo/logo-footer.png"
-                alt="Adea Lyric"
-                className="h-auto w-28 sm:w-32 md:w-36 opacity-20 hover:opacity-30 transition-opacity duration-300"
-                style={{ filter: 'invert(1)', mixBlendMode: 'screen' }}
-              />
-            </Link>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-ash">The sound of West Philly. Singer, songwriter, and producer creating every record from the soul.</p>
-          </div>
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-5 md:col-span-8">
-            {FOOTER_LINKS.map((col) => (
-              <div key={col.heading}>
-                <div className="text-eyebrow mb-5 text-bone/50">{col.heading}</div>
-                <ul className="flex flex-col gap-3">
-                  {col.links.map((link) => (
-                    <li key={link.label}>
-                      {link.external ? (
-                        <span className="text-sm text-bone/70">{link.label}</span>
-                      ) : (
-                        <Link href={link.href || '/'} className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left">{link.label}</Link>
-                      )}
-                    </li>
-                  ))}
-                  {col.heading === "MusicBox" && (
-                    <>
-                      <li>
-                        <a href="https://musicbox.com/labels" className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left" target="_blank" rel="noopener noreferrer">For Labels</a>
+    <footer className="relative bg-ink">
+      {/* Video footer */}
+      <div className="relative w-full overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-48 object-cover opacity-30"
+          src="/footer/video/footer-video.mp4"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/40 to-ink" />
+      </div>
+
+      <div className="px-6 pt-16 pb-10 md:px-12 md:pt-24 md:pb-12">
+        <div className="mx-auto max-w-[1600px]">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-16">
+            <div className="md:col-span-4">
+              <Link href="/" className="relative block cursor-pointer group" aria-label="Adea Lyric Home">
+                <img
+                  src="/footer/logo/logo-footer.png"
+                  alt="Adea Lyric"
+                  className="h-auto w-28 sm:w-32 md:w-36 opacity-20 hover:opacity-30 transition-opacity duration-300"
+                  style={{ filter: 'invert(1)', mixBlendMode: 'screen' }}
+                />
+              </Link>
+              <p className="mt-6 max-w-md text-base leading-relaxed text-ash">The sound of West Philly. Singer, songwriter, and producer creating every record from the soul.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-5 md:col-span-8">
+              {FOOTER_LINKS.map((col) => (
+                <div key={col.heading}>
+                  <div className="text-eyebrow mb-5 text-bone/50">{col.heading}</div>
+                  <ul className="flex flex-col gap-3">
+                    {col.links.map((link) => (
+                      <li key={link.label}>
+                        {(link as { external?: boolean }).external || (col as { external?: boolean }).external ? (
+                          <a href={link.href} className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left" target="_blank" rel="noopener noreferrer">{link.label}</a>
+                        ) : (
+                          <Link href={link.href || '/'} className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left">{link.label}</Link>
+                        )}
                       </li>
-                      <li>
-                        <a href="https://musicbox.com/artists" className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left" target="_blank" rel="noopener noreferrer">For Artists</a>
-                      </li>
-                      <li>
-                        <a href="https://musicbox.com/sync" className="text-sm text-bone/70 transition-colors hover:text-bone cursor-pointer text-left" target="_blank" rel="noopener noreferrer">For Sync Agents</a>
-                      </li>
-                    </>
-                  )}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mt-16 border-t border-border md:mt-20" />
-        <div className="mt-10 flex flex-col gap-8 md:mt-12">
-          <div className="relative overflow-hidden py-2">
-            <div className="footer-marquee-track flex w-max items-center gap-8">
-              {ALL_PLATFORMS.map((p, i) => (
-                <a key={`${p.key}-${i}`} href="#" onClick={(e) => e.preventDefault()} className="flex shrink-0 items-center gap-2 text-ash/60 transition-colors hover:text-bone" aria-label={p.label}>
-                  <PlatformIcon name={p.key} className="h-4 w-4" />
-                  <span className="whitespace-nowrap text-xs tracking-wide">{p.label}</span>
-                </a>
+                    ))}
+                  </ul>
+                </div>
               ))}
             </div>
           </div>
-          <div className="flex flex-col items-start gap-1 text-xs text-ash/60 md:items-end md:text-right">
-            <span>{"© "}{new Date().getFullYear()} Adea Lyric. All rights reserved.</span>
-            <span>West Philadelphia · Est. 2017</span>
+          <div className="mt-16 border-t border-border md:mt-20" />
+          <div className="mt-10 flex flex-col gap-8 md:mt-12">
+            <div className="relative overflow-hidden py-2">
+              <div className="footer-marquee-track flex w-max items-center gap-8">
+                {ALL_PLATFORMS.map((p, i) => (
+                  <a key={`${p.key}-${i}`} href="#" onClick={(e) => e.preventDefault()} className="flex shrink-0 items-center gap-2 text-ash/60 transition-colors hover:text-bone" aria-label={p.label}>
+                    <PlatformIcon name={p.key} className="h-4 w-4" />
+                    <span className="whitespace-nowrap text-xs tracking-wide">{p.label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col items-start gap-1 text-xs text-ash/60 md:items-end md:text-right">
+              <span>{"© "}{new Date().getFullYear()} Adea Lyric. All rights reserved.</span>
+              <span>West Philadelphia · Est. 2017</span>
+            </div>
           </div>
         </div>
       </div>
