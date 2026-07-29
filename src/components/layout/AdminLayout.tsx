@@ -77,7 +77,7 @@ const navSections: { title: string; collapsible: boolean; items: NavItem[] }[] =
       { to: '/admin/discography/new-release', label: 'New Release', icon: <Plus size={18} /> },
       { to: '/admin/shop/new-look', label: 'New Look', icon: <Sparkles size={18} /> },
       { to: '/admin/tour/new-tour-date', label: 'New Tour Date', icon: <Plus size={18} /> },
-      { to: '/admin/cms/new-banner', label: 'New Banner', icon: <Announce size={18} /> },
+      { to: '/admin/cms/new-banner', label: 'New Banner', icon: <Megaphone size={18} /> },
     ],
   },
   // ─── 3. Website ───
@@ -97,7 +97,7 @@ const navSections: { title: string; collapsible: boolean; items: NavItem[] }[] =
     title: 'CMS',
     collapsible: true,
     items: [
-      { to: '/admin/cms/banners', label: 'Announcements & Banners', icon: <Announce size={18} /> },
+      { to: '/admin/cms/banners', label: 'Announcements & Banners', icon: <Megaphone size={18} /> },
       { to: '/admin/cms/blog', label: 'Blog / News', icon: <PenLine size={18} /> },
       { to: '/admin/cms/press', label: 'Press Releases', icon: <Newspaper size={18} /> },
       { to: '/admin/cms/gallery', label: 'Media Gallery', icon: <Image size={18} /> },
