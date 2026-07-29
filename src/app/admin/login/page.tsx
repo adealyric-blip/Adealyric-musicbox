@@ -2,38 +2,38 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/store';
+import { supabase } from '@/lib/supabase';
 import { Music, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { login, isAuthenticated, isAdmin } = useAppStore();
 
   useEffect(() => {
-    if (isAuthenticated && isAdmin) router.push('/admin');
-  }, [isAuthenticated, isAdmin, router]);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.push('/admin');
+    });
+  }, [router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setTimeout(() => {
-      const success = login(username, password);
-      setLoading(false);
-      if (success) {
-        router.push('/admin');
-      } else {
-        setError('Invalid credentials.');
-      }
-    }, 400);
-  };
 
-  if (isAuthenticated && isAdmin) return null;
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+
+    setLoading(false);
+
+    if (authError) {
+      setError(authError.message);
+    } else {
+      router.push('/admin');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 flex">
@@ -85,16 +85,16 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-neutral-700 mb-1.5">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1.5">
+                Email
               </label>
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900 transition-colors"
-                placeholder="Enter your username"
+                placeholder="you@adealyric.com"
                 required
                 autoFocus
               />
