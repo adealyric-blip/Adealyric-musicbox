@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  allowedDevOrigins: ["*"],
+  allowedDevOrigins: ["https://*.space-z.ai", "http://21.0.3.82:3000", "http://localhost:3000"],
 };
 
 export default nextConfig;
