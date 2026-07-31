@@ -2,15 +2,19 @@
 
 import { PageIntro } from "./SiteChrome";
 
-const philly1 = "/discography/album-covers/after-lyric.png";
-const philly2 = "/discography/album-covers/after-lyric.png";
-const philly3 = "/discography/album-covers/after-lyric.png";
+const BIO_HERO = "/bio/hero/hero.jpg";
 
 export function BioPage() {
   return (
     <>
-      {/* DARK HERO — headline at bottom */}
+      {/* DARK HERO with actual hero image */}
       <section className="relative flex min-h-[60svh] items-end overflow-hidden bg-ink md:min-h-[70svh]">
+        <img
+          src={BIO_HERO}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-50 grayscale"
+          aria-hidden
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/30" />
         <div className="relative z-10 w-full px-6 pb-16 md:px-12 md:pb-24">
           <div className="text-eyebrow text-ash">The Artist</div>
@@ -50,9 +54,9 @@ export function BioPage() {
         </div>
       </section>
       <section className="grid grid-cols-1 gap-1 bg-black/5 md:grid-cols-3">
-        {[philly1, philly2, philly3].map((src, i) => (
+        {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="relative aspect-[4/5] overflow-hidden">
-            <img src={src} alt="" className="h-full w-full object-cover grayscale" />
+            <img src={BIO_HERO} alt="" className="h-full w-full object-cover grayscale" />
           </div>
         ))}
       </section>

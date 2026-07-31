@@ -21,8 +21,6 @@ const GALLERY_IMAGES = [
   "/news-gallery/gallery/gallery-11.jpg",
   "/news-gallery/gallery/gallery-12.jpg",
   "/news-gallery/gallery/in-car.jpg",
-  "/news-gallery/gallery/paris-restaurant.png",
-  "/news-gallery/gallery/wall-pose.jpg",
 ];
 
 export function NewsPage() {
