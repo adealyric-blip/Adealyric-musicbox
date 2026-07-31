@@ -38,7 +38,7 @@ export default function SignupPage() {
         setError(data.error || 'Something went wrong.');
         return;
       }
-      router.push('/login');
+      router.push('/');
     } catch {
       setError('Network error. Please try again.');
     } finally {
@@ -51,25 +51,30 @@ export default function SignupPage() {
       {/* Left — Dark panel */}
       <div className="flex flex-1 items-center justify-center bg-ink px-8 py-20 md:px-16">
         <div className="max-w-xl">
-          <div className="text-eyebrow text-ash">Join</div>
+          <div className="text-eyebrow text-ash">Fan Account</div>
           <h1 className="mt-6 text-display text-[clamp(3rem,8vw,9rem)] leading-[0.9] text-bone">
             Become part
             <br />
             <span className="italic text-ash">of the sound.</span>
           </h1>
           <p className="mt-8 max-w-md text-lg leading-relaxed text-bone/70">
-            Get early access to releases, exclusive merch drops, and behind-the-scenes content.
+            Join the inner circle. Get early access to releases, exclusive merch drops,
+            and behind-the-scenes content from Adea Lyric.
           </p>
+          <div className="mt-10 flex items-center gap-4">
+            <span className="block h-px w-16 bg-bone/30" />
+            <span className="text-eyebrow text-ash">Free to join</span>
+          </div>
         </div>
       </div>
       {/* Right — White form */}
       <div className="flex flex-1 items-center justify-center bg-white px-8 py-20 md:px-16">
         <div className="w-full max-w-md">
-          <div className="text-eyebrow text-ink/40">Create Account</div>
+          <div className="text-eyebrow text-ink/40">Create Fan Account</div>
           <h2 className="mt-4 text-display text-3xl text-ink md:text-4xl">
             Sign up
             <br />
-            <span className="italic text-ink/50">to continue.</span>
+            <span className="italic text-ink/50">for exclusive access.</span>
           </h2>
           <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
             <div>
@@ -113,13 +118,19 @@ export default function SignupPage() {
               disabled={loading}
               className="mt-4 w-full border border-ink bg-ink py-4 text-eyebrow text-bone transition-all hover:bg-ink/80 disabled:opacity-50 cursor-pointer"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'Creating Account...' : 'Create Fan Account'}
             </button>
           </form>
-          <p className="mt-8 text-center text-sm text-ink/40">
-            Already have an account?{' '}
-            <Link href="/login" className="underline underline-offset-4 transition-colors hover:text-ink cursor-pointer">Sign in</Link>
-          </p>
+          <div className="mt-10 border-t border-ink/10 pt-6 space-y-3">
+            <p className="text-sm text-ink/40">
+              Already a fan?{' '}
+              <Link href="/login" className="underline underline-offset-4 transition-colors hover:text-ink cursor-pointer">Sign in</Link>
+            </p>
+            <p className="text-xs text-ink/25">
+              Looking for the admin dashboard?{' '}
+              <Link href="/login" className="underline underline-offset-4 transition-colors hover:text-ink/50 cursor-pointer">Admin sign in →</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

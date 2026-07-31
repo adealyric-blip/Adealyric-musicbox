@@ -213,8 +213,22 @@ function StepRow({ step, left, index, total }: {
 }) {
   const { ref, shown } = useReveal<HTMLDivElement>();
   const vidRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
   const { setActiveTab, setDetailSlug } = useAppStore();
-  const gradeOpacity = 0.35 + (index / (total - 1)) * 0.65;
+  const gradeOpacity = 0.5 + (index / (total - 1)) * 0.5;
+
+  const togglePlay = () => {
+    if (!vidRef.current) return;
+    if (playing) {
+      vidRef.current.pause();
+      vidRef.current.currentTime = 0;
+      setPlaying(false);
+    } else {
+      vidRef.current.play().catch(() => {});
+      setPlaying(true);
+    }
+  };
+
   return (
     <div ref={ref} className="relative grid grid-cols-1 gap-8 py-16 md:grid-cols-2 md:py-24">
       <div className={`${left ? "md:order-1" : "md:order-2"}`}>
@@ -222,24 +236,39 @@ function StepRow({ step, left, index, total }: {
           className={`relative aspect-[4/5] w-full overflow-hidden border border-border transition-all duration-1000 ${
             shown ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"
           }`}
-          onMouseEnter={() => vidRef.current?.play()}
-          onMouseLeave={() => { vidRef.current?.pause(); vidRef.current!.currentTime = 0; }}
+          onMouseEnter={() => { vidRef.current?.play().catch(() => {}); setPlaying(true); }}
+          onMouseLeave={() => { vidRef.current?.pause(); vidRef.current!.currentTime = 0; setPlaying(false); }}
         >
           <video
             ref={vidRef}
             muted
             loop
             playsInline
-            preload="metadata"
-            className="h-full w-full object-cover"
-            style={{ opacity: gradeOpacity, filter: `grayscale(1) contrast(${1 + index * 0.05})` }}
+            preload="auto"
+            className="h-full w-full object-cover transition-all duration-700"
+            style={{ opacity: gradeOpacity, filter: `grayscale(${playing ? 0 : 1}) contrast(${1 + index * 0.05})` }}
+            onClick={togglePlay}
           >
             <source src={step.video} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-tr from-ink via-ink/30 to-transparent" />
-          <div className="absolute bottom-8 left-8 text-display text-6xl text-bone md:text-8xl">
+          <div className={`absolute inset-0 bg-gradient-to-tr from-ink via-ink/30 to-transparent transition-opacity duration-500 ${playing ? "opacity-0" : "opacity-100"}`} />
+          <div className="pointer-events-none absolute bottom-8 left-8 text-display text-6xl text-bone md:text-8xl">
             {step.year}
           </div>
+          {/* Play button overlay for mobile/tap */}
+          {!playing && (
+            <button
+              onClick={togglePlay}
+              className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer md:hidden"
+              aria-label={`Play ${step.title}`}
+            >
+              <span className="grid h-16 w-16 place-items-center border border-bone/60 bg-ink/50 text-bone backdrop-blur-sm">
+                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
+            </button>
+          )}
         </div>
       </div>
       <div className={`${left ? "md:order-2" : "md:order-1"} flex items-center`}>

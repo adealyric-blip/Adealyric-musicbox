@@ -2,9 +2,9 @@
 
 import { SiteHeader, SiteFooter, PageIntro } from "./SiteChrome";
 
-const SERVICES_HERO = "/news-gallery/hero/hero.jpg";
+const SERVICES_HERO = "/services/hero/hero.jpg";
 
-const VOCAL_COACHING_IMAGE = "/news-gallery/hero/hero.jpg";
+const VOCAL_COACHING_IMAGE = "/services/hero/hero.jpg";
 const SONGWRITING_IMAGE = "/news-gallery/gallery/stage-performance.png";
 
 export function ServicesPage() {
