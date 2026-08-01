@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useAppStore } from "@/lib/store";
 
 const NAV: { label: string; href: string }[] = [
   { label: "Home", href: "/" },
@@ -18,6 +19,7 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
   const pathname = usePathname();
+  const { cartCount } = useAppStore();
 
   // Interior pages have white bg — header needs solid dark bg
   const isLightPage = pathname !== "/";
@@ -55,13 +57,10 @@ export function SiteHeader() {
           </nav>
           <div className="flex items-center gap-6">
             <Link href="/login" className="hidden text-eyebrow text-bone/70 hover:text-bone md:inline-flex cursor-pointer">
-              Log In
-            </Link>
-            <Link href="/signup" className="hidden text-eyebrow text-bone/70 hover:text-bone md:inline-flex cursor-pointer">
-              Sign Up
+              Account
             </Link>
             <Link href="/shop" className="hidden text-eyebrow text-bone/70 hover:text-bone md:inline-flex cursor-pointer">
-              Cart
+              Cart{cartCount > 0 ? ` (${cartCount})` : ""}
             </Link>
             <button className="grid h-10 w-10 place-items-center border border-border md:hidden cursor-pointer" onClick={() => setMenu((v) => !v)} aria-label="Menu">
               <div className="flex flex-col gap-1.5">
