@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SiteHeader, SiteFooter, PageIntro } from "./SiteChrome";
+import { SiteHeader, SiteFooter } from "./SiteChrome";
 
 const TIMELINE_VIDEOS = [
   { year: "2017", title: "Debut", note: "West Philly emerges.", video: "/home-page/stepped-path/timeline-2017.mp4" },
@@ -17,7 +17,7 @@ const VIDEOS_HERO = "/news-gallery/hero/hero.jpg";
 function VideoCard({ item, index }: { item: (typeof TIMELINE_VIDEOS)[0]; index: number }) {
   const vidRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
-  const gradeOpacity = 0.4 + (index / (TIMELINE_VIDEOS.length - 1)) * 0.6;
+  const gradeOpacity = 0.55 + (index / (TIMELINE_VIDEOS.length - 1)) * 0.45;
 
   const togglePlay = () => {
     if (!vidRef.current) return;
@@ -37,7 +37,7 @@ function VideoCard({ item, index }: { item: (typeof TIMELINE_VIDEOS)[0]; index: 
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         className="h-full w-full object-cover transition-all duration-700"
         style={{ opacity: gradeOpacity, filter: `grayscale(${playing ? 0 : 1}) contrast(${1 + index * 0.04})` }}
         onClick={togglePlay}
@@ -45,16 +45,16 @@ function VideoCard({ item, index }: { item: (typeof TIMELINE_VIDEOS)[0]; index: 
         <source src={item.video} type="video/mp4" />
       </video>
       <div className={`absolute inset-0 bg-gradient-to-tr from-ink via-ink/30 to-transparent transition-opacity duration-500 ${playing ? "opacity-0" : "opacity-100"}`} />
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-6 md:p-8">
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/90 to-transparent p-6 md:p-8 z-10">
         <div className="text-eyebrow text-ash">{item.year}</div>
         <h3 className="mt-2 text-display text-3xl text-bone md:text-5xl">{item.title}</h3>
-        <p className="mt-2 text-sm text-bone/60 md:text-base">{item.note}</p>
+        <p className="mt-2 text-sm text-bone/70 md:text-base">{item.note}</p>
       </div>
       {/* Play overlay */}
       {!playing && (
         <button
           onClick={togglePlay}
-          className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer"
+          className="absolute inset-0 z-20 flex items-center justify-center cursor-pointer"
           aria-label={`Play ${item.title} video`}
         >
           <span className="grid h-16 w-16 place-items-center border border-bone/60 bg-ink/50 text-bone backdrop-blur-sm transition-all hover:scale-110 hover:bg-bone hover:text-ink md:h-20 md:w-20">
@@ -67,7 +67,7 @@ function VideoCard({ item, index }: { item: (typeof TIMELINE_VIDEOS)[0]; index: 
       {playing && (
         <button
           onClick={togglePlay}
-          className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center border border-bone/40 bg-ink/60 text-bone backdrop-blur-sm transition-all hover:bg-bone hover:text-ink cursor-pointer"
+          className="absolute right-4 top-4 z-20 grid h-10 w-10 place-items-center border border-bone/40 bg-ink/60 text-bone backdrop-blur-sm transition-all hover:bg-bone hover:text-ink cursor-pointer"
           aria-label="Pause video"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>

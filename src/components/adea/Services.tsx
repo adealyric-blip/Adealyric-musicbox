@@ -10,26 +10,14 @@ const SONGWRITING_IMAGE = "/news-gallery/gallery/stage-performance.png";
 export function ServicesPage() {
   return (
     <>
-      {/* ===== SECTION 1 — Hero with background image ===== */}
-      <section className="relative flex min-h-[60svh] items-end overflow-hidden bg-ink md:min-h-[70svh]">
-        <img
-          src={SERVICES_HERO}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-60"
-          aria-hidden
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
-        <div className="relative z-10 mx-auto w-full max-w-[1600px] px-6 pb-16 pt-40 md:px-12 md:pb-24 md:pt-56">
-          <div className="text-eyebrow text-ash">Services — Offerings</div>
-          <h1 className="mt-6 text-display text-[clamp(3.5rem,11vw,12rem)] leading-none text-bone">
-            Work with
-            <span className="block italic text-ash">Adea</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-bone/70">
-            Vocal coaching, songwriting, and creative collaboration. Elevate your sound with West Philly's finest.
-          </p>
-        </div>
-      </section>
+      <PageIntro
+        eyebrow="Services — Offerings"
+        title="Work with"
+        italic="Adea."
+        sub="Vocal coaching, songwriting, and creative collaboration. Elevate your sound with West Philly's finest."
+        dark
+        bgImage={SERVICES_HERO}
+      />
 
       {/* ===== SECTION 2 — Vocal Coaching ===== */}
       <section className="bg-white px-6 py-20 md:px-12 md:py-32">
