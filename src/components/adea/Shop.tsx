@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
 import { PlatformIcon } from "./SiteChrome";
+import { getProductById } from "@/lib/product-catalog";
+import PortalProductDetailPage from "@/portal/pages/PortalProductDetailPage";
 import {
   SHOP_ALBUMS,
   ALL_PRODUCTS,
@@ -692,6 +694,31 @@ export function ProductDetailPage({ slug }: { slug?: string }) {
         )}
       </div>
     </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   DETAIL ROUTER — checks both data sources
+   ═══════════════════════════════════════════════════ */
+
+export function ShopDetailRouter({ slug }: { slug: string }) {
+  // Check product-catalog (POD/merch) first
+  const catalogProduct = getProductById(slug);
+  if (catalogProduct) {
+    return <PortalProductDetailPage productId={slug} />;
+  }
+
+  // Fall back to shop catalog (albums + merch)
+  const isAlbum = SHOP_ALBUMS.some((a) => a.slug === slug);
+  const isProduct = ALL_PRODUCTS.some((p) => p.slug === slug);
+
+  if (isAlbum) return <AlbumDetailPage slug={slug} />;
+  if (isProduct) return <ProductDetailPage slug={slug} />;
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-white">
+      <p className="text-sm text-black">Item not found.</p>
+    </div>
   );
 }
 
