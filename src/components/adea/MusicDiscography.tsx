@@ -345,7 +345,14 @@ export function TourPage() {
   const { setActiveTab } = useAppStore();
   return (
     <>
-      <PageIntro eyebrow="On the road" title="Tour," italic="live." sub="Direct ticket purchase. Calendar links. Automated map at every stop." dark />
+      <PageIntro
+        eyebrow="On the road"
+        title="Tour,"
+        italic="live."
+        sub="Direct ticket purchase. Calendar links. Automated map at every stop."
+        dark
+        bgImage="/tour/hero/hero.jpg"
+      />
       <section className="bg-white px-6 pb-12 md:px-12">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between">
           <p className="text-[11px] text-black">{TOUR.length} dates</p>

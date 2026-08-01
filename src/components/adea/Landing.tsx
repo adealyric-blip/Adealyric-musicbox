@@ -215,17 +215,38 @@ function StepRow({ step, left, index, total }: {
   const vidRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const { setActiveTab, setDetailSlug } = useAppStore();
-  const gradeOpacity = 0.5 + (index / (total - 1)) * 0.5;
+  const gradeOpacity = 0.55 + (index / (total - 1)) * 0.45;
+
+  useEffect(() => {
+    const video = vidRef.current;
+    if (!video) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+          setPlaying(true);
+        } else {
+          video.pause();
+          setPlaying(false);
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    io.observe(video);
+    return () => {
+      io.unobserve(video);
+      io.disconnect();
+    };
+  }, []);
 
   const togglePlay = () => {
     if (!vidRef.current) return;
     if (playing) {
       vidRef.current.pause();
-      vidRef.current.currentTime = 0;
-      setPlaying(false);
     } else {
       vidRef.current.play().catch(() => {});
-      setPlaying(true);
     }
   };
 
@@ -236,8 +257,6 @@ function StepRow({ step, left, index, total }: {
           className={`relative aspect-[4/5] w-full overflow-hidden border border-border transition-all duration-1000 ${
             shown ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"
           }`}
-          onMouseEnter={() => { vidRef.current?.play().catch(() => {}); setPlaying(true); }}
-          onMouseLeave={() => { vidRef.current?.pause(); vidRef.current!.currentTime = 0; setPlaying(false); }}
         >
           <video
             ref={vidRef}
@@ -246,8 +265,10 @@ function StepRow({ step, left, index, total }: {
             playsInline
             preload="auto"
             className="h-full w-full object-cover transition-all duration-700"
-            style={{ opacity: gradeOpacity, filter: `grayscale(${playing ? 0 : 1}) contrast(${1 + index * 0.05})` }}
+            style={{ opacity: gradeOpacity, filter: "none" }}
             onClick={togglePlay}
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
           >
             <source src={step.video} type="video/mp4" />
           </video>
@@ -259,10 +280,10 @@ function StepRow({ step, left, index, total }: {
           {!playing && (
             <button
               onClick={togglePlay}
-              className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer md:hidden"
+              className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer"
               aria-label={`Play ${step.title}`}
             >
-              <span className="grid h-16 w-16 place-items-center border border-bone/60 bg-ink/50 text-bone backdrop-blur-sm">
+              <span className="grid h-16 w-16 place-items-center border border-bone/60 bg-ink/50 text-bone backdrop-blur-sm transition-all hover:scale-110 hover:bg-bone hover:text-ink">
                 <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
                   <path d="M8 5v14l11-7z" />
                 </svg>
@@ -298,14 +319,14 @@ function DiscographyPath() {
     { year: "2019", title: "Underground", note: "Building the culture.", video: timelineVideos[1], slug: "west-philly" },
     { year: "2021", title: "West Philly", note: "The mixtape that defined a block.", video: timelineVideos[2], slug: "west-philly" },
     { year: "2023", title: "The Lyric EP", note: "Refusing every trend.", video: timelineVideos[3], slug: "the-lyric-ep" },
-    { year: "2024", title: "F**K Boi", note: "Unapologetic. Undeniable.", video: timelineVideos[4], slug: "fk-boi" },
+    { year: "2025", title: "F**K Boi", note: "Unapologetic. Undeniable.", video: timelineVideos[4], slug: "fk-boi" },
   ];
   return (
     <section id="discography" className="relative overflow-hidden bg-ink px-6 py-32 md:px-12 md:py-48">
       <div className="mx-auto max-w-[1600px]">
         <div className="text-eyebrow text-ash">03 — Discography</div>
         <h2 className="mt-6 text-display text-[clamp(3rem,7vw,7rem)] text-bone">
-          A stepped path <span className="italic text-ash">of progression.</span>
+          Step Path <span className="italic text-ash">to Progression</span>
         </h2>
         <div className="relative mt-24">
           <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-border to-transparent md:left-1/2" />
