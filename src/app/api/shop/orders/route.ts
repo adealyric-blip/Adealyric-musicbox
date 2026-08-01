@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
     if (url.searchParams.get('status')) where.status = url.searchParams.get('status');
 
     const [orders, total] = await Promise.all([
-      db.shopOrder.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
-      db.shopOrder.count({ where }),
+      db.order.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      db.order.count({ where }),
     ]);
     return paginatedResponse(orders, total, page, limit);
   } catch (error) { return handleApiError(error); }
@@ -25,12 +25,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { productId, quantity, fanEmail, fanName, shippingAddress } = body;
 
-    const product = await db.shopProduct.findUnique({ where: { id: productId } });
+    const product = await db.product.findUnique({ where: { id: productId } });
     if (!product) return errorResponse('Product not found', 'NOT_FOUND', 404);
 
     const totalCents = product.priceCents * (quantity ?? 1);
-    const order = await db.shopOrder.create({
-      data: { userId: user.id, fanEmail: fanEmail ?? user.email, fanName: fanName ?? user.displayName, productId, quantity: quantity ?? 1, totalCents, totalAmount: totalCents, currency: 'USD', status: 'pending', items: [{ productId, quantity: quantity ?? 1, priceCents: product.priceCents }], shippingAddress: shippingAddress ?? null },
+    const order = await db.order.create({
+      data: { productId, buyerEmail: fanEmail ?? user.email, amountCents: totalCents, status: 'pending' },
     });
     return successResponse(order, 201);
   } catch (error) { return handleApiError(error); }
