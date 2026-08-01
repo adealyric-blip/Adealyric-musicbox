@@ -1,11 +1,9 @@
-import { Prisma } from '@prisma/client';
-
 /**
  * Prisma middleware to automatically filter queries by organizationId
  * This enforces tenant isolation at the database level
  */
 export function createTenantMiddleware(organizationId: string) {
-  return async (params: Prisma.MiddlewareParams, next: Prisma.MiddlewareNext) => {
+  return async (params: any, next: any) => {
     // Skip for models that don't have organizationId
     const modelsWithoutTenant = [
       'User',

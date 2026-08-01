@@ -904,54 +904,54 @@ select id, 'NEW', 'New Arrival', true from products where sku in ('BG006');
 
 -- Sample variants for first T-shirt
 insert into product_variants (product_id, sku, size_label, color_name, price_cents, inventory_quantity, sort_order)
-select 
-  p.id, 
-  p.sku || '-S-BLK', 
-  'S', 
-  'Black', 
-  p.base_price_cents, 
-  50, 
-  1 
+select
+  p.id,
+  p.sku || '-S-BLK',
+  'S',
+  'Black',
+  p.base_price_cents,
+  50,
+  1
 from products p where p.sku = 'WT0216'
 union all
-select 
-  p.id, 
-  p.sku || '-M-BLK', 
-  'M', 
-  'Black', 
-  p.base_price_cents, 
-  50, 
-  2 
+select
+  p.id,
+  p.sku || '-M-BLK',
+  'M',
+  'Black',
+  p.base_price_cents,
+  50,
+  2
 from products p where p.sku = 'WT0216'
 union all
-select 
-  p.id, 
-  p.sku || '-L-BLK', 
-  'L', 
-  'Black', 
-  p.base_price_cents, 
-  50, 
-  3 
+select
+  p.id,
+  p.sku || '-L-BLK',
+  'L',
+  'Black',
+  p.base_price_cents,
+  50,
+  3
 from products p where p.sku = 'WT0216'
 union all
-select 
-  p.id, 
-  p.sku || '-XL-BLK', 
-  'XL', 
-  'Black', 
-  p.base_price_cents, 
-  50, 
-  4 
+select
+  p.id,
+  p.sku || '-XL-BLK',
+  'XL',
+  'Black',
+  p.base_price_cents,
+  50,
+  4
 from products p where p.sku = 'WT0216'
 union all
-select 
-  p.id, 
-  p.sku || '-2XL-BLK', 
-  '2XL', 
-  'Black', 
-  p.base_price_cents, 
-  50, 
-  5 
+select
+  p.id,
+  p.sku || '-2XL-BLK',
+  '2XL',
+  'Black',
+  p.base_price_cents,
+  50,
+  5
 from products p where p.sku = 'WT0216';
 
 -- ============================================================================
@@ -1008,20 +1008,20 @@ insert into product_collections (name, slug, description, is_featured, sort_orde
 
 -- Add products to collections
 insert into product_collection_items (collection_id, product_id, sort_order)
-select 
+select
   (select id from product_collections where slug = 'new-arrivals'),
   p.id,
   1
-from products p 
+from products p
 where p.id in (
   select product_id from product_badges where badge_type = 'NEW'
 )
 union all
-select 
+select
   (select id from product_collections where slug = 'bestsellers'),
   p.id,
   1
-from products p 
+from products p
 where p.id in (
   select product_id from product_badges where badge_type = 'BESTSELLER'
 );
