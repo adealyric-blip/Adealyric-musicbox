@@ -130,17 +130,17 @@ const ALL_PLATFORMS = [...PLATFORMS, ...PLATFORMS, ...PLATFORMS, ...PLATFORMS];
 export function SiteFooter() {
   return (
     <footer className="relative bg-ink">
-      {/* Video footer */}
+      {/* Full-bleed video footer */}
       <div className="relative w-full overflow-hidden">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-48 object-cover opacity-30"
+          className="w-full h-64 sm:h-80 md:h-96 lg:h-[28rem] object-cover opacity-50"
           src="/footer/video/footer-video.mp4"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/40 to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/30 to-ink" />
       </div>
 
       <div className="px-6 pt-16 pb-10 md:px-12 md:pt-24 md:pb-12">
