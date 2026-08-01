@@ -109,10 +109,6 @@ export function DiscographyPage() {
                         <span className="text-eyebrow text-black">{r.year}</span>
                         <span className="hidden text-eyebrow text-black md:inline">{r.runtime}</span>
                         <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={(e) => { e.stopPropagation(); }}
-                          onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); } }}
                           className="hidden md:inline-flex items-center gap-2 text-eyebrow text-black hover:text-black transition-colors cursor-pointer"
                         >Buy ↗</span>
                         <span className={`grid h-12 w-12 place-items-center border border-black/10 transition-all duration-500 ${isActive ? "rotate-45 border-black bg-black text-white" : "text-black"}`}>
@@ -349,7 +345,14 @@ export function TourPage() {
   const { setActiveTab } = useAppStore();
   return (
     <>
-      <PageIntro eyebrow="On the road" title="Tour," italic="live." sub="Direct ticket purchase. Calendar links. Automated map at every stop." dark />
+      <PageIntro
+        eyebrow="On the road"
+        title="Tour,"
+        italic="live."
+        sub="Direct ticket purchase. Calendar links. Automated map at every stop."
+        dark
+        bgImage="/tour/hero/hero.jpg"
+      />
       <section className="bg-white px-6 pb-12 md:px-12">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between">
           <p className="text-[11px] text-black">{TOUR.length} dates</p>

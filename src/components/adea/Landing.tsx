@@ -213,8 +213,43 @@ function StepRow({ step, left, index, total }: {
 }) {
   const { ref, shown } = useReveal<HTMLDivElement>();
   const vidRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
   const { setActiveTab, setDetailSlug } = useAppStore();
-  const gradeOpacity = 0.35 + (index / (total - 1)) * 0.65;
+  const gradeOpacity = 0.55 + (index / (total - 1)) * 0.45;
+
+  useEffect(() => {
+    const video = vidRef.current;
+    if (!video) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+          setPlaying(true);
+        } else {
+          video.pause();
+          setPlaying(false);
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    io.observe(video);
+    return () => {
+      io.unobserve(video);
+      io.disconnect();
+    };
+  }, []);
+
+  const togglePlay = () => {
+    if (!vidRef.current) return;
+    if (playing) {
+      vidRef.current.pause();
+    } else {
+      vidRef.current.play().catch(() => {});
+    }
+  };
+
   return (
     <div ref={ref} className="relative grid grid-cols-1 gap-8 py-16 md:grid-cols-2 md:py-24">
       <div className={`${left ? "md:order-1" : "md:order-2"}`}>
@@ -222,24 +257,39 @@ function StepRow({ step, left, index, total }: {
           className={`relative aspect-[4/5] w-full overflow-hidden border border-border transition-all duration-1000 ${
             shown ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"
           }`}
-          onMouseEnter={() => vidRef.current?.play()}
-          onMouseLeave={() => { vidRef.current?.pause(); vidRef.current!.currentTime = 0; }}
         >
           <video
             ref={vidRef}
             muted
             loop
             playsInline
-            preload="metadata"
-            className="h-full w-full object-cover"
-            style={{ opacity: gradeOpacity, filter: `grayscale(1) contrast(${1 + index * 0.05})` }}
+            preload="auto"
+            className="h-full w-full object-cover transition-all duration-700"
+            style={{ opacity: gradeOpacity, filter: "none" }}
+            onClick={togglePlay}
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
           >
             <source src={step.video} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-tr from-ink via-ink/30 to-transparent" />
-          <div className="absolute bottom-8 left-8 text-display text-6xl text-bone md:text-8xl">
+          <div className={`absolute inset-0 bg-gradient-to-tr from-ink via-ink/30 to-transparent transition-opacity duration-500 ${playing ? "opacity-0" : "opacity-100"}`} />
+          <div className="pointer-events-none absolute bottom-8 left-8 text-display text-6xl text-bone md:text-8xl">
             {step.year}
           </div>
+          {/* Play button overlay for mobile/tap */}
+          {!playing && (
+            <button
+              onClick={togglePlay}
+              className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer"
+              aria-label={`Play ${step.title}`}
+            >
+              <span className="grid h-16 w-16 place-items-center border border-bone/60 bg-ink/50 text-bone backdrop-blur-sm transition-all hover:scale-110 hover:bg-bone hover:text-ink">
+                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
+            </button>
+          )}
         </div>
       </div>
       <div className={`${left ? "md:order-2" : "md:order-1"} flex items-center`}>
@@ -269,14 +319,14 @@ function DiscographyPath() {
     { year: "2019", title: "Underground", note: "Building the culture.", video: timelineVideos[1], slug: "west-philly" },
     { year: "2021", title: "West Philly", note: "The mixtape that defined a block.", video: timelineVideos[2], slug: "west-philly" },
     { year: "2023", title: "The Lyric EP", note: "Refusing every trend.", video: timelineVideos[3], slug: "the-lyric-ep" },
-    { year: "2024", title: "F**K Boi", note: "Unapologetic. Undeniable.", video: timelineVideos[4], slug: "fk-boi" },
+    { year: "2025", title: "F**K Boi", note: "Unapologetic. Undeniable.", video: timelineVideos[4], slug: "fk-boi" },
   ];
   return (
     <section id="discography" className="relative overflow-hidden bg-ink px-6 py-32 md:px-12 md:py-48">
       <div className="mx-auto max-w-[1600px]">
         <div className="text-eyebrow text-ash">03 — Discography</div>
         <h2 className="mt-6 text-display text-[clamp(3rem,7vw,7rem)] text-bone">
-          A stepped path <span className="italic text-ash">of progression.</span>
+          Step Path <span className="italic text-ash">to Progression</span>
         </h2>
         <div className="relative mt-24">
           <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-border to-transparent md:left-1/2" />

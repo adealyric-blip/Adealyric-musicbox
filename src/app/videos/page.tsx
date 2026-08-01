@@ -1,5 +1,7 @@
-import PortalVideosPage from '@/portal/pages/PortalVideosPage';
+import { VideosPageContent } from '@/components/adea/VideosPage';
 
-export default function VideosPage() {
-  return <PortalVideosPage />;
+export const metadata = { title: 'Videos — Adea Lyric' };
+
+export default function VideosRoute() {
+  return <VideosPageContent />;
 }

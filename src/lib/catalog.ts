@@ -269,22 +269,22 @@ export type ShopCategory =
   /* Women's Bottoms */
   | "Women's Trousers" | "Women's Shorts"
   /* Women's Dresses */
-  | "Sleeveless Dresses" | "Short Sleeve Dresses" | "Half & Long Sleeve Dresses" | "Short Skirts"
+  | "Sleeveless Dresses" | "Short Sleeve Dresses" | "Half/Long Sleeve Dresses" | "Short Skirts"
   /* Women's Bodysuits & Jumpsuits */
-  | "Bodysuits" | "Jumpsuits"
+  | "Bodysuits" | "Jumpsuits" | "Rompers"
   /* Women's Outfits */
   | "Casual Suits"
   /* Women's Activewear */
   | "Sports Bras" | "Sports Sets" | "Athletic Tops" | "Yoga Pants" | "Yoga Shorts" | "Yoga Sets"
   /* Women's Swimwear */
-  | "Bikinis" | "Tankinis" | "One-Piece Swimwear" | "Plus Size Swimwear" | "Cover Ups" | "Swimwear Accessories"
+  | "Bikinis" | "Tankinis" | "One-Pieces" | "Plus Size Swimwear" | "Cover Ups" | "Swimwear Accessories"
   /* Women's Lingerie & Sleep */
   | "Women's Underwear" | "Women's Lingerie" | "Women's Loungewear" | "Women's Sleepwear"
   /* Unisex */
   | "Unisex T-Shirts" | "Unisex Crop Tops" | "Unisex Leggings" | "Unisex Hoodies" | "Unisex Sweatshirts" | "Unisex Jackets & Outerwear"
   | "Hats" | "Beanies" | "Bags & Totes"
   /* Accessories > 3C & Tech */
-  | "AirPods Cases" | "Tablet & Laptop Cases" | "Gaming Accessories" | "Watches & Bands" | "Photography Accessories"
+  | "Airs Cases" | "Tablet & Laptop Cases" | "Gaming Accessories" | "Watches & Bands" | "Photography Accessories"
   /* Accessories > Phone Cases (subcategories) */
   | "Microfiber Cases" | "Glass Cases" | "Flip Cases" | "TPU Cases" | "Other Cases"
   /* Accessories > Caps & Hats */
@@ -304,7 +304,7 @@ export type ShopCategory =
   /* Beauty */
   | "Face Care" | "Body Care" | "Hair Care" | "Makeup" | "Collection Boxes"
   /* Music (keep for album merch) */
-  | "Vinyl" | "Posters"
+  | "Vinyl" | "Posters" | "USB"
   /* Drinkware (keep for album merch) */
   | "Mugs" | "Cups";
 
@@ -323,13 +323,15 @@ export const CATEGORY_SIZE_TYPE: Record<string, SizeType> = {
   /* Women's Bottoms */
   "Women's Trousers": "waist", "Women's Shorts": "waist",
   /* Women's Dresses */
-  "Sleeveless Dresses": "clothing", "Short Sleeve Dresses": "clothing", "Half & Long Sleeve Dresses": "clothing", "Short Skirts": "one-size",
+  "Sleeveless Dresses": "clothing", "Short Sleeve Dresses": "clothing", "Half/Long Sleeve Dresses": "clothing", "Short Skirts": "one-size",
   /* Women's Bodysuits & Jumpsuits */
+  Bodysuits: "clothing", Jumpsuits: "clothing", Rompers: "clothing",
+  /* Women's Outfits */
   "Casual Suits": "clothing",
   /* Women's Activewear */
   "Sports Bras": "women_numeric", "Sports Sets": "clothing", "Athletic Tops": "clothing", "Yoga Pants": "women_numeric", "Yoga Shorts": "women_numeric", "Yoga Sets": "clothing",
   /* Women's Swimwear */
-  Bikinis: "clothing", Tankinis: "clothing", "One-Piece Swimwear": "clothing", "Plus Size Swimwear": "clothing", "Cover Ups": "one-size", "Swimwear Accessories": "one-size",
+  Bikinis: "clothing", Tankinis: "clothing", "One-Pieces": "clothing", "Plus Size Swimwear": "clothing", "Cover Ups": "one-size", "Swimwear Accessories": "one-size",
   /* Women's Lingerie & Sleep */
   "Women's Underwear": "clothing", "Women's Lingerie": "clothing", "Women's Loungewear": "clothing", "Women's Sleepwear": "clothing",
   /* Unisex Apparel */
@@ -337,7 +339,7 @@ export const CATEGORY_SIZE_TYPE: Record<string, SizeType> = {
   /* Unisex Headwear */
   Hats: "hat", Beanies: "hat", "Bags & Totes": "one-size",
   /* Accessories > 3C & Tech */
-  "AirPods Cases": "one-size", "Tablet & Laptop Cases": "one-size", "Gaming Accessories": "one-size", "Watches & Bands": "one-size", "Photography Accessories": "one-size",
+  "Airs Cases": "one-size", "Tablet & Laptop Cases": "one-size", "Gaming Accessories": "one-size", "Watches & Bands": "one-size", "Photography Accessories": "one-size",
   /* Accessories > Phone Cases (subcategories) */
   "Microfiber Cases": "one-size", "Glass Cases": "one-size", "Flip Cases": "one-size", "TPU Cases": "one-size", "Other Cases": "one-size",
   /* Accessories > Caps & Hats */
@@ -357,7 +359,7 @@ export const CATEGORY_SIZE_TYPE: Record<string, SizeType> = {
   /* Beauty */
   "Face Care": "one-size", "Body Care": "one-size", "Hair Care": "one-size", Makeup: "one-size", "Collection Boxes": "one-size",
   /* Music */
-  Vinyl: "none", Posters: "none",
+  Vinyl: "none", Posters: "none", USB: "none",
   /* Drinkware (album merch) */
   Mugs: "drinkware", Cups: "drinkware",
 };
@@ -372,37 +374,51 @@ export type CategoryNode = {
 
 export const CATEGORY_TREE: CategoryNode[] = [
   {
-    label: "Apparel",
-    slug: "apparel",
-    children: [
-      { label: "Tops", slug: "apparel-tops", categories: ["T-Shirts", "Tank Tops & Camis", "Crop Tops", "Hoodies", "Sweatshirts", "Long Sleeve Shirts", "Polo Shirts"] },
-      { label: "Bottoms", slug: "apparel-bottoms", categories: ["Leggings", "Sweatpants", "Skirts", "Shorts", "Trousers & Pants"] },
-      { label: "Outerwear", slug: "apparel-outerwear", categories: ["Coats & Jackets"] },
-      { label: "One-Pieces", slug: "apparel-one-pieces", categories: ["Bodysuits", "Jumpsuits", "Rompers"] },
-    ],
-  },
-  {
     label: "Women",
     slug: "women",
     children: [
-      { label: "Women's Tops", slug: "women-tops", categories: ["Women's T-Shirts & Shirts", "Women's Tanks", "Women's Hoodies", "Women's Sweatshirts", "Women's Coats & Jackets"] },
+      {
+        label: "Women's Tops",
+        slug: "women-tops",
+        categories: [
+          "Women's T-Shirts & Shirts",
+          "Women's Tanks",
+          "Women's Hoodies",
+          "Women's Sweatshirts",
+          "Women's Coats & Jackets",
+          "T-Shirts",
+          "Tank Tops & Camis",
+          "Crop Tops",
+          "Hoodies",
+          "Sweatshirts",
+          "Long Sleeve Shirts",
+          "Polo Shirts"
+        ]
+      },
       { label: "Women's Bottoms", slug: "women-bottoms", categories: ["Women's Trousers", "Women's Shorts"] },
-      { label: "Women's Dresses", slug: "women-dresses", categories: ["Sleeveless Dresses", "Short Sleeve Dresses", "Half & Long Sleeve Dresses", "Short Skirts"] },
-      { label: "Bodysuits & Jumpsuits", slug: "women-bodysuits", categories: ["Bodysuits", "Jumpsuits"] },
+      { label: "Women's Dresses", slug: "women-dresses", categories: ["Sleeveless Dresses", "Short Sleeve Dresses", "Half/Long Sleeve Dresses", "Short Skirts"] },
+      { label: "Women's Bodysuits & Jumpsuits", slug: "women-bodysuits", categories: ["Bodysuits", "Jumpsuits", "Rompers"] },
       { label: "Women's Outfits", slug: "women-outfits", categories: ["Casual Suits"] },
-      { label: "Activewear", slug: "women-activewear", categories: ["Sports Bras", "Sports Sets", "Athletic Tops", "Yoga Pants", "Yoga Shorts", "Yoga Sets"] },
-      { label: "Swimwear", slug: "women-swimwear", categories: ["Bikinis", "Tankinis", "One-Piece Swimwear", "Plus Size Swimwear", "Cover Ups", "Swimwear Accessories"] },
-      { label: "Lingerie & Sleep", slug: "women-lingerie", categories: ["Women's Underwear", "Women's Lingerie", "Women's Loungewear", "Women's Sleepwear"] },
+      { label: "Women's Activewear", slug: "women-activewear", categories: ["Sports Bras", "Sports Sets", "Athletic Tops", "Yoga Pants", "Yoga Shorts", "Yoga Sets"] },
+      { label: "Women's Swimwear", slug: "women-swimwear", categories: ["Bikinis", "Tankinis", "One-Pieces", "Plus Size Swimwear", "Cover Ups", "Swimwear Accessories"] },
+      { label: "Women's Lingerie & Sleep", slug: "women-lingerie", categories: ["Women's Underwear", "Women's Lingerie", "Women's Loungewear", "Women's Sleepwear"] },
+      { label: "Womens Outerwear", slug: "women-outerwear", categories: ["Coats & Jackets"] }
     ],
   },
   {
     label: "Unisex",
     slug: "unisex",
-    children: [
-      { label: "Apparel", slug: "unisex-apparel", categories: ["Unisex T-Shirts", "Unisex Crop Tops", "Unisex Leggings", "Unisex Hoodies", "Unisex Sweatshirts", "Unisex Jackets & Outerwear"] },
-      { label: "Headwear", slug: "unisex-headwear", categories: ["Hats", "Beanies"] },
-      { label: "Bags", slug: "unisex-bags", categories: ["Bags & Totes"] },
-    ],
+    categories: [
+      "Unisex T-Shirts",
+      "Unisex Crop Tops",
+      "Unisex Leggings",
+      "Unisex Hoodies",
+      "Unisex Sweatshirts",
+      "Unisex Jackets & Outerwear",
+      "Hats",
+      "Beanies",
+      "Bags & Totes"
+    ]
   },
   {
     label: "Accessories",
@@ -411,7 +427,7 @@ export const CATEGORY_TREE: CategoryNode[] = [
       {
         label: "3C & Tech",
         slug: "accessories-tech",
-        categories: ["AirPods Cases", "Tablet & Laptop Cases", "Gaming Accessories", "Watches & Bands", "Photography Accessories"],
+        categories: ["Airs Cases", "Tablet & Laptop Cases", "Gaming Accessories", "Watches & Bands", "Photography Accessories"],
         children: [
           { label: "Phone Cases", slug: "accessories-phone-cases", categories: ["Microfiber Cases", "Glass Cases", "Flip Cases", "TPU Cases", "Other Cases"] },
         ],
@@ -429,6 +445,16 @@ export const CATEGORY_TREE: CategoryNode[] = [
     label: "Beauty",
     slug: "beauty",
     categories: ["Face Care", "Body Care", "Hair Care", "Makeup", "Collection Boxes"],
+  },
+  {
+    label: "Music & Physical",
+    slug: "music-physical",
+    children: [
+      { label: "Vinyl & CDs", slug: "physical-music", categories: ["Vinyl"] },
+      { label: "USB Drives", slug: "physical-usb", categories: ["USB"] },
+      { label: "Posters & Prints", slug: "physical-posters", categories: ["Posters"] },
+      { label: "Mugs & Cups", slug: "physical-drinkware", categories: ["Mugs", "Cups"] },
+    ],
   },
 ];
 
@@ -476,6 +502,7 @@ export type ShopProduct = {
   stock: number;
   albumSlug: string;
   albumTitle: string;
+  sku?: string;
 };
 
 export type EnrichedProduct = ShopProduct & {
@@ -484,11 +511,17 @@ export type EnrichedProduct = ShopProduct & {
 };
 
 export function enrichProduct(p: ShopProduct): EnrichedProduct {
+  // Generate a realistic, distinct SKU if not already present
+  const categoryAbbr = (p.category ?? "GEN").replace(/[^a-zA-Z]/g, "").substring(0, 3).toUpperCase();
+  const slugHash = p.slug.split("-").map(w => w.charAt(0)).join("").toUpperCase();
+  const generatedSku = (p as any).sku || `AD-${categoryAbbr}-${slugHash || "01"}`;
+
   return {
     ...p,
+    sku: generatedSku,
     sizeType: CATEGORY_SIZE_TYPE[p.category] ?? "none",
     availability: getAvailability(p.stock),
-  };
+  } as EnrichedProduct;
 }
 
 export type ShopAlbum = {
