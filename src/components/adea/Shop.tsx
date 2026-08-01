@@ -115,8 +115,11 @@ function ProductCard({ product, onSelect, onQuickAdd }: { product: ShopProduct; 
       </div>
       <div className="mt-3">
         <p className="text-[12px] font-medium uppercase tracking-wide text-black/80 leading-tight line-clamp-1">{product.name}</p>
-        <div className="mt-1 flex items-center gap-3">
+        <div className="flex items-center justify-between mt-1">
           <span className={`text-sm ${available ? "text-black" : "text-black"}`}>{available ? `$${product.price}.00` : "Sold Out"}</span>
+          {product.sku && (
+            <span className="text-[9px] text-neutral-400 font-mono tracking-wider">{product.sku}</span>
+          )}
         </div>
         {product.colors.length > 0 && (
           <div className="mt-2 flex gap-1.5">
@@ -626,7 +629,12 @@ export function ProductDetailPage() {
 
           {/* Info */}
           <div className="flex flex-col md:pl-12">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-black">{product.category}</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-black">{product.category}</span>
+              {enriched.sku && (
+                <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">SKU: {enriched.sku}</span>
+              )}
+            </div>
             <h1 className="mt-3 text-display text-[clamp(2rem,5vw,4.5rem)] leading-[0.9] text-black">{product.name}</h1>
             <p className="mt-4 text-2xl font-light">{available ? `$${product.price}.00` : "Sold Out"}</p>
             {enriched.availability === "Low Stock" && <p className="mt-1 text-[11px] text-black">Low Stock — only {product.stock} left</p>}

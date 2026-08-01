@@ -362,8 +362,8 @@ begin
   insert into product_search_index (product_id, search_vector, updated_at)
   values (
     new.id,
-    to_tsvector('english', 
-      coalesce(new.name, '') || ' ' || 
+    to_tsvector('english',
+      coalesce(new.name, '') || ' ' ||
       coalesce(new.description, '') || ' ' ||
       coalesce(new.short_description, '') || ' ' ||
       coalesce(new.material, '') || ' ' ||
@@ -371,8 +371,8 @@ begin
     ),
     now()
   )
-  on conflict (product_id) 
-  do update set 
+  on conflict (product_id)
+  do update set
     search_vector = excluded.search_vector,
     updated_at = now();
   return new;
@@ -391,7 +391,7 @@ create trigger trigger_update_product_search_vector
 
 -- View for products with variants and pricing
 create view v_products_with_variants as
-select 
+select
   p.id,
   p.category_id,
   pc.name as category_name,
@@ -424,7 +424,7 @@ group by p.id, pc.name;
 
 -- View for low stock alerts
 create view v_low_stock_alerts as
-select 
+select
   pv.id as variant_id,
   p.id as product_id,
   p.name as product_name,
@@ -439,7 +439,7 @@ select
 from product_variants pv
 join products p on pv.product_id = p.id
 left join product_categories pc on p.category_id = pc.id
-where pv.is_active = true 
+where pv.is_active = true
   and p.is_active = true
   and p.track_inventory = true
   and pv.inventory_quantity <= coalesce(pv.low_stock_threshold, 5);
@@ -595,12 +595,12 @@ declare
 begin
   select base_price_cents, compare_at_price_cents into v_base_price, v_compare_price
   from products where id = p_product_id;
-  
+
   -- Check for active pricing rules
-  select 
+  select
     coalesce(
-      (select discount_cents from pricing_rules 
-       where is_active = true 
+      (select discount_cents from pricing_rules
+       where is_active = true
        and (applies_to = 'all' or product_id = p_product_id)
        and (starts_at is null or starts_at <= now())
        and (ends_at is null or ends_at >= now())
@@ -609,8 +609,8 @@ begin
       0
     ),
     coalesce(
-      (select discount_percentage from pricing_rules 
-       where is_active = true 
+      (select discount_percentage from pricing_rules
+       where is_active = true
        and (applies_to = 'all' or product_id = p_product_id)
        and (starts_at is null or starts_at <= now())
        and (ends_at is null or ends_at >= now())
@@ -619,7 +619,7 @@ begin
       0
     )
   into v_discount_cents, v_discount_pct;
-  
+
   if v_discount_cents > 0 then
     v_has_discount := true;
   elsif v_discount_pct > 0 then
@@ -629,7 +629,7 @@ begin
     v_discount_cents := v_compare_price - v_base_price;
     v_has_discount := true;
   end if;
-  
+
   return query select
     v_base_price - v_discount_cents as price_cents,
     v_base_price as original_price_cents,
@@ -646,11 +646,11 @@ declare
   v_available_quantity integer;
   v_inventory_policy text;
 begin
-  select inventory_quantity, inventory_policy 
+  select inventory_quantity, inventory_policy
   into v_available_quantity, v_inventory_policy
-  from product_variants 
+  from product_variants
   where id = p_variant_id and is_active = true;
-  
+
   if v_inventory_policy = 'deny' then
     return v_available_quantity >= p_quantity;
   else
@@ -666,17 +666,17 @@ declare
   v_current_quantity integer;
   v_product_id uuid;
 begin
-  select inventory_quantity, product_id 
+  select inventory_quantity, product_id
   into v_current_quantity, v_product_id
-  from product_variants 
+  from product_variants
   where id = p_variant_id;
-  
+
   -- Record the transaction
   insert into inventory_transactions (
-    variant_id, 
-    transaction_type, 
-    quantity_change, 
-    quantity_before, 
+    variant_id,
+    transaction_type,
+    quantity_change,
+    quantity_before,
     quantity_after,
     reference_type,
     notes
@@ -689,13 +689,13 @@ begin
     'order',
     'Inventory reduced after sale'
   );
-  
+
   -- Update the variant quantity
-  update product_variants 
+  update product_variants
   set inventory_quantity = v_current_quantity - p_quantity,
       updated_at = now()
   where id = p_variant_id;
-  
+
   -- Update product search vector to reflect inventory changes
   perform update_product_search_vector();
 end;

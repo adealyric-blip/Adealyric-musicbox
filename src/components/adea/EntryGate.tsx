@@ -63,11 +63,11 @@ export function EntryGate({ onEnter, onLogin }: Props) {
 
   return (
     <div className="fixed inset-0 z-[100] overflow-hidden bg-black text-bone">
-      {/* Background image */}
+      {/* Background image in full color */}
       <img
         src="/splash-gate/splash-gate.jpg"
         alt=""
-        className="absolute inset-0 h-full w-full object-cover opacity-40 mix-blend-luminosity"
+        className="absolute inset-0 h-full w-full object-cover opacity-80"
         aria-hidden="true"
       />
       {/* Dark overlay for text readability, fades out during shatter */}
