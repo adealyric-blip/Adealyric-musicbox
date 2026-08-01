@@ -304,7 +304,7 @@ export type ShopCategory =
   /* Beauty */
   | "Face Care" | "Body Care" | "Hair Care" | "Makeup" | "Collection Boxes"
   /* Music (keep for album merch) */
-  | "Vinyl" | "Posters"
+  | "Vinyl" | "Posters" | "USB"
   /* Drinkware (keep for album merch) */
   | "Mugs" | "Cups";
 
@@ -357,7 +357,7 @@ export const CATEGORY_SIZE_TYPE: Record<string, SizeType> = {
   /* Beauty */
   "Face Care": "one-size", "Body Care": "one-size", "Hair Care": "one-size", Makeup: "one-size", "Collection Boxes": "one-size",
   /* Music */
-  Vinyl: "none", Posters: "none",
+  Vinyl: "none", Posters: "none", USB: "none",
   /* Drinkware (album merch) */
   Mugs: "drinkware", Cups: "drinkware",
 };
@@ -429,6 +429,16 @@ export const CATEGORY_TREE: CategoryNode[] = [
     label: "Beauty",
     slug: "beauty",
     categories: ["Face Care", "Body Care", "Hair Care", "Makeup", "Collection Boxes"],
+  },
+  {
+    label: "Music & Physical",
+    slug: "music-physical",
+    children: [
+      { label: "Vinyl & CDs", slug: "physical-music", categories: ["Vinyl"] },
+      { label: "USB Drives", slug: "physical-usb", categories: ["USB"] },
+      { label: "Posters & Prints", slug: "physical-posters", categories: ["Posters"] },
+      { label: "Mugs & Cups", slug: "physical-drinkware", categories: ["Mugs", "Cups"] },
+    ],
   },
 ];
 

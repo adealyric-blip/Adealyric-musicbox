@@ -210,13 +210,42 @@ export function PageShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PageIntro({ eyebrow, title, italic, sub, dark = false }: { eyebrow: string; title: string; italic?: string; sub?: string; dark?: boolean }) {
+export function PageIntro({
+  eyebrow,
+  title,
+  italic,
+  sub,
+  dark = false,
+  bgImage,
+}: {
+  eyebrow: string;
+  title: string;
+  italic?: string;
+  sub?: string;
+  dark?: boolean;
+  bgImage?: string;
+}) {
+  const isDark = dark || !!bgImage;
   return (
-    <section className={`relative px-6 pb-16 pt-40 md:px-12 md:pb-24 md:pt-56 ${dark ? "bg-ink text-bone" : "bg-white text-black"}`}>
-      <div className="mx-auto max-w-[1600px]">
-        <div className={`text-eyebrow ${dark ? "text-ash" : "text-black/30"}`}>{eyebrow}</div>
-        <h1 className={`mt-6 text-display text-[clamp(3.5rem,11vw,12rem)] ${dark ? "text-bone" : "text-black"}`}>{title}{italic && <span className={`block italic ${dark ? "text-ash" : "text-black/40"}`}>{italic}</span>}</h1>
-        {sub && <p className={`mt-8 max-w-xl text-lg ${dark ? "text-bone/70" : "text-black/50"}`}>{sub}</p>}
+    <section className={`relative flex min-h-[60svh] items-end overflow-hidden ${isDark ? "bg-ink text-bone" : "bg-white text-black"} md:min-h-[70svh]`}>
+      {bgImage && (
+        <>
+          <img
+            src={bgImage}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-40 grayscale"
+            aria-hidden="true"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
+        </>
+      )}
+      <div className="relative z-10 mx-auto w-full max-w-[1600px] px-6 pb-16 pt-40 md:px-12 md:pb-24 md:pt-56">
+        <div className={`text-eyebrow ${isDark ? "text-ash" : "text-black/30"}`}>{eyebrow}</div>
+        <h1 className={`mt-6 text-display text-[clamp(3.5rem,11vw,12rem)] leading-none ${isDark ? "text-bone" : "text-black"}`}>
+          {title}
+          {italic && <span className={`block italic ${isDark ? "text-ash" : "text-black/40"}`}>{italic}</span>}
+        </h1>
+        {sub && <p className={`mt-8 max-w-xl text-lg ${isDark ? "text-bone/70" : "text-black/50"}`}>{sub}</p>}
       </div>
     </section>
   );
