@@ -64,3 +64,27 @@ Stage Summary:
 - Glass break animation now visible on pure black background
 - All hero images reference correct public folder paths
 - Vercel production env vars configured
+---
+Task ID: 1
+Agent: Main
+Task: Pull adea repo merges, fix shop pages, full-bleed footer, push to Vercel
+
+Work Log:
+- Fetched adea/main from adealyric-blip/Adealyric-musicbox.git
+- Merged adea/main into local (resolved 35 conflicts - deleted screenshots/docs, kept .env, resolved shop/[id] route)
+- Verified 8 utility files survived merge (product-catalog, commerce-store, format, router, Badge, Toast, Button, Card)
+- Confirmed Account nav (not LOG IN/SIGN UP), 80-shard glass break, tour/services heroes
+- Made footer video full-bleed: h-48→responsive h-64/h-80/h-96/lg:h-[28rem], opacity 30→50, lighter gradient
+- First push: Vercel build PASSED, deployment READY
+- Discovered shop/[id] used PortalProductDetailPage (product-catalog data) but shop links use catalog.ts slugs (different data sources)
+- Added ShopDetailRouter to Shop.tsx: checks product-catalog first, falls back to SHOP_ALBUMS/ALL_PRODUCTS
+- Fixed JSX nesting error in Shop.tsx
+- Browser-verified: album detail page renders with art, title, merch grid, footer video
+- Second push: Vercel build PASSED, deployment READY
+
+Stage Summary:
+- Two successful Vercel deployments
+- Shop detail pages working (albums + products from catalog.ts, POD products from product-catalog.ts)
+- Footer video now full-bleed with responsive height
+- All user-requested merges pulled (glass break, Account nav, heroes, muted, login/signup)
+
