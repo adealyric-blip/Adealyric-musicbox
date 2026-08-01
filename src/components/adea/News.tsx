@@ -75,7 +75,7 @@ export function NewsPage() {
         <img
           src={NEWS_HERO}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-60"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 grayscale"
           aria-hidden
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />

@@ -30,18 +30,18 @@ export default function EventsPage() {
             </p>
           </div>
         </section>
-        <section className="bg-white px-6 pb-32 md:px-12">
+        <section className="bg-white px-6 pb-32 pt-16 md:px-12">
           <div className="mx-auto max-w-[1200px]">
             {TOUR.map((show, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between border-b border-black/10 py-6 first:pt-0 last:border-b-0"
+                className="flex items-center justify-between border-b border-black/10 py-8 first:pt-0 last:border-b-0"
               >
                 <div className="flex items-center gap-8">
                   <div className="w-20 text-eyebrow text-black/40">{show.date}</div>
                   <div>
-                    <div className="text-lg font-medium text-black">{show.venue}</div>
-                    <div className="text-sm text-black/50">{show.city}</div>
+                    <div className="text-xl font-medium text-black">{show.venue}</div>
+                    <div className="text-sm text-black/50 mt-1">{show.city}</div>
                   </div>
                 </div>
                 <div>
