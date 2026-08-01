@@ -31,7 +31,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .update({
         name: body.name,
         description: body.description,
-        status: body.status,
+        price_cents: body.priceCents,
+        inventory: body.inventory,
+        status: body.status ? body.status.toUpperCase() : undefined,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()

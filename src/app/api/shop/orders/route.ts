@@ -9,10 +9,10 @@ export async function GET(request: NextRequest) {
     const { page, limit, skip } = parsePagination(request);
     const url = new URL(request.url);
 
-    let query = supabase.from('stripe_payments').select('*', { count: 'exact' });
+    let query = supabase.from('orders').select('*', { count: 'exact' });
 
     const status = url.searchParams.get('status');
-    if (status) query = query.eq('status', status);
+    if (status) query = query.eq('status', status.toUpperCase());
 
     const { data: orders, count, error } = await query
       .range(skip, skip + limit - 1)
@@ -40,23 +40,33 @@ export async function POST(request: NextRequest) {
     if (productError) throw productError;
     if (!product) return errorResponse('Product not found', 'NOT_FOUND', 404);
 
-    const retailPrice = product.retail_price || (product.wholesale_price_from * (1 + product.markup_percent));
-    const amountCents = Math.round(retailPrice * 100) * (quantity ?? 1);
+    const totalCents = product.price_cents * (quantity ?? 1);
 
-    // Create stripe payment in Supabase matching user's schema
-    const { data: payment, error: insertError } = await supabase
-      .from('stripe_payments')
+    // Create order in Supabase
+    const orderNumber = 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    const { data: order, error: insertError } = await supabase
+      .from('orders')
       .insert({
-        stripe_payment_id: 'ch_mock_' + Math.random().toString(36).substr(2, 9),
-        amount_cents: amountCents,
-        currency: 'usd',
-        status: 'pending',
+        order_number: orderNumber,
+        buyer_email: fanEmail ?? user.email,
+        buyer_name: fanName ?? user.displayName,
+        shipping_address: shippingAddress ?? {},
+        amount_total_cents: totalCents,
+        status: 'PENDING',
       })
       .select()
       .single();
 
     if (insertError) throw insertError;
 
-    return successResponse(payment, 201);
+    // Create order items
+    await supabase.from('order_items').insert({
+      order_id: order.id,
+      product_id: productId,
+      quantity: quantity ?? 1,
+      price_cents: product.price_cents,
+    });
+
+    return successResponse(order, 201);
   } catch (error) { return handleApiError(error); }
 }
