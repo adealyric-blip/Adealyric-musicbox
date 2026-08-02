@@ -1,1 +1,12 @@
 node_modules/
+.next/
+download/
+tool-results/
+dev.log
+server.log
+*.db
+tmp/
+*.sst
+.zscripts/
+skills/
+upload/
