@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
 import { PlatformIcon } from "./SiteChrome";
 import { getProductById as getLegacyProductById } from "@/lib/product-catalog";
-import { getProductBySlug as getShopCatalogProduct } from "@/lib/shop-catalog";
+import { getProductBySlug as getShopCatalogProduct, type ShopCatalogProduct } from "@/lib/shop-catalog";
 import PortalProductDetailPage from "@/portal/pages/PortalProductDetailPage";
 import { ShopBanner } from "./ShopBanner";
 import { ShopAllView as CatalogShopAll } from "./ShopAllView";
@@ -706,13 +706,187 @@ export function ProductDetailPage({ slug }: { slug?: string }) {
 }
 
 /* ═══════════════════════════════════════════════════
-   DETAIL ROUTER — checks both data sources
+   SHOP CATALOG PRODUCT DETAIL PAGE (new 754-product catalog)
+   ═══════════════════════════════════════════════════ */
+
+function ShopCatalogDetailPage({ product }: { product: ShopCatalogProduct }) {
+  const router = useRouter();
+  const { addToCart } = useAppStore();
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+  const displayPrice = product.price > 0 ? `$${product.price.toFixed(2)}` : "Inquire";
+  const displayOriginal = product.originalPrice
+    ? `$${product.originalPrice.toFixed(2)}`
+    : null;
+  const hasSizes = product.sizeList && product.sizeList.length > 0;
+
+  return (
+    <section className="min-h-screen bg-white px-4 pt-32 pb-20 md:px-8 md:pt-44 md:pb-28">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="mb-8 flex items-center gap-6 flex-wrap">
+          <button
+            onClick={() => router.push("/shop")}
+            className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-black hover:text-black transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Shop
+          </button>
+          <button onClick={() => router.push("/shop")} className="text-[11px] uppercase tracking-[0.2em] text-black hover:text-black transition-colors cursor-pointer">Shop All</button>
+          {product.department && (
+            <span className="text-[11px] uppercase tracking-[0.2em] text-black/40">{product.department}</span>
+          )}
+          {product.category && (
+            <span className="text-[11px] uppercase tracking-[0.2em] text-black/30">{product.category}</span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_1fr] md:gap-12">
+          <div className="relative aspect-square overflow-hidden bg-[#f4f4f4]">
+            <div className="flex h-full w-full items-center justify-center">
+              <ShoppingBag className="h-16 w-16 text-black/8" />
+            </div>
+            {product.badges.length > 0 && (
+              <div className="absolute left-4 top-4 flex flex-col gap-2">
+                {product.badges.map((badge) => (
+                  <span key={badge} className="px-3 py-1 text-[10px] font-medium uppercase tracking-wider bg-black text-white">{badge}</span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <div className="flex flex-wrap items-center gap-3">
+              {product.department && (
+                <span className="text-[10px] uppercase tracking-[0.3em] text-black/50">{product.department}</span>
+              )}
+              {product.category && (
+                <span className="text-[10px] uppercase tracking-[0.2em] text-black/30">{product.category}</span>
+              )}
+              {product.subcategory && (
+                <span className="text-[10px] uppercase tracking-[0.2em] text-black/20">{product.subcategory}</span>
+              )}
+            </div>
+
+            <h1 className="mt-4 text-display text-[clamp(1.8rem,4vw,3.5rem)] leading-[0.9] text-black">
+              {product.name}
+            </h1>
+
+            <div className="mt-4 flex items-center gap-3">
+              <span className="text-2xl font-light text-black">{displayPrice}</span>
+              {displayOriginal && (
+                <span className="text-lg text-black/30 line-through">{displayOriginal}</span>
+              )}
+            </div>
+
+            {product.sku && (
+              <p className="mt-2 text-[10px] font-mono tracking-wider text-black/30">SKU: {product.sku}</p>
+            )}
+
+            <div className="mt-6 border-t border-black/5 pt-6 space-y-3">
+              {product.fabric && (
+                <div className="flex justify-between">
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-black/40">Fabric</span>
+                  <span className="text-[11px] text-black">{product.fabric}</span>
+                </div>
+              )}
+              {product.material && (
+                <div className="flex justify-between">
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-black/40">Material</span>
+                  <span className="text-[11px] text-black">{product.material}</span>
+                </div>
+              )}
+              {product.dimensions && (
+                <div className="flex justify-between">
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-black/40">Dimensions</span>
+                  <span className="text-[11px] text-black">{product.dimensions}</span>
+                </div>
+              )}
+              {product.beautySize && (
+                <div className="flex justify-between">
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-black/40">Size</span>
+                  <span className="text-[11px] text-black">{product.beautySize}</span>
+                </div>
+              )}
+              {product.colorCount && product.colorCount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-black/40">Colors</span>
+                  <span className="text-[11px] text-black">{product.colorCount} available</span>
+                </div>
+              )}
+              {product.tags && product.tags.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-black/40">Tags</span>
+                  <div className="flex gap-1.5 flex-wrap justify-end">
+                    {product.tags.slice(0, 5).map((tag) => (
+                      <span key={tag} className="text-[10px] text-black/50 bg-black/5 px-2 py-0.5">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {hasSizes && (
+              <div className="mt-8">
+                <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-black">
+                  Size{product.sizes ? ` (${product.sizes})` : ""}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizeList!.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedSize(s)}
+                      className={`h-10 min-w-[44px] px-3 text-[11px] uppercase tracking-wider border transition-all cursor-pointer ${
+                        selectedSize === s
+                          ? "bg-black text-white border-black"
+                          : "bg-white text-black border-black/15 hover:border-black/40"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8">
+              {product.price > 0 ? (
+                <button
+                  onClick={() => addToCart()}
+                  className="w-full bg-black py-4 text-[12px] uppercase tracking-[0.2em] text-white hover:bg-black/80 transition-colors cursor-pointer"
+                >
+                  Add to Cart
+                </button>
+              ) : (
+                <div className="border border-black/10 py-4 text-center text-[12px] text-black/50">
+                  Contact for pricing and availability
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 border-t border-black/5 pt-6">
+              <p className="text-[11px] text-black/40">Free shipping on orders over $100. Ships in 3-5 business days. 30-day returns.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   DETAIL ROUTER — checks all data sources
    ═══════════════════════════════════════════════════ */
 
 export function ShopDetailRouter({ slug }: { slug: string }) {
-  // Check product-catalog (POD/merch) first
-  const catalogProduct = getProductById(slug);
-  if (catalogProduct) {
+  // Check new shop-catalog first (754 products)
+  const shopProduct = getShopCatalogProduct(slug);
+  if (shopProduct) {
+    return <ShopCatalogDetailPage product={shopProduct} />;
+  }
+
+  // Check legacy product-catalog
+  const legacyProduct = getLegacyProductById(slug);
+  if (legacyProduct) {
     return <PortalProductDetailPage productId={slug} />;
   }
 
