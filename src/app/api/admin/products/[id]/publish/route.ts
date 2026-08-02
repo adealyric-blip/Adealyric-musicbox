@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-// PATCH /api/admin/products/:id/publish — Toggle isPublished
+function toCamel(row: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(row)) {
+    const camel = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    out[camel] = v;
+  }
+  return out;
+}
+
+// PATCH /api/admin/products/:id/publish
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
@@ -16,25 +25,20 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const existing = await db.adminProduct.findUnique({ where: { id } });
-    if (!existing) {
-      return NextResponse.json(
-        { success: false, error: 'Product not found' },
-        { status: 404 },
-      );
+    const { data, error } = await supabase
+      .from('admin_products')
+      .update({ is_published: body.published })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !data) {
+      return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
     }
 
-    const product = await db.adminProduct.update({
-      where: { id },
-      data: { isPublished: body.published },
-    });
-
-    return NextResponse.json({ success: true, data: product });
+    return NextResponse.json({ success: true, data: toCamel(data as Record<string, unknown>) });
   } catch (error) {
-    console.error('Publish product error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to update publish status' },
-      { status: 500 },
-    );
+    console.error('[admin/products/:id/publish]', error);
+    return NextResponse.json({ success: false, error: 'Failed to update publish status' }, { status: 500 });
   }
 }

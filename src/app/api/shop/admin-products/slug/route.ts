@@ -1,59 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
-// GET /api/shop/admin-products/slug?slug=xxx — Returns a single published admin product by slug
+// GET /api/shop/admin-products/slug?slug=xxx
 export async function GET(req: NextRequest) {
   try {
     const slug = req.nextUrl.searchParams.get('slug');
     if (!slug) {
-      return NextResponse.json(
-        { success: false, error: 'Missing slug parameter' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Missing slug' }, { status: 400 });
     }
 
-    const product = await db.adminProduct.findUnique({
-      where: { slug },
-    });
+    const { data, error } = await supabase
+      .from('admin_products')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .single();
 
-    if (!product || !product.isPublished) {
-      return NextResponse.json(
-        { success: false, error: 'Product not found' },
-        { status: 404 }
-      );
+    if (error || !data) {
+      return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
     }
 
+    const row = data as Record<string, unknown>;
     const mapped = {
-      id: `admin-${product.id}`,
-      name: product.name,
-      slug: product.slug,
-      department: product.department,
-      category: product.category,
-      subcategory: product.subcategory || undefined,
-      sku: product.sku || undefined,
-      sizes: product.sizes || undefined,
-      sizeList: product.sizeList ? JSON.parse(product.sizeList) : undefined,
-      colorCount: product.colorCount || undefined,
-      fabric: product.fabric || undefined,
-      price: product.price,
-      originalPrice: product.originalPrice || undefined,
-      badges: product.badges ? JSON.parse(product.badges) : [],
-      tags: product.tags ? JSON.parse(product.tags) : undefined,
-      material: product.material || undefined,
-      dimensions: product.dimensions || undefined,
-      beautySize: product.beautySize || undefined,
-      images: product.images ? JSON.parse(product.images) : [],
-      colors: product.colors ? JSON.parse(product.colors) : [],
-      description: product.description || undefined,
+      id: `admin-${row.id}`,
+      name: row.name,
+      slug: row.slug,
+      department: row.department,
+      category: row.category,
+      subcategory: row.subcategory || undefined,
+      sku: row.sku || undefined,
+      sizes: row.sizes || undefined,
+      sizeList: typeof row.size_list === 'string' ? JSON.parse(row.size_list) : (row.size_list || undefined),
+      colorCount: row.color_count || undefined,
+      fabric: row.fabric || undefined,
+      price: Number(row.price),
+      originalPrice: row.original_price ? Number(row.original_price) : undefined,
+      badges: typeof row.badges === 'string' ? JSON.parse(row.badges) : (row.badges || []),
+      tags: typeof row.tags === 'string' ? JSON.parse(row.tags) : (row.tags || undefined),
+      material: row.material || undefined,
+      dimensions: row.dimensions || undefined,
+      beautySize: row.beauty_size || undefined,
+      images: typeof row.images === 'string' ? JSON.parse(row.images) : (row.images || []),
+      colors: typeof row.colors === 'string' ? JSON.parse(row.colors) : (row.colors || []),
+      description: row.description || undefined,
       isAdminProduct: true,
     };
 
     return NextResponse.json({ success: true, data: mapped });
   } catch (error) {
-    console.error('[api/shop/admin-products/slug]', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch product' },
-      { status: 500 }
-    );
+    console.error('[shop/admin-products/slug]', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch product' }, { status: 500 });
   }
 }

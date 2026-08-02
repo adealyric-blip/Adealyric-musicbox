@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 function generateSlug(name: string): string {
   return name
@@ -11,7 +11,27 @@ function generateSlug(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
-// GET /api/admin/products — List all products with search, filter, pagination
+/** Convert camelCase body keys to snake_case for Supabase */
+function toSnake(data: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(data)) {
+    const snake = k.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`);
+    out[snake] = v;
+  }
+  return out;
+}
+
+/** Convert snake_case row keys to camelCase for the API response */
+function toCamel(row: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(row)) {
+    const camel = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    out[camel] = v;
+  }
+  return out;
+}
+
+// GET /api/admin/products
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
@@ -21,77 +41,59 @@ export async function GET(request: NextRequest) {
     const published = searchParams.get('published');
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)));
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    const where: Record<string, unknown> = {};
+    let query = supabase.from('admin_products').select('*', { count: 'exact' });
 
-    if (search) {
-      where.name = { contains: search, mode: 'insensitive' };
-    }
-    if (department) {
-      where.department = department;
-    }
-    if (category) {
-      where.category = category;
-    }
+    if (search) query = query.ilike('name', `%${search}%`);
+    if (department) query = query.eq('department', department);
+    if (category) query = query.eq('category', category);
     if (published !== null && published !== undefined && published !== '') {
-      where.isPublished = published === 'true';
+      query = query.eq('is_published', published === 'true');
     }
 
-    const skip = (page - 1) * limit;
+    query = query.order('created_at', { ascending: false }).range(from, to);
 
-    const [products, total] = await Promise.all([
-      db.adminProduct.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      db.adminProduct.count({ where }),
-    ]);
+    const { data, count, error } = await query;
 
-    const totalPages = Math.ceil(total / limit);
+    if (error) {
+      console.error('[admin/products GET]', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    const total = count || 0;
+    const camelData = (data || []).map((r) => toCamel(r as Record<string, unknown>));
 
     return NextResponse.json({
       success: true,
-      data: products,
-      pagination: { page, limit, total, totalPages },
+      data: camelData,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error('List products error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch products' },
-      { status: 500 },
-    );
+    console.error('[admin/products GET]', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch products' }, { status: 500 });
   }
 }
 
-// POST /api/admin/products — Create a new product
+// POST /api/admin/products
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate required fields
     if (!body.name || !body.department || !body.category || body.price === undefined || body.price === null) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing required fields: name, department, category, price',
-        },
+        { success: false, error: 'Missing required fields: name, department, category, price' },
         { status: 400 },
       );
     }
 
-    // Auto-generate slug from name if not provided
     const slug = body.slug || generateSlug(body.name);
-
     if (!slug) {
-      return NextResponse.json(
-        { success: false, error: 'Could not generate a valid slug from the product name' },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: 'Could not generate slug' }, { status: 400 });
     }
 
-    const productData: Record<string, unknown> = {
+    const row: Record<string, unknown> = {
       name: body.name,
       slug,
       department: body.department,
@@ -99,65 +101,54 @@ export async function POST(request: NextRequest) {
       price: parseFloat(body.price),
     };
 
-    // Optional fields
-    const optionalFields = [
-      'description',
-      'subcategory',
-      'originalPrice',
-      'onSale',
-      'discountPct',
-      'sku',
-      'sizes',
-      'sizeList',
-      'colors',
-      'colorCount',
-      'fabric',
-      'material',
-      'dimensions',
-      'beautySize',
-      'images',
-      'badges',
-      'tags',
-      'isPublished',
-      'sortOrder',
-    ] as const;
+    // Map optional fields to snake_case for Supabase
+    const optionalMap: Record<string, string> = {
+      description: 'description',
+      subcategory: 'subcategory',
+      originalPrice: 'original_price',
+      onSale: 'on_sale',
+      discountPct: 'discount_pct',
+      sku: 'sku',
+      sizes: 'sizes',
+      sizeList: 'size_list',
+      colors: 'colors',
+      colorCount: 'color_count',
+      fabric: 'fabric',
+      material: 'material',
+      dimensions: 'dimensions',
+      beautySize: 'beauty_size',
+      images: 'images',
+      badges: 'badges',
+      tags: 'tags',
+      isPublished: 'is_published',
+      sortOrder: 'sort_order',
+    };
 
-    for (const field of optionalFields) {
-      if (body[field] !== undefined && body[field] !== null) {
-        if (field === 'originalPrice' || field === 'price') {
-          productData[field] = parseFloat(body[field]);
-        } else if (field === 'discountPct' || field === 'colorCount' || field === 'sortOrder') {
-          productData[field] = parseInt(body[field], 10);
+    for (const [camel, snake] of Object.entries(optionalMap)) {
+      if (body[camel] !== undefined && body[camel] !== null) {
+        if (['originalPrice', 'price'].includes(camel)) {
+          row[snake] = parseFloat(body[camel]);
+        } else if (['discountPct', 'colorCount', 'sortOrder'].includes(camel)) {
+          row[snake] = parseInt(body[camel], 10);
         } else {
-          productData[field] = body[field];
+          row[snake] = body[camel];
         }
       }
     }
 
-    const product = await db.adminProduct.create({ data: productData });
+    const { data, error } = await supabase.from('admin_products').insert(row).select().single();
 
-    return NextResponse.json({ success: true, data: product }, { status: 201 });
-  } catch (error: unknown) {
-    console.error('Create product error:', error);
-
-    // Handle unique constraint violations (slug or sku)
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2002'
-    ) {
-      const prismaError = error as { code: string; meta?: { target?: string[] } };
-      const target = prismaError.meta?.target?.[0] || 'field';
-      return NextResponse.json(
-        { success: false, error: `A product with this ${target} already exists` },
-        { status: 409 },
-      );
+    if (error) {
+      if (error.code === '23505') {
+        return NextResponse.json({ success: false, error: 'A product with this slug or SKU already exists' }, { status: 409 });
+      }
+      console.error('[admin/products POST]', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(
-      { success: false, error: 'Failed to create product' },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: true, data: toCamel(data as Record<string, unknown>) }, { status: 201 });
+  } catch (error) {
+    console.error('[admin/products POST]', error);
+    return NextResponse.json({ success: false, error: 'Failed to create product' }, { status: 500 });
   }
 }
