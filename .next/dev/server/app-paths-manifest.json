@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/shop/catalog/page": "app/admin/shop/catalog/page.js",
+  "/api/admin/products/[id]/publish/route": "app/api/admin/products/[id]/publish/route.js",
+  "/api/admin/products/[id]/route": "app/api/admin/products/[id]/route.js",
+  "/api/admin/products/route": "app/api/admin/products/route.js",
+  "/api/shop/admin-products/route": "app/api/shop/admin-products/route.js",
+  "/music/page": "app/music/page.js",
+  "/page": "app/page.js",
+  "/services/page": "app/services/page.js",
+  "/shop/[id]/page": "app/shop/[id]/page.js",
+  "/shop/page": "app/shop/page.js"
+}
