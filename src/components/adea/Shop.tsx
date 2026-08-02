@@ -6,6 +6,7 @@ import { useAppStore } from "@/lib/store";
 import { PlatformIcon } from "./SiteChrome";
 import { getProductById } from "@/lib/product-catalog";
 import PortalProductDetailPage from "@/portal/pages/PortalProductDetailPage";
+import { ShopBanner } from "./ShopBanner";
 import {
   SHOP_ALBUMS,
   ALL_PRODUCTS,
@@ -367,6 +368,7 @@ function ShopAllView({ onSelectProduct, onQuickAdd }: { onSelectProduct: (p: Sho
    SHOP PAGE
    ═══════════════════════════════════════════════════ */
 
+
 export function ShopPage() {
   const router = useRouter();
   const { addToCart, cartCount, shopSubPath } = useAppStore();
@@ -384,18 +386,22 @@ export function ShopPage() {
   const handleQuickAdd = useCallback(() => { addToCart(); }, [addToCart]);
 
   return (
-    <section className="min-h-screen bg-white px-6 pt-36 pb-20 md:px-12 md:pt-48 md:pb-28">
-      <div className="mx-auto max-w-[1400px]">
-        <p className="text-[10px] uppercase tracking-[0.25em] text-black">06 — Shop</p>
-        <h1 className="mt-6 text-display text-[clamp(3rem,8vw,8rem)] leading-[0.85] text-black">Shop.</h1>
-        <div className="mt-12">
-          <ShopNav active={shopPath} onChange={setShopPath} cartCount={cartCount} />
-          {shopPath === "albums" && <AlbumsView onAlbumClick={openAlbum} />}
-          {shopPath === "collections" && <CollectionsView selectedCats={null} onCategoryChange={() => {}} />}
-          {shopPath === "shop-all" && <ShopAllView onSelectProduct={openProduct} onQuickAdd={handleQuickAdd} />}
+    <>
+      {/* ===== SHOP BANNER ===== */}
+      <ShopBanner />
+      <section className="min-h-screen bg-white px-6 pt-12 pb-20 md:px-12 md:pt-20 md:pb-28">
+        <div className="mx-auto max-w-[1400px]">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-black">06 — Shop</p>
+          <h1 className="mt-6 text-display text-[clamp(3rem,8vw,8rem)] leading-[0.85] text-black">Shop.</h1>
+          <div className="mt-12">
+            <ShopNav active={shopPath} onChange={setShopPath} cartCount={cartCount} />
+            {shopPath === "albums" && <AlbumsView onAlbumClick={openAlbum} />}
+            {shopPath === "collections" && <CollectionsView selectedCats={null} onCategoryChange={() => {}} />}
+            {shopPath === "shop-all" && <ShopAllView onSelectProduct={openProduct} onQuickAdd={handleQuickAdd} />}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 

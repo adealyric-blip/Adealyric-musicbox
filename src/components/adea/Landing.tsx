@@ -265,7 +265,7 @@ function StepRow({ step, left, index, total }: {
             playsInline
             preload="auto"
             className="h-full w-full object-cover transition-all duration-700"
-            style={{ opacity: gradeOpacity, filter: "none" }}
+            style={{ opacity: gradeOpacity, filter: "grayscale(1)" }}
             onClick={togglePlay}
             onPlay={() => setPlaying(true)}
             onPause={() => setPlaying(false)}
