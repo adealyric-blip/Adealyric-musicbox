@@ -10,3 +10,11 @@ tmp/
 .zscripts/
 skills/
 upload/
+
+# Environment files - NEVER commit these
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+.env.*.local
