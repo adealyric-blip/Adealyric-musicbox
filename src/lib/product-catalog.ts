@@ -146,21 +146,73 @@ export const CATEGORY_MAP: Record<ProductFamily, { label: string; categories: { 
 };
 
 // ============ FAN-FACING CATEGORY MAP ============
-// Fans see merch by type, NOT by production method (BlankApparel / PrintOnDemand are admin-only concepts)
+// ============ FAN-FACING CATEGORY MAP ============
+// Fans see merch by type, NOT by production method (BlankApparel is admin-only)
+// PrintOnDemand = artist-designed apparel fans CAN buy
 
-export type FanCategory = 'Music' | 'Apparel' | 'Beauty' | 'Bags';
+export type FanCategory = 'Music' | 'Apparel' | 'Beauty' | 'Bags' | 'Accessories';
 
 export const FAN_CATEGORY_MAP: Record<FanCategory, string[]> = {
   Music: ['Vinyl', 'Cassette', 'CD', 'Digital'],
-  Apparel: ['Tees', 'Hoodies', 'Posters', 'Accessories'],
+  Apparel: ['T-Shirts', 'Tank Tops', 'Hoodies', 'Sweatshirts', 'Activewear', 'Shorts', 'Sweatpants', 'Skirts', 'Bottoms', 'OnePieces', 'CoatsJackets', 'PoloShirts', 'POD_Tops', 'POD_Hoodies', 'POD_Dresses', 'POD_Sets', 'POD_Yoga', 'POD_Swimwear', 'POD_Pajamas', 'Tees'],
   Beauty: ['Skincare', 'Haircare', 'Makeup', 'EyeCare', 'BodyCare', 'MensGrooming', 'Candle'],
   Bags: ['Bags'],
+  Accessories: ['Posters', 'Accessories'],
 };
 
-// Get the published products for the fan shop — EXCLUDE BlankApparel and PrintOnDemand (admin-only concepts)
-// Fans only see finished, branded products — never blank stock or POD intermediary items
+export const FAN_CATEGORY_LABELS: Record<FanCategory, string> = {
+  Music: 'Music',
+  Apparel: 'Apparel',
+  Beauty: 'Beauty & Wellness',
+  Bags: 'Bags',
+  Accessories: 'Accessories',
+};
+
+export const CATEGORY_DISPLAY: Record<string, string> = {
+  'T-Shirts': 'T-Shirts', 'Tank Tops': 'Tank Tops', 'Hoodies': 'Hoodies',
+  'Sweatshirts': 'Sweatshirts', 'Activewear': 'Activewear', 'Shorts': 'Shorts',
+  'Sweatpants': 'Sweatpants', 'Skirts': 'Skirts', 'Bottoms': 'Bottoms',
+  'OnePieces': 'One-Pieces', 'CoatsJackets': 'Outerwear', 'PoloShirts': 'Polos',
+  'POD_Tops': 'Tops', 'POD_Hoodies': 'Hoodies', 'POD_Dresses': 'Dresses',
+  'POD_Sets': 'Sets', 'POD_Yoga': 'Yoga', 'POD_Swimwear': 'Swimwear',
+  'POD_Pajamas': 'Loungewear', 'Tees': 'Tees',
+  'Skincare': 'Skincare', 'Haircare': 'Haircare', 'Makeup': 'Makeup',
+  'EyeCare': 'Eye Care', 'BodyCare': 'Body Care', 'MensGrooming': "Men's Grooming",
+  'Candle': 'Candles',
+  'Vinyl': 'Vinyl', 'Cassette': 'Cassette', 'CD': 'CD', 'Digital': 'Digital',
+  'Bags': 'Bags', 'Posters': 'Posters', 'Accessories': 'Accessories',
+};
+
+// Get the published products for the fan shop
+// EXCLUDE BlankApparel only (raw stock, admin-only)
+// INCLUDE PrintOnDemand (artist-designed apparel fans buy)
 export function getPublishedProducts(): CatalogProduct[] {
-  return mockCatalogProducts.filter((p) => p.isPublished && p.productFamily !== 'BlankApparel' && p.productFamily !== 'PrintOnDemand');
+  return mockCatalogProducts.filter((p) => p.isPublished && p.productFamily !== 'BlankApparel');
+}
+
+// Get products by fan category
+export function getProductsByFanCategory(cat: FanCategory): CatalogProduct[] {
+  const cats = FAN_CATEGORY_MAP[cat];
+  return getPublishedProducts().filter((p) => cats.includes(p.category));
+}
+
+// Get unique categories that have products
+export function getActiveCategories(): { fanCat: FanCategory; label: string; count: number }[] {
+  const published = getPublishedProducts();
+  return (Object.keys(FAN_CATEGORY_MAP) as FanCategory[])
+    .map((fanCat) => ({
+      fanCat,
+      label: FAN_CATEGORY_LABELS[fanCat],
+      count: published.filter((p) => FAN_CATEGORY_MAP[fanCat].includes(p.category)).length,
+    }))
+    .filter((c) => c.count > 0);
+}
+
+// Get subcategories for a fan category (from products that exist)
+export function getSubcategories(fanCat: FanCategory): string[] {
+  const products = getProductsByFanCategory(fanCat);
+  const cats = new Set(products.map((p) => p.category));
+  return Array.from(cats).sort();
 }
 
 // Get all products for admin

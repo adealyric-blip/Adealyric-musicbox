@@ -7,6 +7,7 @@ import { PlatformIcon } from "./SiteChrome";
 import { getProductById } from "@/lib/product-catalog";
 import PortalProductDetailPage from "@/portal/pages/PortalProductDetailPage";
 import { ShopBanner } from "./ShopBanner";
+import { ShopAllView as CatalogShopAll } from "./ShopAllView";
 import {
   SHOP_ALBUMS,
   ALL_PRODUCTS,
@@ -397,7 +398,7 @@ export function ShopPage() {
             <ShopNav active={shopPath} onChange={setShopPath} cartCount={cartCount} />
             {shopPath === "albums" && <AlbumsView onAlbumClick={openAlbum} />}
             {shopPath === "collections" && <CollectionsView selectedCats={null} onCategoryChange={() => {}} />}
-            {shopPath === "shop-all" && <ShopAllView onSelectProduct={openProduct} onQuickAdd={handleQuickAdd} />}
+            {shopPath === "shop-all" && <CatalogShopAll />}
           </div>
         </div>
       </section>
