@@ -3,7 +3,5 @@
 - Network:       http://0.0.0.0:3000
 
 ✓ Starting...
-✓ Ready in 1845ms
-○ Compiling / ...
- GET / 200 in 3.7s (compile: 3.5s, render: 229ms)
- GET / 200 in 1934ms (compile: 1829ms, render: 105ms)
+✓ Ready in 764ms
+ GET / 200 in 1943ms (compile: 1796ms, render: 147ms)
