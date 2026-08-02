@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model AdminProduct {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String?
+
+  // Taxonomy
+  department     String   // Women, Unisex, Accessories, Beauty, Bags
+  category       String   // T-Shirts, Activewear, Skincare, etc.
+  subcategory    String?
+
+  // Pricing
+  price          Float
+  originalPrice  Float?
+  onSale         Boolean  @default(false)
+  discountPct    Int?     // e.g. 20 for 20% off
+
+  // Attributes
+  sku            String?  @unique
+  sizes          String?  // raw size string e.g. "S-2XL"
+  sizeList       String?  // JSON array of individual sizes
+  colors         String?  // JSON array of color names + hex codes
+  colorCount     Int?     // number of color variants
+  fabric         String?
+  material       String?
+  dimensions     String?
+  beautySize     String?
+
+  // Images
+  images         String?  // JSON array of image URLs/paths
+
+  // Organization
+  badges         String?  // JSON array e.g. ["NEW", "BESTSELLER"]
+  tags           String?  // JSON array of tag strings
+  isPublished    Boolean  @default(false)
+  sortOrder      Int      @default(0)
+
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([department])
+  @@index([category])
+  @@index([isPublished])
+  @@index([slug])
+}

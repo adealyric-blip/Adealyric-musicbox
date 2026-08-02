@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   getAllProducts,
@@ -11,6 +11,12 @@ import {
   type Department,
   type ShopCatalogProduct,
 } from "@/lib/shop-catalog";
+
+// Admin-managed product shape (extends ShopCatalogProduct with extra fields)
+interface AdminShopProduct extends ShopCatalogProduct {
+  images?: string[];
+  isAdminProduct?: boolean;
+}
 import { ShoppingBag, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
 type SortOption = "newest" | "price-asc" | "price-desc" | "name-asc" | "name-desc";
@@ -136,13 +142,15 @@ function SortSelect({
    PRODUCT CARD
    ═══════════════════════════════════════════════════ */
 
-function ProductCard({ product }: { product: ShopCatalogProduct }) {
+function ProductCard({ product }: { product: ShopCatalogProduct | AdminShopProduct }) {
   const router = useRouter();
   const hasPrice = product.price > 0;
   const displayPrice = hasPrice ? `$${product.price.toFixed(2)}` : null;
   const displayOriginal = product.originalPrice
     ? `$${product.originalPrice.toFixed(2)}`
     : null;
+  const adminProd = product as AdminShopProduct;
+  const hasImage = adminProd.images && adminProd.images.length > 0;
 
   return (
     <div
@@ -150,9 +158,17 @@ function ProductCard({ product }: { product: ShopCatalogProduct }) {
       onClick={() => router.push(`/shop/${product.slug}`)}
     >
       <div className="relative aspect-square overflow-hidden bg-[#f0f0f0]">
-        <div className="flex h-full w-full items-center justify-center">
-          <ShoppingBag className="h-8 w-8 text-black/8" />
-        </div>
+        {hasImage ? (
+          <img
+            src={adminProd.images![0]}
+            alt={product.name}
+            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <ShoppingBag className="h-8 w-8 text-black/8" />
+          </div>
+        )}
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
         {/* Badges */}
@@ -286,17 +302,73 @@ export function ShopAllView() {
   const [activeBadge, setActiveBadge] = useState<string | null>(null);
   const [sort, setSort] = useState<SortOption>("newest");
   const [showFilters, setShowFilters] = useState(false);
+  const [adminProducts, setAdminProducts] = useState<AdminShopProduct[]>([]);
 
-  const departments = useMemo(() => getDepartments(), []);
-  const categories = useMemo(
-    () => (activeDept ? getCategoriesForDepartment(activeDept) : []),
-    [activeDept]
-  );
+  // Fetch admin-managed (published) products on mount
+  useEffect(() => {
+    fetch('/api/shop/admin-products')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success) setAdminProducts(res.data);
+      })
+      .catch(() => {}); // silent fail — admin products are additive
+  }, []);
+
+  // Merge static + admin products
+  const allProducts = useMemo(() => {
+    return [...getAllProducts(), ...adminProducts] as (ShopCatalogProduct | AdminShopProduct)[];
+  }, [adminProducts]);
+
+  // Department counts including admin products
+  const departments = useMemo(() => {
+    const staticDepts = getDepartments();
+    const deptCounts = new Map<string, number>();
+    for (const d of staticDepts) deptCounts.set(d.dept, d.count);
+    // Add admin product counts
+    for (const p of adminProducts) {
+      deptCounts.set(p.department, (deptCounts.get(p.department) || 0) + 1);
+    }
+    // Add any new departments from admin products
+    for (const p of adminProducts) {
+      if (!deptCounts.has(p.department)) {
+        deptCounts.set(p.department, 1);
+      }
+    }
+    const labels: Record<string, string> = { Women: 'Women', Unisex: 'Unisex', Accessories: 'Accessories', Beauty: 'Beauty', Bags: 'Bags' };
+    return Object.entries(labels)
+      .map(([dept, label]) => ({ dept: dept as Department, label, count: deptCounts.get(dept) || 0 }))
+      .filter((d) => d.count > 0)
+      .sort((a, b) => b.count - a.count);
+  }, [adminProducts]);
+
+  const categories = useMemo(() => {
+    if (!activeDept) return [];
+    // Build from static + admin products
+    const catMap = new Map<string, Set<string>>();
+    // Static categories
+    const staticCats = getCategoriesForDepartment(activeDept);
+    for (const c of staticCats) {
+      catMap.set(c.category, new Set(c.subcategories));
+    }
+    // Admin product categories
+    for (const p of adminProducts) {
+      if (p.department === activeDept) {
+        if (!catMap.has(p.category)) catMap.set(p.category, new Set());
+        if (p.subcategory) catMap.get(p.category)!.add(p.subcategory);
+      }
+    }
+    const result: { category: string; subcategories: string[]; count: number }[] = [];
+    for (const [category, subs] of catMap) {
+      const count = allProducts.filter((p) => p.department === activeDept && p.category === category).length;
+      result.push({ category, subcategories: Array.from(subs), count });
+    }
+    return result.sort((a, b) => b.count - a.count);
+  }, [activeDept, adminProducts, allProducts]);
 
   const availableBadges = useMemo(() => {
     let items = activeDept
-      ? getProductsByDepartment(activeDept)
-      : getAllProducts();
+      ? allProducts.filter((p) => p.department === activeDept)
+      : allProducts;
     if (activeCategory)
       items = items.filter((p) => p.category === activeCategory);
     if (activeSub)
@@ -304,12 +376,12 @@ export function ShopAllView() {
     const set = new Set<string>();
     for (const p of items) for (const b of p.badges) set.add(b);
     return Array.from(set).sort();
-  }, [activeDept, activeCategory, activeSub]);
+  }, [activeDept, activeCategory, activeSub, allProducts]);
 
   const products = useMemo(() => {
     let items = activeDept
-      ? getProductsByDepartment(activeDept)
-      : getAllProducts();
+      ? allProducts.filter((p) => p.department === activeDept)
+      : [...allProducts];
 
     if (activeCategory)
       items = items.filter((p) => p.category === activeCategory);
@@ -336,7 +408,7 @@ export function ShopAllView() {
     }
 
     return items;
-  }, [activeDept, activeCategory, activeSub, activeBadge, sort]);
+  }, [activeDept, activeCategory, activeSub, activeBadge, sort, allProducts]);
 
   const handleDeptChange = (dept: Department) => {
     if (activeDept === dept) {
@@ -397,7 +469,7 @@ export function ShopAllView() {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <FilterPill
           label="All"
-          count={getAllProducts().length}
+          count={allProducts.length}
           active={!activeDept}
           onClick={() => {
             setActiveDept(null);

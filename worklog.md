@@ -63,3 +63,62 @@ Stage Summary:
 - Full filter/sort/brand-tag system working
 - Product detail pages for all 754 items
 - Zero database dependency for shop catalog
+
+---
+Task ID: 7
+Agent: main
+Task: Wire admin products to shop page and add admin product detail pages
+
+Work Log:
+- Updated src/lib/db.ts — replaced dummy proxy with real Prisma client
+- Created prisma/schema.prisma with AdminProduct model (SQLite)
+- Ran db:push to create the database
+- Created GET/POST /api/admin/products (list with search/filter/pagination + create)
+- Created GET/PUT/DELETE /api/admin/products/[id] (single product CRUD)
+- Created PATCH /api/admin/products/[id]/publish (toggle isPublished)
+- Created POST /api/admin/upload (image upload to public/uploads/products/)
+- Created GET /api/shop/admin-products (public endpoint, returns published admin products)
+- Created GET /api/shop/admin-products/slug (public endpoint, single product by slug)
+- Created src/app/admin/shop/catalog/page.tsx — full admin product list page
+- Created src/components/admin/ProductFormModal.tsx — 6-tab create/edit modal
+- Modified src/components/adea/ShopAllView.tsx — fetches admin products and merges with 754 static products
+- Modified src/components/adea/Shop.tsx — added AdminProductDetailPage + updated ShopDetailRouter to check admin products
+
+Stage Summary:
+- Full admin → shop pipeline working
+- Admin can: create product with images/pricing/sizes/colors/badges/tags/taxonomy, publish it
+- Published admin products appear in the shop page merged with 754 static products
+- Admin products participate in filtering, sorting, department/category counts
+- Admin product detail pages render with images, color swatches, sizes, attributes
+- Verified end-to-end via curl: create → publish → fetch in shop API → delete
+- All routes return 200, no runtime errors in dev log
+
+---
+Task ID: 3-4
+Agent: api-builder
+Task: Create product CRUD API routes and image upload endpoint
+
+Work Log:
+- Created GET/POST /api/admin/products (list with search/filter/pagination + create with slug auto-gen)
+- Created GET/PUT/DELETE /api/admin/products/[id] (single product CRUD with partial update support)
+- Created PATCH /api/admin/products/[id]/publish (toggle isPublished)
+- Created POST /api/admin/upload (image upload to public/uploads/products/, validates type + 5MB limit)
+- Lint passes clean
+
+Stage Summary:
+- 4 API route files created
+- All routes use real Prisma/SQLite backend
+
+---
+Task ID: 5-6
+Agent: admin-ui-builder
+Task: Build admin product catalog page and product form modal
+
+Work Log:
+- Created src/app/admin/shop/catalog/page.tsx with full product list, search, filter, pagination
+- Created src/components/admin/ProductFormModal.tsx with 6-tab create/edit form
+- Lint passes clean
+
+Stage Summary:
+- Full admin product CRUD UI built
+- 2 new files created
